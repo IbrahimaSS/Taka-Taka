@@ -1,0 +1,4 @@
+Le backend de la plateforme TAKA TAKA assure la logique métier et la gestion
+centralisée des données. Il permet la gestion des acteurs du système, des
+trajets, des paiements et des règles de fonctionnement, tout en offrant des
+services sécurisés accessibles par les applications clientes.
