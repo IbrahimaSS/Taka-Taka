@@ -1,0 +1,57 @@
+const mongoose = require("mongoose");
+
+const chauffeurProfileSchema = new mongoose.Schema(
+    {
+        utilisateur: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Utilisateurs",
+        required: true,
+        unique: true,
+        },
+
+        // Statut ADMIN
+        statut: {
+        type: String,
+        enum: ["EN_ATTENTE", "ACTIF", "INACTIF", "SUSPENDU"],
+        default: "EN_ATTENTE",
+        },
+
+        // Disponibilité métier
+        disponibilite: {
+        type: String,
+        enum: ["EN_LIGNE", "HORS_LIGNE", "OCCUPE"],
+        default: "HORS_LIGNE",
+        },
+
+        // Véhicule
+        typeVehicule: {
+        type: String,
+        enum: ["MOTO", "VOITURE", "TAXI_PARTAGE"],
+        required: true,
+        },
+
+        marqueVehicule: String,
+        plaque: String,
+
+        // Documents
+        permisConduire: String,
+        carteGrise: String,
+        assurance: String,
+
+        // Statistiques
+        nombreTrajets: {
+        type: Number,
+        default: 0,
+        },
+
+        noteMoyenne: {
+        type: Number,
+        default: 0,
+        },
+
+        dateValidation: Date,
+    },
+    { timestamps: true }
+);
+
+module.exports = mongoose.model("ChauffeurProfile", chauffeurProfileSchema);
