@@ -34,8 +34,8 @@ const notificationRoutes = require("./routes/notificationRoutes");
 app.use("/api/notifications", notificationRoutes);
 
 //Gestion Trajets
-const trajetRoutes = require("./routes/trajetRoutes");
-app.use("/api/trajets", trajetRoutes);
+const trajetRoutesP = require("./routes/trajetRoutes");
+app.use("/api/trajets", trajetRoutesP);
 
 //Réservations
 const reservationRoutes = require("./routes/reservationRoutes");
@@ -46,12 +46,34 @@ const evaluationRoutes = require("./routes/evaluationRoutes");
 app.use("/api/evaluations", evaluationRoutes);
 
 //Litiges
-const litigeRoutes = require("./routes/litigeRoutes");
-app.use("/api/litiges", litigeRoutes);
+const litigeRoutesP = require("./routes/litigeRoutes");
+app.use("/api/litiges", litigeRoutesP);
 
-//Admin
-const adminRoutes = require("./routes/adminRoutes");
-app.use("/api/admin", adminRoutes);
+// ===================== ROUTES ADMIN =====================
+const dashboardRoutes = require("./routes/admin/dashboardRoutes");
+const passagerRoutes = require("./routes/admin/passagerRoutes");
+const chauffeurRoutes = require("./routes/admin/chauffeurRoutes");
+const documentRoutes = require("./routes/admin/documentRoutes");
+const commissionRoutes = require("./routes/admin/commissionRoutes");
+const validationRoutes = require("./routes/admin/validationRoutes");
+const trajetRoutes = require("./routes/admin/trajetRoutes");
+const paiementRoutes = require("./routes/admin/paiementRoutes");
+const rapportRoutes = require("./routes/admin/rapportRoutes");
+const litigeRoutes = require("./routes/admin/litigeRoutes");
+const profileRoutes = require("./routes/admin/profileRoutes");
+//Montage
+app.use("/api/admin", dashboardRoutes);
+app.use("/api/admin", passagerRoutes);
+app.use("/api/admin", chauffeurRoutes);
+app.use("/api/admin", documentRoutes);
+app.use("/api/admin", commissionRoutes);
+app.use("/api/admin", validationRoutes);
+app.use("/api/admin", trajetRoutes);
+app.use("/api/admin", paiementRoutes);
+app.use("/api/admin", rapportRoutes);
+app.use("/api/admin", litigeRoutes);
+app.use("/api/admin", profileRoutes);
+
 
 
 

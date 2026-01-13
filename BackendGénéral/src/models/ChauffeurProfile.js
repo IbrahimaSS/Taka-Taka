@@ -50,6 +50,37 @@ const chauffeurProfileSchema = new mongoose.Schema(
         },
 
         dateValidation: Date,
+
+        // Statut ADMIN
+        statut: {
+        type: String,
+        enum: ["EN_ATTENTE", "ACTIF", "INACTIF", "SUSPENDU"],
+        default: "EN_ATTENTE",
+        },
+
+        validePar: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Utilisateurs",
+        default: null,
+        },
+
+        motifRefus: {
+        type: String,
+        default: null,
+        },
+        commentaireValidation: {
+        type: String,
+        default: null
+        },
+        validePar:
+        { type: mongoose.Schema.Types.ObjectId,
+        ref: "Utilisateurs",
+        default: null
+        },
+        valideLe:
+        { type: Date,
+        default: null
+        },
     },
     { timestamps: true }
 );
