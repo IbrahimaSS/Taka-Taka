@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { Download, PlayCircle, Star, Users, Car, MapPin } from 'lucide-react';
 import Button from '../../ui/Buttons';
 import Card from '../../ui/Card';
+import { useNavigate } from 'react-router-dom';
 
 const HeroSection = () => {
+     const navigate=useNavigate()
   useEffect(() => {
     const createParticles = () => {
       const particlesContainer = document.getElementById('particles');
@@ -24,6 +26,7 @@ const HeroSection = () => {
         particlesContainer.appendChild(particle);
       }
     };
+ 
 
     createParticles();
   }, []);
@@ -59,7 +62,7 @@ const HeroSection = () => {
               <Button
                 variant="gradientMix"
                 size="lg"
-                onClick={() => document.getElementById('passagers').scrollIntoView({ behavior: 'smooth' })}
+                onClick={() => navigate('/inscription')}
                 icon={<Download size={20} />}
               >
                 Commencez maintenant

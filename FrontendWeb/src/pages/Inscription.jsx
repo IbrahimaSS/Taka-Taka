@@ -246,12 +246,13 @@ const Inscription = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+
             <div className="flex min-h-screen">
                 {/* Sidebar */}
                 <div className="hidden md:flex md:w-1/3 lg:w-1/4 bg-blue-800 relative overflow-hidden">
                     <div className="absolute inset-0">
-                        <div className="absolute w-64 h-64 bg-white/10 rounded-full -top-32 -left-32"></div>
-                        <div className="absolute w-96 h-96 bg-primaryGreen-start/20 rounded-full -bottom-48 -right-48"></div>
+                        <div className="absolute w-64 h-64 bg-white/10  rounded-full -top-32 -left-32"></div>
+                        <div className="absolute w-96 h-96 bg-primaryGreen-start/20  rounded-full -bottom-48 -right-48"></div>
                     </div>
 
                     <div className="relative z-10 p-8 flex flex-col h-full">
@@ -264,8 +265,18 @@ const Inscription = () => {
                                 <h1 className="text-xl font-bold text-white">TAKA TAKA</h1>
                                 <p className="text-sm text-blue-200">Mobilité Intelligente</p>
                             </div>
-                        </div>
 
+                        </div>
+                        {/* Back to Home */}
+                        <div className="text-center pt-3 border-t border-gray-200 dark:border-gray-700">
+                            <a
+                                href="/"
+                                className="inline-flex items-center text-gray-200 hover:text-green- dark:hover:text-gray-300 text-sm transition-colors group"
+                            >
+                                <ArrowLeft className="mr-2 group-hover:-translate-x-1 transition-transform" size={16} />
+                                Retour à l'accueil
+                            </a>
+                        </div>
                         {/* Navigation des étapes */}
                         <nav className="space-y-6 mb-12">
                             <div className={`flex items-center gap-4 p-3 rounded-xl transition-all ${currentStep >= 1 ? 'bg-white/10' : 'opacity-50'}`}>
@@ -337,11 +348,14 @@ const Inscription = () => {
                                     className="h-full bg-gradient-to-r from-primaryGreen-start to-primaryBlue-start transition-all duration-500"
                                     style={{ width: `${getProgressPercentage()}%` }}
                                 ></div>
+
                             </div>
+                            <h1 className={`option-card text-2xl text-green-700 dark:text-white mt-8`}>{userType === 'passenger' ? ' compte Passager' : ''} </h1>
+                            <h1 className={`option-card text-2xl text-blue-700 dark:text-white mt-8`}>{userType === 'driver' ? 'Compte Chauffeur' : ''} </h1>
                         </div>
 
                         {/* Conteneur du formulaire */}
-                        <div className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-6 md:p-8">
+                        <div className=" dark:bg-gray-800   ">
                             {/* Étape 1: Type de compte */}
                             {currentStep === 1 && (
                                 <div className="animate-fade-in">
@@ -351,22 +365,23 @@ const Inscription = () => {
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
                                         {/* Option Passager */}
                                         <div
-                                            className={`option-card cursor-pointer transition-all duration-300 hover:scale-[1.02] ${userType === 'passenger' ? 'selected border-primaryGreen-start shadow-lg' : ''}`}
+                                            className={`option-card rounded-xl shadow-lg py-8 p-8 cursor-pointer transition-all duration-300 hover:scale-[1.02] ${userType === 'passenger' ? 'selected border-primaryGreen-start bg-blue-700 text-white' : ''}`}
                                             onClick={() => handleUserTypeSelect('passenger')}
                                         >
-                                            <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/10 flex items-center justify-center mb-4 shadow-inner">
+                                            <div className="w-20 h-20  mt-2 rounded-full bg-gradient-to-br from-green-100 to-green-50 dark:from-green-900/30 dark:to-green-900/10 flex items-center justify-center mb-4 shadow-inner">
                                                 <User className="text-green-600 dark:text-green-400 text-3xl" />
                                             </div>
-                                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Passager</h3>
-                                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
+                                            <h3 className={`text-lg  font-bold text-gray-900 dark:text-white mb-3 ${userType === 'passenger' ? 'selected  text-white' : ''}`}>Passager</h3>
+                                            <p className={`text-gray-600  dark:text-gray-400 text-sm mb-6 ${userType === 'passenger' ? 'selected text-white' : ''}`}>
                                                 Voyagez facilement, rapidement et en toute sécurité avec notre application
                                             </p>
-                                            <div className="mt-auto w-full">
-                                                <div className="flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-medium">
+                                            <div className="mt-auto  mb-2 w-full">
+                                                <div className={`flex items-center justify-center gap-2 text-green-600 dark:text-green-400 font-medium ${userType === 'passenger' ? 'selected text-green-200' : ''}`}>
                                                     <Star size={16} />
                                                     <span>Avantages passager</span>
                                                 </div>
-                                                <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-2 mt-3">
+                                                <ul className={`text-xs text-gray-500 dark:text-gray-400 space-y-2 mt-3 ${userType === 'passenger' ? 'selected text-white' : ''} 
+                                                    `}>
                                                     <li className="flex items-center">
                                                         <CheckCircle className="text-green-500 mr-2" size={12} />
                                                         Réservation en 30 secondes
@@ -385,32 +400,33 @@ const Inscription = () => {
 
                                         {/* Option Chauffeur */}
                                         <div
-                                            className={`option-card cursor-pointer transition-all duration-300 hover:scale-[1.02] ${userType === 'driver' ? 'selected border-primaryBlue-start shadow-lg' : ''}`}
+                                            className={`option-card rounded-xl shadow-lg py-8 p-8  cursor-pointer transition-all duration-300 hover:scale-[1.02] ${userType === 'driver' ? 'selected bg-blue-700' : ''}`}
                                             onClick={() => handleUserTypeSelect('driver')}
                                         >
                                             <div className="w-20 h-20 rounded-full bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900/30 dark:to-blue-900/10 flex items-center justify-center mb-4 shadow-inner">
                                                 <Car className="text-blue-600 dark:text-blue-400 text-3xl" />
                                             </div>
-                                            <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-3">Chauffeur</h3>
-                                            <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
+                                            <h3 className={`text-lg  font-bold text-gray-900 dark:text-white mb-3 ${userType === 'driver' ? 'selected  text-white' : ''}`}>Chauffeur</h3>
+                                            <p className={`text-gray-600  dark:text-gray-400 text-sm mb-6 ${userType === 'driver' ? 'selected text-white' : ''}`}>
                                                 Gagnez de l'argent en conduisant, gérez vos horaires librement
                                             </p>
                                             <div className="mt-auto w-full">
-                                                <div className="flex items-center justify-center gap-2 text-blue-600 dark:text-blue-400 font-medium">
+                                                <div className={`flex items-center justify-center gap-2 text-blue-600 dark:text-green-400 font-medium ${userType === 'driver' ? 'selected text-green-200' : ''}`}>
                                                     <ChartLine size={16} />
                                                     <span>Avantages chauffeur</span>
                                                 </div>
-                                                <ul className="text-xs text-gray-500 dark:text-gray-400 space-y-2 mt-3">
+                                                <ul className={`text-xs text-gray-500 dark:text-gray-400 space-y-2 mt-3 ${userType === 'driver' ? 'selected text-white' : ''} 
+                                                    `}>
                                                     <li className="flex items-center">
-                                                        <CheckCircle className="text-blue-500 mr-2" size={12} />
+                                                        <CheckCircle className="text-green-500 mr-2" size={12} />
                                                         Revenus garantis
                                                     </li>
                                                     <li className="flex items-center">
-                                                        <CheckCircle className="text-blue-500 mr-2" size={12} />
+                                                        <CheckCircle className="text-green-500 mr-2" size={12} />
                                                         Horaires flexibles
                                                     </li>
                                                     <li className="flex items-center">
-                                                        <CheckCircle className="text-blue-500 mr-2" size={12} />
+                                                        <CheckCircle className="text-green-500 mr-2" size={12} />
                                                         Assistance technique
                                                     </li>
                                                 </ul>
@@ -443,6 +459,7 @@ const Inscription = () => {
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                             <div>
+
                                                 <label className="block text-gray-700 dark:text-gray-300 mb-2 font-medium" htmlFor="firstName">
                                                     Prénom
                                                 </label>
@@ -656,8 +673,8 @@ const Inscription = () => {
                                                     onKeyDown={(e) => handleOtpKeyDown(e, index)}
                                                     onFocus={() => setActiveOtpIndex(index)}
                                                     className={`w-14 h-14 text-center text-2xl font-bold rounded-xl border-2 transition-all ${formData.otp[index]
-                                                            ? 'border-primaryGreen-start bg-green-50 dark:bg-green-900/20'
-                                                            : 'border-gray-300 dark:border-gray-600'
+                                                        ? 'border-primaryGreen-start bg-green-50 dark:bg-green-900/20'
+                                                        : 'border-gray-300 dark:border-gray-600'
                                                         } ${activeOtpIndex === index ? 'ring-2 ring-primaryGreen-start/50' : ''
                                                         }`}
                                                     ref={ref => {
@@ -700,8 +717,8 @@ const Inscription = () => {
                                             />
                                             <label htmlFor="terms" className="cursor-pointer">
                                                 <div className={`w-6 h-6 rounded border-2 flex items-center justify-center transition-all ${formData.termsAccepted
-                                                        ? 'bg-primaryGreen-start border-primaryGreen-start'
-                                                        : 'border-gray-300 dark:border-gray-600'
+                                                    ? 'bg-primaryGreen-start border-primaryGreen-start'
+                                                    : 'border-gray-300 dark:border-gray-600'
                                                     }`}>
                                                     {formData.termsAccepted && <Check className="text-white" size={14} />}
                                                 </div>
