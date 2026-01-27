@@ -3,6 +3,7 @@ import Dashboard from "./Dasboard";
 import Trajets from './Trajets';
 import HistoriqueTrajet from './HistoriqueTrajet';
 import Planning from './Planning';
+import Revenues from './Revenues';
 
 function ChauffeurMain({ activeTab = 'dashboard' }) {
   // Fonction qui retourne le bon composant selon l'onglet actif
@@ -20,11 +21,11 @@ function ChauffeurMain({ activeTab = 'dashboard' }) {
       case 'history':
         return <HistoriqueTrajet/>;
       case 'revenues':
-        return <div className="p-6">Revenus à venir...</div>;
+        return <Revenues/>;
       case 'planning':
         return <Planning/>;
       case 'scheduled':
-        return <div className="p-6">Calendrier des demandes à venir...</div>;
+        return ;
       case 'settings':
         return <div className="p-6">Paramètres à venir...</div>;
       default:
