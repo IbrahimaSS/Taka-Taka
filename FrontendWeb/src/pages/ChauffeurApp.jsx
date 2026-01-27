@@ -13,6 +13,7 @@ import Dashboard from '../components/chauffeur/Dasboard';
 import Trajets from '../components/chauffeur/Trajets';
 import HistoriqueTrajet from '../components/chauffeur/HistoriqueTrajet';
 import Planning from '../components/chauffeur/Planning';
+import Revenues from '../components/chauffeur/Revenues'
 
 // Shared Components
 import ChauffeurProfile from '../components/chauffeur/shared/ChauffeurProfile';
@@ -116,7 +117,7 @@ function ChauffeurApp() {
                                         animate={{ opacity: 1, y: 0 }}
                                         exit={{ opacity: 0, y: -20 }}
                                     >
-                                        <div className="p-6 surface rounded-2xl shadow-soft">Revenus à venir...</div>
+                                        <Revenues />
                                     </motion.div>
                                 } />
 
