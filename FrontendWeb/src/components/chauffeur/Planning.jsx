@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Calendar, Clock, User, Car, MapPin, AlertCircle } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Calendar, Clock, User, Car, MapPin, AlertCircle, CheckCircle, XCircle } from "lucide-react";
 
 const Planning = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(new Date());
-
-  // Données
-  const reservations = {
+  const [editingReservation, setEditingReservation] = useState(null); // ID de la réservation en cours d'édition
+  const [actionPosition, setActionPosition] = useState({ x: 0, y: 0 });
+  const [reservationsData, setReservationsData] = useState({
     "2025-12-28": [
       { id: 1, client: "Fela Baldé", time: "09:00", from: "Paris", to: "Lyon", status: "confirmée" },
       { id: 2, client: "Mariama Diané", time: "14:30", from: "Marseille", to: "Nice", status: "en attente" },
@@ -25,9 +25,56 @@ const Planning = () => {
       { id: 5, client: "Thomas Leroy", time: "20:00", from: "Paris", to: "Orléans", status: "annulée" },
       { id: 12, client: "Alexandre Moreau", time: "22:00", from: "Strasbourg", to: "Metz", status: "en attente" }
     ],
+  });
+
+  const actionMenuRef = useRef(null);
+
+  // Gestionnaire pour fermer le menu en cliquant à l'extérieur
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target)) {
+        setEditingReservation(null);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Fonction pour ouvrir le menu d'actions
+  const handleActionClick = (event, reservationId) => {
+    event.stopPropagation();
+    const rect = event.target.getBoundingClientRect();
+    setActionPosition({
+      x: rect.left - 120, // Ajuster la position
+      y: rect.bottom + 5
+    });
+    setEditingReservation(reservationId);
   };
 
-  // Fonctions utilitaires
+  // Fonction pour changer le statut d'une réservation
+  const updateReservationStatus = (reservationId, newStatus) => {
+    setReservationsData(prev => {
+      const updated = { ...prev };
+      
+      Object.keys(updated).forEach(dateKey => {
+        updated[dateKey] = updated[dateKey].map(reservation => {
+          if (reservation.id === reservationId) {
+            return { ...reservation, status: newStatus };
+          }
+          return reservation;
+        });
+      });
+      
+      return updated;
+    });
+    
+    setEditingReservation(null); // Fermer le menu après l'action
+  };
+
+  // Fonctions utilitaires (inchangées)
   const formatDateKey = (date) => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -89,6 +136,15 @@ const Planning = () => {
     return days;
   };
 
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'confirmée': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700';
+      case 'en attente': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700';
+      case 'annulée': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
+      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
+    }
+  };
+
   const currentYear = currentDate.getFullYear();
   const currentMonth = currentDate.getMonth();
   const days = getMonthDays(currentYear, currentMonth);
@@ -108,17 +164,8 @@ const Planning = () => {
     setSelectedDate(today);
   };
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'confirmée': return 'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700';
-      case 'en attente': return 'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700';
-      case 'annulée': return 'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700';
-      default: return 'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600';
-    }
-  };
-
   const selectedKey = formatDateKey(selectedDate);
-  const selectedReservations = reservations[selectedKey] || [];
+  const selectedReservations = reservationsData[selectedKey] || [];
 
   return (
     <div className="max-w-6xl mx-auto p-4 space-y-6">
@@ -177,7 +224,7 @@ const Planning = () => {
           <div className="grid grid-cols-7 gap-1">
             {days.map((date, index) => {
               const dayKey = formatDateKey(date);
-              const hasReservations = reservations[dayKey];
+              const hasReservations = reservationsData[dayKey];
               const isSelected = isSameDay(date, selectedDate);
               const isCurrentDay = isToday(date);
               const isCurrentMonth = date.getMonth() === currentMonth;
@@ -210,8 +257,8 @@ const Planning = () => {
                     {/* Point pour les réservations */}
                     {hasReservations && (
                       <div className={`absolute -bottom-1 left-1/2 transform -translate-x-1/2
-                        ${reservations[dayKey].some(r => r.status === 'confirmée') ? 'w-1.5 h-1.5 bg-green-500' : 
-                         reservations[dayKey].some(r => r.status === 'en attente') ? 'w-1.5 h-1.5 bg-yellow-500' : 
+                        ${reservationsData[dayKey].some(r => r.status === 'confirmée') ? 'w-1.5 h-1.5 bg-green-500' : 
+                         reservationsData[dayKey].some(r => r.status === 'en attente') ? 'w-1.5 h-1.5 bg-yellow-500' : 
                          'w-1.5 h-1.5 bg-gray-400 dark:bg-gray-500'} rounded-full`}
                       />
                     )}
@@ -343,14 +390,55 @@ const Planning = () => {
                       </div>
 
                       {/* Actions */}
-                      <div className="col-span-1">
-                        <button className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors group">
+                      <div className="col-span-1 relative">
+                        <button 
+                          onClick={(e) => handleActionClick(e, reservation.id)}
+                          className="p-2 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors group"
+                        >
                           <div className="flex flex-col items-center">
                             <div className="w-1 h-1 bg-gray-400 rounded-full mb-1 group-hover:bg-blue-500"></div>
                             <div className="w-1 h-1 bg-gray-400 rounded-full mb-1 group-hover:bg-blue-500"></div>
                             <div className="w-1 h-1 bg-gray-400 rounded-full group-hover:bg-blue-500"></div>
                           </div>
                         </button>
+
+                        {/* Menu d'actions */}
+                        {editingReservation === reservation.id && (
+                          <div 
+                            ref={actionMenuRef}
+                            className="absolute z-10 top-full right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg w-48"
+                            style={{
+                              position: 'fixed',
+                              left: `${actionPosition.x}px`,
+                              top: `${actionPosition.y}px`
+                            }}
+                          >
+                            <div className="p-1">
+                              <button
+                                onClick={() => updateReservationStatus(reservation.id, 'confirmée')}
+                                className="flex items-center w-full px-3 py-2 text-sm text-green-700 dark:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/30 rounded-md transition-colors"
+                              >
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Confirmer
+                              </button>
+                              <button
+                                onClick={() => updateReservationStatus(reservation.id, 'annulée')}
+                                className="flex items-center w-full px-3 py-2 text-sm text-red-700 dark:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/30 rounded-md transition-colors"
+                              >
+                                <XCircle className="w-4 h-4 mr-2" />
+                                Annuler
+                              </button>
+                              <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                              <button
+                                onClick={() => updateReservationStatus(reservation.id, 'en attente')}
+                                className="flex items-center w-full px-3 py-2 text-sm text-yellow-700 dark:text-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-900/30 rounded-md transition-colors"
+                              >
+                                <Clock className="w-4 h-4 mr-2" />
+                                Mettre en attente
+                              </button>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     </div>
 
