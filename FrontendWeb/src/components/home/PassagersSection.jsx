@@ -1,4 +1,5 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { 
   Zap, 
   Shield, 
@@ -13,6 +14,7 @@ import Button from '../../ui/Buttons';
 import FeatureCard from '../../ui/FeatureCard';
 
 const PassagersSection = ({ selectedOption, setSelectedOption }) => {
+  const navigate = useNavigate();
   const features = [
     {
       icon: Zap,
@@ -59,7 +61,8 @@ const PassagersSection = ({ selectedOption, setSelectedOption }) => {
   ];
 
   const handleSearchDriver = () => {
-    alert('Fonctionnalité de recherche en cours de développement...');
+    // Redirect to the real Passager module (full passenger experience)
+    navigate('/passager');
   };
 
   return (

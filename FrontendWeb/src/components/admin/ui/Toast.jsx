@@ -55,7 +55,7 @@ const Toast = ({ title, message, type = 'success', onClose }) => {
               </div>
               <button
                 onClick={onClose}
-                className="ml-4 text-gray-400 hover:text-white transition"
+                className="ml-4 text-gray-400 dark:text-gray-500 hover:text-white transition"
               >
                 {X ? <X className="w-5 h-5" /> : <span className="text-sm">×</span>}
               </button>

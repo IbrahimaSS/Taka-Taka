@@ -1,7 +1,12 @@
 // src/components/sections/Dashboard.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Users, Car, Route, Wallet } from 'lucide-react';
+import {
+  Users, Car, Route, Wallet, TrendingUp, TrendingDown,
+  Clock, CheckCircle, AlertCircle, Calendar,
+  ArrowRight, MoreVertical, Download, Filter,
+  ChevronUp, ChevronDown, DollarSign, MapPin, UserCheck
+} from 'lucide-react';
 import StatCard from '../layout/StatCard';
 import ChartCard from '../ui/ChartCard';
 import { chartConfigs } from '../../../hooks/useCharts';
@@ -9,170 +14,341 @@ import { Link } from 'react-router-dom';
 import Button from '../ui/Bttn';
 
 const Dashboard = ({ showToast }) => {
+  const [timeRange, setTimeRange] = useState('month');
+
   const stats = [
     {
-      title: 'Utilisateurs totaux',
+      title: 'Les Utilisateurs actifs',
       value: '2,450',
       icon: Users,
       color: 'green',
       trend: 'up',
-      percentage: 12,
-      progress: 12,
+      percentage: 12.5,
+      progress: 78,
+      description: '+245 cette semaine',
+      iconBg: 'from-emerald-500/20 to-emerald-600/10'
     },
     {
-      title: 'Chauffeurs actifs',
+      title: 'Les Chauffeurs actifs',
       value: '156',
       icon: Car,
       color: 'blue',
       trend: 'up',
-      percentage: 8,
+      percentage: 8.2,
       progress: 65,
+      description: '12 nouveaux aujourd\'hui',
+      iconBg: 'from-blue-500/20 to-blue-600/10'
     },
     {
-      title: 'Tous les trajets',
+      title: 'Les Trajets du jour',
       value: '342',
       icon: Route,
       color: 'purple',
-      trend: 'down',
-      percentage: 5,
+      trend: 'up',
+      percentage: 18.7,
       progress: 45,
+      description: 'En hausse de 18.7%',
+      iconBg: 'from-purple-500/20 to-purple-600/10'
     },
     {
-      title: 'Budgets',
-      value: '4.2M GNF',
+      title: 'Le Revenus totaux',
+      value: '4.2M ',
       icon: Wallet,
-      color: 'yellow',
+      color: 'amber',
       trend: 'up',
-      percentage: 18,
+      percentage: 24.3,
       progress: 85,
+      description: 'Objectif: 5M GNF',
+      iconBg: 'from-amber-500/20 to-amber-600/10'
     },
   ];
 
   const recentTrips = [
-    { id: 'TR-001245', passenger: 'Jean Dupont', amount: '1 500 GNF', status: 'completed', time: '10:30 AM' },
-    { id: 'TR-001244', passenger: 'Marie Koné', amount: '2 000 GNF', status: 'in-progress', time: '09:45 AM' },
-    { id: 'TR-001243', passenger: 'Pierre Gbédé', amount: '800 GNF', status: 'pending', time: '08:15 AM' },
-    { id: 'TR-001242', passenger: 'Alice Traoré', amount: '1 200 GNF', status: 'cancelled', time: 'Hier, 17:20' },
+    {
+      id: 'TR-001245',
+      passenger: 'Jean Dupont',
+      driver: 'Kouamé Adou',
+      pickup: 'Cocody',
+      dropoff: 'Plateau',
+      amount: '1 500 GNF',
+      status: 'completed',
+      time: '10:30 AM',
+      duration: '15 min',
+      rating: 4.8
+    },
+    {
+      id: 'TR-001244',
+      passenger: 'Marie Koné',
+      driver: 'Sékou Touré',
+      pickup: 'Yopougon',
+      dropoff: 'Treichville',
+      amount: '2 000 GNF',
+      status: 'in-progress',
+      time: '09:45 AM',
+      duration: '25 min',
+      rating: null
+    },
+    {
+      id: 'TR-001243',
+      passenger: 'Pierre Gbédé',
+      driver: 'Abdoulaye Diallo',
+      pickup: 'Marcory',
+      dropoff: 'Port-Bouët',
+      amount: '800 GNF',
+      status: 'pending',
+      time: '08:15 AM',
+      duration: '10 min',
+      rating: null
+    },
+    {
+      id: 'TR-001242',
+      passenger: 'Alice Traoré',
+      driver: 'Moussa Konaté',
+      pickup: 'Adjamé',
+      dropoff: 'Koumassi',
+      amount: '1 200 GNF',
+      status: 'cancelled',
+      time: 'Hier, 17:20',
+      duration: '18 min',
+      rating: null
+    },
   ];
 
+  const pendingDrivers = [
+    { id: 1, name: 'Mohamed Keita', date: '10 min', documents: 3, status: 'pending' },
+    { id: 2, name: 'Fatoumata Bamba', date: '25 min', documents: 2, status: 'pending' },
+    { id: 3, name: 'Oumar Camara', date: '1h 30min', documents: 4, status: 'review' },
+    { id: 4, name: 'Aïcha Diarra', date: '2h', documents: 3, status: 'review' },
+  ];
+
+
+
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 20, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.5 }
+    }
+  };
+
   return (
-    <div className="space-y-6">
-      {/* Hero Section */}
+    <div className="space-y-6 pb-8">
+      {/* Hero Header */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="bg-gradient-to-r from-green-500 to-blue-600 rounded-2xl p-8 text-white"
+        transition={{ duration: 0.6 }}
+        className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-emerald-600 via-teal-500 to-blue-600 p-8 text-white"
       >
-        <div className="flex justify-between items-center">
-          <div>
-            <h2 className="text-3xl font-bold mb-2">Bonjour Mr Mamadou Fela</h2>
-            <p className="opacity-90">Surveillez et gérez votre plateforme Taka Taka en temps réel</p>
-          </div>
-          <div className="hidden md:block">
-            <div className="text-right">
-              <p className="text-sm opacity-80">Bienvenue</p>
-              <p className="text-2xl font-bold">A vous</p>
+        <div className="relative z-10">
+          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+            <div className="max-w-2xl">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-3 h-3 bg-white dark:bg-gray-800 rounded-full animate-pulse"></div>
+                <span className="text-sm font-medium opacity-90">Live Dashboard</span>
+              </div>
+              <h1 className="text-3xl md:text-4xl font-bold mb-3 leading-tight">
+                Bonjour, <span className="text-amber-200">Mr Mamadou Fela</span>
+              </h1>
+              <p className="text-lg opacity-90">
+                Surveillez et gérez votre plateforme en temps réel. <span className="font-semibold">15 nouvelles activités</span> aujourd'hui.
+              </p>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="text-right hidden lg:block">
+                <div className="flex items-center gap-2 mb-2">
+                  <Calendar className="w-5 h-5 opacity-80" />
+                  <span className="text-sm font-medium">{new Date().toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                </div>
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-sm rounded-full">
+                  <div className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></div>
+                  <span className="text-sm font-medium">Système opérationnel</span>
+                </div>
+              </div>
+
             </div>
           </div>
+
+
         </div>
+
+        {/* Background Pattern */}
+        <div className="absolute inset-0 bg-grid-white/[0.02] bg-[size:20px_20px]"></div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-white/5 to-transparent rounded-full blur-3xl"></div>
       </motion.div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Time Range Filter */}
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="flex justify-between items-center"
+      >
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100">Aperçu des performances</h2>
+          <p className="text-gray-500 dark:text-gray-400">Suivez les métriques clés de votre plateforme</p>
+        </div>
+
+      </motion.div>
+
+      {/* Main Stats Grid */}
+      <div className=" grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 md:gap-6">
         {stats.map((stat, index) => (
           <motion.div
             key={index}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
+            className=''
           >
             <StatCard {...stat} />
           </motion.div>
         ))}
       </div>
 
-      {/* Charts Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Charts Section */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6 "
+      >
         <ChartCard
           title="Revenus mensuels"
-          subtitle="Vue d'ensemble des revenus 2025"
+          subtitle={`Évolution des revenus sur ${timeRange}`}
           chartConfig={chartConfigs.monthlyRevenue}
-          height="300px"
+          height="320px"
+          action={
+            <button className="flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+              <Download className="w-4 h-4" />
+              Exporter
+            </button>
+          }
         />
         <ChartCard
           title="Répartition des revenus"
-          subtitle="Par type de service"
+          subtitle="Par type de service et région"
           chartConfig={chartConfigs.revenueDistribution}
-          height="300px"
+          height="320px"
+          action={
+            <button className="flex items-center gap-2 text-sm text-emerald-600 hover:text-emerald-700 font-medium">
+              <Filter className="w-4 h-4" />
+              Filtrer
+            </button>
+          }
         />
-      </div>
+      </motion.div>
 
-      {/* Recent Activity */}
+      {/* Bottom Grid */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.3 }}
-        className="bg-white rounded-2xl shadow-sm border border-gray-200 p-6"
+        className="grid grid-cols-1 lg:grid-cols-1 gap-6 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-900 p-4"
       >
-        <div className="grid grid-cols-1 lg:grid-cols-1 gap-8">
-        {/* Trajets récents */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6 border-b border-gray-100">
-            <div className="flex justify-between items-center">
-              <div>
-                <h3 className="text-xl font-bold text-gray-800">Trajets récents</h3>
-                <p className="text-gray-500 text-sm">Les derniers trajets effectués</p>
-              </div>
-             <div className="">
-                 <button
-                variant="primary"
-                 className="flex-1 md:flex-none bg-gradient-to-br from-green-500 to-blue-700"
-              >
-                <Link to='/trajets'>Voir tous</Link>
-              </button>
-             </div>
+        {/* Recent Trips */}
+        <div className="p-6 border-b border-gray-100 dark:border-gray-900">
+          <div className="flex justify-between items-center">
+            <div>
+              <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                <Route className="w-5 h-5 text-emerald-600" />
+                Trajets récents
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400 text-sm">Les derniers trajets effectués sur la plateforme</p>
             </div>
-          </div>
+            <div className="flex items-center gap-3">
 
-          <div className="p-6">
-            <div className="space-y-4">
-              {recentTrips.map((trip, index) => (
-                <motion.div
-                  key={trip.id}
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 5, x: 5 }}
-                  transition={{ delay: index * 0.5 }}
-                  className="flex items-center justify-between p-4 border border-gray-200 rounded-xl hover:border-green-300 transition group"
-                >
-                  <div>
-                    <div className="font-medium text-gray-800">{trip.id}</div>
-                    <div className="text-sm text-gray-500">{trip.time}</div>
-                  </div>
-                  <div className="font-medium text-gray-800">{trip.passenger}</div>
-                  <div className="font-bold text-gray-800">{trip.amount}</div>
-                  <div>
-                    <span className={`px-3 py-1.5 rounded-full text-xs font-medium ${
-                      trip.status === 'completed' ? 'bg-green-100 text-green-800' :
-                      trip.status === 'in-progress' ? 'bg-blue-100 text-blue-800' :
-                      trip.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
-                    }`}>
-                      {trip.status === 'completed' && 'Terminé'}
-                      {trip.status === 'in-progress' && 'En cours'}
-                      {trip.status === 'pending' && 'En attente'}
-                      {trip.status === 'cancelled' && 'Annulé'}
-                    </span>
-                  </div>
-                </motion.div>
-              ))}
+              <Link
+                to="/trajets"
+
+              >
+                <Button variant='perso'>Voir tous - </Button>
+
+              </Link>
             </div>
           </div>
         </div>
 
-       
-      </div>
-      </motion.div>
+        <div className="p-1 ">
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="text-left text-sm text-gray-500 dark:text-gray-400 border-b border-gray-900/20 dark:border-gray-900">
+                  <th className="pb-3 pl-6 font-medium">Trajet ID</th>
+                  <th className="pb-3 font-medium">Passager</th>
+                  <th className="pb-3 font-medium">Chauffeur</th>
+                  <th className="pb-3 font-medium">Montant</th>
+                  <th className="pb-3 font-medium">Statut</th>
+                </tr>
+              </thead>
+              <tbody>
+                {recentTrips.map((trip, index) => (
+                  <motion.tr
+                    key={trip.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    className="border-b border-gray-900/20 dark:border-gray-900 hover:bg-gray-50/80 dark:hover:bg-gray-900/20 transition-colors"
+                  >
+                    <td className="py-4 pl-6">
+                      <div className="font-medium text-gray-800 dark:text-gray-100">{trip.id}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1 mt-1">
+                        <Clock className="w-3 h-3" />
+                        {trip.time}
+                      </div>
+                    </td>
+                    <td className="py-4">
+                      <div className="font-medium text-gray-800 dark:text-gray-100">{trip.passenger}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <MapPin className="w-3 h-3" />
+                        {trip.pickup} → {trip.dropoff}
+                      </div>
+                    </td>
+                    <td className="py-4">
+                      <div className="text-gray-700 dark:text-gray-200">{trip.driver}</div>
+                    </td>
+                    <td className="py-4">
+                      <div className="font-bold text-gray-800 dark:text-gray-100 flex items-center gap-1">
+                        <DollarSign className="w-4 h-4" />
+                        {trip.amount}
+                      </div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400">{trip.duration}</div>
+                    </td>
+                    <td className="py-4">
+                      <span className={`inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium ${trip.status === 'completed' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' :
+                        trip.status === 'in-progress' ? 'bg-blue-50 text-blue-700 border border-blue-200' :
+                          trip.status === 'pending' ? 'bg-amber-50 text-amber-700 border border-amber-200' :
+                            'bg-rose-50 text-rose-700 border border-rose-200'
+                        }`}>
+                        {trip.status === 'completed' && <CheckCircle className="w-3 h-3" />}
+                        {trip.status === 'completed' && 'Terminé'}
+                        {trip.status === 'in-progress' && 'En cours'}
+                        {trip.status === 'pending' && 'En attente'}
+                        {trip.status === 'cancelled' && 'Annulé'}
+                      </span>
+                    </td>
+
+                  </motion.tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </motion.div >
     </div>
+   
   );
 };
 

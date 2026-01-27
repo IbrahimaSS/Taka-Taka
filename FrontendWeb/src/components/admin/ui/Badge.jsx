@@ -2,17 +2,17 @@
 import React from 'react';
 import clsx from 'clsx';
 
-const Badge = ({ 
-  children, 
-  variant = 'default', 
+const Badge = ({
+  children,
+  variant = 'default',
   size = 'md',
   className = '',
-  ...props 
+  ...props
 }) => {
   const baseClasses = 'inline-flex items-center rounded-full font-medium transition-colors';
-  
+
   const variants = {
-    default: 'bg-gray-100 text-gray-800',
+    default: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100',
     primary: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white',
     secondary: 'bg-gradient-to-r from-teal-500 to-teal-600 text-white',
     success: 'bg-gradient-to-r from-green-500 to-green-600 text-white',

@@ -125,7 +125,7 @@ const Connexion = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <div className="flex min-h-screen">
         {/* Left Panel: Brand & Information */}
         <div className="hidden md:flex md:w-1/2 bg-blue-800 relative overflow-hidden">
@@ -220,7 +220,7 @@ const Connexion = () => {
             </div>
 
             {/* Form Container */}
-            <div className="dark:bg-gray-800 rounded-3xl  p-8">
+            <div className="rounded-3xl surface p-8 shadow-soft">
               {/* Form Header */}
               <div className="mb-8">
                 <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Se connecter</h2>

@@ -1,8 +1,8 @@
 // src/components/sections/Validations.jsx
 import React, { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Search, Download, Filter, Eye, CheckCircle, XCircle, 
+import {
+  Search, Download, Filter, Eye, CheckCircle, XCircle,
   Clock, UserCheck, UserX, FileCheck, Calendar, ChevronDown,
   Phone, FileText, FileSpreadsheet, File, MoreVertical,
   Check, X, ChevronLeft, ChevronRight, RefreshCw
@@ -36,27 +36,27 @@ const ExportMenu = ({ onExport }) => {
       >
         Exporter
       </Button>
-      
+
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
-            className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+            className="absolute right-0 mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-900 z-50"
           >
             <div className="py-2">
               {exportOptions.map((option) => (
                 <button
                   key={option.format}
-                  className="w-full px-4 py-3 text-left hover:bg-gray-50 flex items-center transition"
+                  className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center transition"
                   onClick={() => {
                     onExport(option.format);
                     setIsOpen(false);
                   }}
                 >
                   <option.icon className={`w-4 h-4 mr-3 ${option.color}`} />
-                  <span className="text-sm text-gray-700">{option.label}</span>
+                  <span className="text-sm text-gray-700 dark:text-gray-200">{option.label}</span>
                 </button>
               ))}
             </div>
@@ -81,14 +81,14 @@ const ConfirmationModal = ({ isOpen, onClose, onConfirm, title, message, type = 
   return (
     <Modal isOpen={isOpen} onClose={onClose} title={title} size="md">
       <div className="space-y-4">
-        <p className="text-gray-600">{message}</p>
-        
+        <p className="text-gray-600 dark:text-gray-300">{message}</p>
+
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
             Commentaire (optionnel)
           </label>
           <textarea
-            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
+            className="w-full p-3 border border-gray-300 dark:border-gray-700 rounded-lg focus:ring-2 focus:ring-green-500 focus:border-transparent"
             rows="3"
             placeholder="Ajouter un commentaire..."
             value={comment}
@@ -123,11 +123,11 @@ const AdvancedFilters = ({ filters, onFilterChange }) => {
   };
 
   return (
-    <div className="bg-gray-50 rounded-xl p-4">
+    <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
-          <Filter className="w-5 h-5 text-gray-500 mr-2" />
-          <span className="font-medium text-gray-700">Filtres avancés</span>
+          <Filter className="w-5 h-5 text-gray-500 dark:text-gray-400 mr-2" />
+          <span className="font-medium text-gray-700 dark:text-gray-200">Filtres avancés</span>
         </div>
         <button
           onClick={() => setExpanded(!expanded)}
@@ -146,11 +146,11 @@ const AdvancedFilters = ({ filters, onFilterChange }) => {
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Type de véhicule
             </label>
             <select
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-gray-300 dark:border-gray-900 dark:bg-gray-800 rounded-lg px-3 py-2 text-sm"
               value={filters.vehicleType}
               onChange={(e) => onFilterChange('vehicleType', e.target.value)}
             >
@@ -161,11 +161,11 @@ const AdvancedFilters = ({ filters, onFilterChange }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Statut
             </label>
             <select
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-gray-300 dark:border-gray-900 dark:bg-gray-800 rounded-lg px-3 py-2 text-sm"
               value={filters.status}
               onChange={(e) => onFilterChange('status', e.target.value)}
             >
@@ -176,11 +176,11 @@ const AdvancedFilters = ({ filters, onFilterChange }) => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Période
             </label>
             <select
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
+              className="w-full border border-gray-300 dark:border-gray-900 dark:bg-gray-800 rounded-lg px-3 py-2 text-sm"
               value={filters.dateRange}
               onChange={(e) => onFilterChange('dateRange', e.target.value)}
             >
@@ -202,10 +202,10 @@ const TableActions = ({ driver, onView, onValidate, onReject }) => {
   return (
     <div className="relative">
       <button
-        className="p-2 hover:bg-gray-100 rounded-lg transition"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-lg transition"
         onClick={() => setShowActions(!showActions)}
       >
-        <MoreVertical className="w-4 h-4 text-gray-500" />
+        <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
       </button>
 
       <AnimatePresence>
@@ -214,11 +214,11 @@ const TableActions = ({ driver, onView, onValidate, onReject }) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.95 }}
-            className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+            className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-900 z-50"
           >
             <div className="py-1">
               <button
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm"
                 onClick={() => {
                   onView(driver);
                   setShowActions(false);
@@ -228,7 +228,7 @@ const TableActions = ({ driver, onView, onValidate, onReject }) => {
                 Voir détails
               </button>
               <button
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm"
                 onClick={() => {
                   onValidate(driver);
                   setShowActions(false);
@@ -238,7 +238,7 @@ const TableActions = ({ driver, onView, onValidate, onReject }) => {
                 Valider
               </button>
               <button
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm"
                 onClick={() => {
                   onReject(driver);
                   setShowActions(false);
@@ -272,7 +272,7 @@ const Validations = ({ showToast }) => {
   });
   const [viewModalOpen, setViewModalOpen] = useState(false);
   const [exportModalOpen, setExportModalOpen] = useState(false);
-  
+
   // États pour la pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(5);
@@ -394,19 +394,19 @@ const Validations = ({ showToast }) => {
   // Filtrer les données en fonction de la recherche et des filtres
   const filteredDrivers = useMemo(() => {
     return pendingDrivers.filter(driver => {
-      const matchesSearch = search === '' || 
+      const matchesSearch = search === '' ||
         driver.name.toLowerCase().includes(search.toLowerCase()) ||
         driver.phone.includes(search) ||
         driver.type.toLowerCase().includes(search.toLowerCase());
-      
-      const matchesVehicleType = filters.vehicleType === 'Tous' || 
+
+      const matchesVehicleType = filters.vehicleType === 'Tous' ||
         driver.type === filters.vehicleType;
-      
-      const matchesStatus = filters.status === 'Tous' || 
+
+      const matchesStatus = filters.status === 'Tous' ||
         (filters.status === 'Nouveau' && driver.status === 'new') ||
         (filters.status === 'En attente' && driver.status === 'pending') ||
         (filters.status === 'En révision' && driver.status === 'review');
-      
+
       return matchesSearch && matchesVehicleType && matchesStatus;
     });
   }, [pendingDrivers, search, filters]);
@@ -437,7 +437,7 @@ const Validations = ({ showToast }) => {
 
   const confirmAction = (comment) => {
     const { type, driver } = confirmationModal;
-    
+
     if (type === 'validate') {
       // Mettre à jour l'historique
       setValidationHistory(prev => [{
@@ -455,7 +455,7 @@ const Validations = ({ showToast }) => {
 
       // Retirer de la liste d'attente
       setPendingDrivers(prev => prev.filter(d => d.id !== driver.id));
-      
+
       showToast('Chauffeur validé', `Le chauffeur ${driver.name} a été validé avec succès`, 'success');
     } else {
       // Mettre à jour l'historique
@@ -474,7 +474,7 @@ const Validations = ({ showToast }) => {
 
       // Retirer de la liste d'attente
       setPendingDrivers(prev => prev.filter(d => d.id !== driver.id));
-      
+
       showToast('Chauffeur rejeté', `La candidature de ${driver.name} a été rejetée`, 'error');
     }
   };
@@ -519,19 +519,19 @@ const Validations = ({ showToast }) => {
         className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Validation des chauffeurs</h1>
-          <p className="text-gray-500">Validez les documents et profils des chauffeurs</p>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">Validation des chauffeurs</h1>
+          <p className="text-gray-500 dark:text-gray-400">Validez les documents et profils des chauffeurs</p>
         </div>
         <div className="flex flex-wrap gap-3 ">
           <ExportMenu onExport={handleExport} />
-          <Button className='bg-gradient-to-br from-green-800 to-blue-700' icon={CheckCircle} onClick={handleValidateAll}>
+          <Button variant='perso' icon={CheckCircle} onClick={handleValidateAll}>
             Tout valider
           </Button>
         </div>
       </motion.div>
 
       {/* Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {stats.map((stat, index) => (
           <motion.div
             key={index}
@@ -551,11 +551,11 @@ const Validations = ({ showToast }) => {
       <Card hoverable={false}>
         <div className="grid grid-cols-1 md:grid-cols-1 ">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
             <input
               type="text"
               placeholder="Rechercher un chauffeur..."
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition"
+              className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
@@ -569,7 +569,7 @@ const Validations = ({ showToast }) => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle>Demandes en attente de validation</CardTitle>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 {filteredDrivers.length} demande{filteredDrivers.length !== 1 ? 's' : ''} nécessitent votre attention
               </p>
             </div>
@@ -583,60 +583,60 @@ const Validations = ({ showToast }) => {
         <CardContent>
           {filteredDrivers.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-gray-400" />
+              <div className="w-16 h-16 mx-auto mb-4 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center">
+                <CheckCircle className="w-8 h-8 text-gray-400 dark:text-gray-500" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700 mb-2">Aucune demande en attente</h3>
-              <p className="text-gray-500">Toutes les demandes ont été traitées.</p>
+              <h3 className="text-lg font-medium text-gray-700 dark:text-gray-200 mb-2">Aucune demande en attente</h3>
+              <p className="text-gray-500 dark:text-gray-400">Toutes les demandes ont été traitées.</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 ">
               {filteredDrivers.map((driver) => (
                 <motion.div
                   key={driver.id}
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
-                  className="border border-gray-200 rounded-xl p-5 hover:border-green-300 transition-all duration-300"
+                  className="border border-gray-200 dark:border-gray-900 rounded-xl p-5 hover:border-green-300 transition-all shadow-sm hover:shadow-lg duration-300"
                 >
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-start">
-                      <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-green-700 to-blue-500 flex items-center justify-center mr-4`}>
+                      <div className={`w-14 h-14 rounded-full bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center mr-4`}>
                         <UserCheck className="text-white" />
                       </div>
                       <div>
-                        <h4 className="font-bold text-gray-800">{driver.name}</h4>
+                        <h4 className="font-bold text-gray-800 dark:text-gray-100">{driver.name}</h4>
                         <div className="flex items-center mt-1 flex-wrap gap-2">
-                          <Badge className='bg-gray-200' size="xs">
+                          <Badge className='bg-gray-200 dark:bg-gray-800' size="xs">
                             {driver.type}
                           </Badge>
-                          <div className="flex items-center text-sm text-gray-500">
-                            <Phone className="text-gray-400 mr-1 w-4 h-4" />
+                          <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
+                            <Phone className="text-gray-400 dark:text-gray-500 mr-1 w-4 h-4" />
                             {driver.phone}
                           </div>
                         </div>
                       </div>
                     </div>
                     <Badge
-                      className={driver.status === 'new' ? 'text-yellow-500' : 'text-gray-500'}
+                      className={driver.status === 'new' ? 'text-yellow-500' : 'text-gray-500 dark:text-gray-400'}
                       size="sm"
                     >
-                      {driver.status === 'new' ? 'Nouveau' : 
-                       driver.status === 'pending' ? 'En attente' : 'En révision'}
+                      {driver.status === 'new' ? 'Nouveau' :
+                        driver.status === 'pending' ? 'En attente' : 'En révision'}
                     </Badge>
                   </div>
 
                   <div className="mb-4">
-                    <p className="text-sm text-gray-600 mb-2">Documents soumis:</p>
+                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Documents soumis:</p>
                     <div className="flex flex-wrap gap-2">
                       {driver.documents.map((doc, idx) => (
-                        <Badge 
-                          key={idx} 
+                        <Badge
+                          key={idx}
                           className={doc.status === 'valid' ? 'text-green-600' : 'text-red-600'}
                           size="xs"
                         >
                           <div className="flex items-center">
-                            {doc.status === 'valid' ? 
-                              <Check className="w-3 h-3 mr-1" /> : 
+                            {doc.status === 'valid' ?
+                              <Check className="w-3 h-3 mr-1" /> :
                               <Clock className="w-3 h-3 mr-1" />
                             }
                             {doc.name}
@@ -647,7 +647,7 @@ const Validations = ({ showToast }) => {
                   </div>
 
                   <div className="flex justify-between items-center">
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
                       <Calendar className="inline w-4 h-4 mr-1" />
                       Inscrit le {driver.joinDate}
                     </div>
@@ -685,7 +685,7 @@ const Validations = ({ showToast }) => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle>Historique des validations</CardTitle>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 {validationHistory.length} action{validationHistory.length !== 1 ? 's' : ''} de validation
               </p>
             </div>
@@ -700,19 +700,19 @@ const Validations = ({ showToast }) => {
             headers={['Date', 'Chauffeur', 'Type', 'Action', 'Validateur', 'Actions']}
           >
             {paginatedHistory.map((item) => (
-              <TableRow key={item.id} className="hover:bg-gray-50 transition">
+              <TableRow key={item.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 transition">
                 <TableCell>
-                  <div className="font-medium text-gray-800">{item.date}</div>
-                  <div className="text-sm text-gray-500">{item.time}</div>
+                  <div className="font-medium text-gray-800 dark:text-gray-100">{item.date}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{item.time}</div>
                 </TableCell>
                 <TableCell>
                   <div className="flex items-center">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-700 to-blue-500 flex items-center justify-center mr-3">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary-500 to-secondary-600 flex items-center justify-center mr-3">
                       <UserCheck className="text-white text-sm" />
                     </div>
                     <div>
                       <div className="font-medium">{item.name}</div>
-                      <div className="text-sm text-gray-500">{item.phone}</div>
+                      <div className="text-sm text-gray-500 dark:text-gray-400">{item.phone}</div>
                     </div>
                   </div>
                 </TableCell>
@@ -737,7 +737,7 @@ const Validations = ({ showToast }) => {
                 <TableCell>
                   <div className="font-medium">{item.validator}</div>
                 </TableCell>
-                
+
                 <TableCell>
                   <TableActions
                     driver={item}
@@ -770,8 +770,8 @@ const Validations = ({ showToast }) => {
         isOpen={confirmationModal.isOpen}
         onClose={() => setConfirmationModal({ isOpen: false, type: null, driver: null })}
         onConfirm={confirmAction}
-        title={confirmationModal.type === 'validate' ? 
-          `Valider ${confirmationModal.driver?.name}` : 
+        title={confirmationModal.type === 'validate' ?
+          `Valider ${confirmationModal.driver?.name}` :
           `Rejeter ${confirmationModal.driver?.name}`}
         message={confirmationModal.type === 'validate' ?
           `Êtes-vous sûr de vouloir valider la candidature de ${confirmationModal.driver?.name} ?` :
@@ -790,20 +790,20 @@ const Validations = ({ showToast }) => {
         size="lg"
       >
         {selectedDriver && (
-          <div className="space-y-6 scroll-m-t-2 overflow-auto h-[70vh]">
+          <div className="space-y-6 scroll-m-t-2 overflow-auto h-full">
             <div className="flex items-center space-x-4">
-              <div className="w-20 h-20 rounded-full bg-gradient-to-br from-green-100 to-green-50 flex items-center justify-center">
+              <div className="w-20 h-20 rounded-full bg-slate-200/30 dark:bg-gray-800 flex items-center justify-center">
                 <UserCheck className="text-3xl text-green-500" />
               </div>
               <div>
-                <h3 className="text-2xl font-bold text-gray-800">{selectedDriver.name}</h3>
-                <p className="text-gray-600">{selectedDriver.type}</p>
+                <h3 className="text-2xl font-bold text-gray-800 dark:text-gray-100">{selectedDriver.name}</h3>
+                <p className="text-gray-600 dark:text-gray-300">{selectedDriver.type}</p>
                 <div className="flex items-center mt-2 space-x-4">
-                  <div className="flex items-center text-gray-500">
+                  <div className="flex items-center text-gray-500 dark:text-gray-400">
                     <Phone className="w-4 h-4 mr-2" />
                     {selectedDriver.phone}
                   </div>
-                  <div className="flex items-center text-gray-500">
+                  <div className="flex items-center text-gray-500 dark:text-gray-400">
                     <Calendar className="w-4 h-4 mr-2" />
                     Inscrit le {selectedDriver.joinDate}
                   </div>
@@ -811,24 +811,24 @@ const Validations = ({ showToast }) => {
               </div>
             </div>
 
-            <div>
-              <h4 className="font-medium text-gray-700 mb-3">Progression des documents</h4>
+            {/* <div>
+              <h4 className="font-medium text-gray-700 dark:text-gray-200 mb-3">Progression des documents</h4>
               <Progress value={selectedDriver.progress} color="green" />
-            </div>
+            </div> */}
 
             <div>
-              <h4 className="font-medium text-gray-700 mb-3">Documents</h4>
+              <h4 className="font-medium text-gray-700 dark:text-gray-200 mb-3">Documents</h4>
               <div className="space-y-3">
                 {selectedDriver.documents && selectedDriver.documents.map((doc, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+                  <div key={idx} className="flex items-center justify-between p-3 bg-gray-50 dark:bg-gray-950 rounded-lg">
                     <div className="flex items-center">
-                      {doc.status === 'valid' ? 
+                      {doc.status === 'valid' ?
                         <CheckCircle className="w-5 h-5 text-green-500 mr-3" /> :
                         <Clock className="w-5 h-5 text-yellow-500 mr-3" />
                       }
                       <div>
                         <div className="font-medium">{doc.name}</div>
-                        <div className="text-sm text-gray-500">Téléversé le {doc.uploaded}</div>
+                        <div className="text-sm text-gray-500 dark:text-gray-400">Téléversé le: {doc.uploaded}</div>
                       </div>
                     </div>
                     <Badge variant={doc.status === 'valid' ? 'success' : 'warning'}>

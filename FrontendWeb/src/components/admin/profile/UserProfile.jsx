@@ -16,15 +16,16 @@ import Toast from '../ui/Toast';
 import ProfileHeader from './ProfileHeader';
 import ProfileInfoCard from './ProfileInfoCard';
 import ProfileAvatarCard from './ProfileAvatarCard';
-import ActivityLog from './ActivityLog';
 import SecuritySettings from './SecuritySettings';
 import NotificationSettings from './NotificationSettings';
 import UserManagement from './UserManagement';
 import UserFormModal from './UserFormModal';
-import StatsCard from './StatsCard';
+import ProfileDocumentsCard from './ProfileDocumentsCard';
+
 
 // Hooks
 import { useImageUpload } from '../../../hooks/useImageUpload';
+import { useUserStore } from '../../../data/userStore';
 
 const UserProfile = () => {
   // États principaux
@@ -35,18 +36,10 @@ const UserProfile = () => {
   const [toast, setToast] = useState(null);
 
   // Gestion de l'avatar
-  const { image: avatar, uploadImage, removeImage } = useImageUpload(null);
+  const { uploadImage } = useImageUpload(null);
 
-  // Données du profil
-  const [profile, setProfile] = useState({
-    name: 'Fela Baldé',
-    email: 'admin@taka.ci',
-    phone: '+224 612 34 56 78',
-    role: 'Administrateur principal',
-    location: 'Conakry, Guinée',
-    joinDate: '15/01/2023',
-    position: 'Directeur Administratif'
-  });
+  // Données du profil (globales)
+  const { profile, updateProfile } = useUserStore();
 
   // Données des utilisateurs
   const [users, setUsers] = useState([
@@ -97,36 +90,28 @@ const UserProfile = () => {
     }
   ]);
 
-  // Statistiques
-  const [stats] = useState({
-    totalUsers: 45,
-    activeUsers: 38,
-    newUsers: 12,
-    engagementRate: 84
-  });
-
   // Tabs
   const tabs = [
     { id: 'profile', label: 'Profil', icon: User },
     { id: 'users', label: 'Personnels', icon: Users },
     { id: 'security', label: 'Sécurité', icon: Shield },
     { id: 'notifications', label: 'Notifications', icon: Bell },
-    // { id: 'preferences', label: 'Préférences', icon: Settings }
   ];
 
   // Handlers
   const handleProfileChange = useCallback((key, value) => {
-    setProfile(prev => ({ ...prev, [key]: value }));
-  }, []);
+    updateProfile({ [key]: value });
+  }, [updateProfile]);
 
   const handleAvatarChange = useCallback(async (file) => {
     try {
-      await uploadImage(file);
+      const imageUrl = await uploadImage(file);
+      updateProfile({ avatar: imageUrl });
       showToast('Succès', 'Photo de profil mise à jour', 'success');
     } catch (error) {
       showToast('Erreur', error.message, 'error');
     }
-  }, [uploadImage]);
+  }, [uploadImage, updateProfile]);
 
   const handleSaveProfile = useCallback(() => {
     setIsEditing(false);
@@ -158,7 +143,7 @@ const UserProfile = () => {
       id: users.length + 1,
       status: 'active',
       joinDate: new Date().toLocaleDateString('fr-FR'),
-      permissions: userData.permissions || defaultPermissions 
+      permissions: userData.permissions || defaultPermissions
     };
 
     setUsers(prev => [newUser, ...prev]);
@@ -200,14 +185,13 @@ const UserProfile = () => {
                   isEditing={isEditing}
                   onProfileChange={handleProfileChange}
                 />
-                <ActivityLog
-                  onViewAll={() => showToast('Info', 'Journal d\'activité complet', 'info')}
-                />
+
+                <ProfileDocumentsCard showToast={showToast} />
               </div>
 
               <div className="space-y-6 w-full">
                 <ProfileAvatarCard
-                  profile={{ ...profile, avatar }}
+                  profile={profile}
                   isEditing={isEditing}
                   onAvatarChange={handleAvatarChange}
                 />
@@ -230,9 +214,9 @@ const UserProfile = () => {
                               <div className={`w-10 h-10 rounded-lg bg-${stat.color}-100 flex items-center justify-center`}>
                                 <stat.icon className={`text-${stat.color}-500`} />
                               </div>
-                              <span className="text-gray-700">{stat.label}</span>
+                              <span className="text-gray-700 dark:text-gray-200">{stat.label}</span>
                             </div>
-                            <span className="text-lg font-bold text-gray-800">{stat.value}</span>
+                            <span className="text-lg font-bold text-gray-800 dark:text-gray-100">{stat.value}</span>
                           </div>
                         ))}
                       </div>
@@ -262,7 +246,7 @@ const UserProfile = () => {
                 setEditingUser(user);
                 setShowUserForm(true);
               }}
-              
+
               onToggleStatus={handleToggleUserStatus}
               showToast={showToast}
             />
@@ -308,11 +292,11 @@ const UserProfile = () => {
           isEditing={isEditing}
           onEdit={() => setIsEditing(true)}
           onSave={handleSaveProfile}
-          onCancel={() => setIsEditing(false)}       
+          onCancel={() => setIsEditing(false)}
         />
 
         {/* Onglets */}
-        <Card hoverable={false} className="border-2 border-gray-100">
+        <Card hoverable={false} className="border-2 border-gray-100 dark:border-gray-900">
           <Tabs
             tabs={tabs}
             activeTab={activeTab}

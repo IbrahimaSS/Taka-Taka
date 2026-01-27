@@ -20,7 +20,7 @@ const Switch = ({ checked, onChange, disabled = false, size = 'md' }) => {
       type="button"
       className={clsx(
         'relative inline-flex items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2',
-        checked ? 'bg-green-500' : 'bg-gray-200',
+        checked ? 'bg-green-500' : 'bg-gray-200 dark:bg-gray-800',
         disabled && 'opacity-50 cursor-not-allowed',
         sizes[size]
       )}
@@ -29,7 +29,7 @@ const Switch = ({ checked, onChange, disabled = false, size = 'md' }) => {
     >
       <span
         className={clsx(
-          'inline-block transform rounded-full bg-white shadow-lg transition-transform',
+          'inline-block transform rounded-full bg-white dark:bg-gray-900 shadow-lg transition-transform',
           checked ? 'translate-x-7' : 'translate-x-1',
           dotSizes[size]
         )}

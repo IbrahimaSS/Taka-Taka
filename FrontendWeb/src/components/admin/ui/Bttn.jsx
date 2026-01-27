@@ -1,4 +1,4 @@
-// src/components/ui/Bttn.jsx
+// src/components/ui/Bttn.jsx - VERSION MODERNE
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Loader2 } from 'lucide-react';
@@ -17,16 +17,17 @@ const Button = ({
   tooltip,
   ...props 
 }) => {
-  const baseClasses = 'inline-flex items-center justify-center rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
+  const baseClasses = 'inline-flex  items-center justify-center rounded-xl font-medium transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2';
   
   const variantClasses = {
-    primary: 'bg-gradient-to-r from-blue-800 to-teal-800 text-white hover:from-blue-800 hover:to-teal-800 focus:ring-blue-500 shadow-lg hover:shadow-xl',
-    secondary: 'bg-gray-100 text-gray-800 hover:bg-gray-200 focus:ring-gray-400 border border-gray-200',
-    danger: 'bg-gradient-to-r from-red-600 to-red-700 text-white hover:from-red-700 hover:to-red-800 focus:ring-red-500 shadow-lg hover:shadow-xl',
-    warning: 'bg-gradient-to-r from-yellow-500 to-amber-600 text-white hover:from-yellow-600 hover:to-amber-700 focus:ring-yellow-500',
-    success: 'bg-gradient-to-r from-teal-600 to-teal-700 text-white hover:from-teal-700 hover:to-teal-800 focus:ring-teal-500',
-    ghost: 'bg-transparent text-gray-700 hover:bg-gray-100 focus:ring-gray-300 border border-transparent',
-    outline: 'bg-transparent text-blue-700 border-2 border-blue-600 hover:bg-blue-50 focus:ring-blue-400',
+    perso:  'bg-gradient-to-br from-primary-500 to-secondary-600  text-white',
+    primary: 'btn-primary hover:shadow-md hover:-translate-y-0.5 active:translate-y-0',
+    secondary: 'btn-secondary hover:shadow-sm',
+    danger: 'bg-gradient-to-r from-red-500 to-rose-600 text-white hover:from-red-600 hover:to-rose-700 focus:ring-red-500/50 shadow-sm hover:shadow-md',
+    warning: 'bg-gradient-to-r from-amber-500 to-orange-600 text-white hover:from-amber-600 hover:to-orange-700 focus:ring-amber-500/50',
+    success: 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white hover:from-emerald-600 hover:to-teal-700 focus:ring-emerald-500/50',
+    ghost: 'btn-ghost hover:shadow-sm',
+    outline: 'border-2 border-primary-500 text-primary-600 hover:bg-primary-50 hover:text-primary-700 focus:ring-primary-500/30',
   };
 
   const sizeClasses = {
@@ -36,7 +37,7 @@ const Button = ({
   };
 
   const widthClass = fullWidth ? 'w-full' : '';
-  const disabledClass = disabled || loading ? 'opacity-50 cursor-not-allowed' : '';
+  const disabledClass = disabled || loading ? 'opacity-50 cursor-not-allowed pointer-events-none' : '';
 
   const classes = clsx(
     baseClasses,
@@ -49,17 +50,21 @@ const Button = ({
 
   return (
     <motion.button
-      whileTap={{ scale: 0.97 }}
-      whileHover={{ scale: 1.02 }}
+   
+      whileTap={{ scale: disabled || loading ? 1 : 0.97 }}
+      whileHover={disabled || loading ? {} : { scale: 1.02 }}
       className={classes}
       onClick={onClick}
       disabled={disabled || loading}
       title={tooltip}
+      aria-label={tooltip}
       {...props}
     >
-      {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+      {loading && (
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+      )}
       {!loading && Icon && <Icon className="w-4 h-4 mr-2" />}
-      {children}
+      <span className="whitespace-nowrap">{children}</span>
     </motion.button>
   );
 };

@@ -1,108 +1,290 @@
-// src/components/layout/Header.jsx
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Menu, Bell, Calendar, Search, Filter, 
-  ChevronDown, User, Settings as SettingsIcon,
-  LogOut
+import React, { useEffect, useMemo, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import {
+  Bell,
+  ChevronDown,
+  ChevronRight,
+  Menu,
+  Moon,
+  Search,
+  Settings,
+  Sun,
+  User,
+  LogOut,
+  CheckCircle,
+  AlertCircle,
+  Clock,
+  Star,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useTheme } from '../../../context/ThemeContext';
+import { cn } from '../../../utils/cn';
+import { useUserStore } from '../../../data/userStore';
+import { useSettings } from '../../../hooks/useSettings';
+import { NAV_CONFIG, ROLES } from '../../../config/navConfig';
 
-const Header = ({ currentDate, onMenuToggle, onSidebarToggle, sidebarCollapsed, showToast }) => {
+function parsePath(pathname, basePath) {
+  if (!pathname.startsWith(basePath)) return { segments: [], first: '' };
+  const rest = pathname.slice(basePath.length).replace(/^\/+/, '');
+  const segments = rest ? rest.split('/').filter(Boolean) : [];
+  return { segments, first: segments[0] || '' };
+}
+
+export default function Header({
+  currentDate,
+  onMenuToggle,
+  onSidebarToggle,
+  sidebarCollapsed,
+  showToast,
+  role = ROLES.ADMIN
+}) {
+  const location = useLocation();
+  const { theme, toggleTheme } = useTheme();
+  const { profile } = useUserStore();
+  const { settings } = useSettings();
+  const platform = settings.platform || {};
+
+  const config = NAV_CONFIG[role] || NAV_CONFIG[ROLES.ADMIN];
+  const BASE_PATH = config.basePath;
+  const TITLES = config.titles;
+
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
-  const notifications = [
-    { id: 1, title: 'Nouveau chauffeur inscrgcdit', description: 'Kouamé Adou vient de s\'inscrire', time: 'Il y a 5 min', icon: 'user-check' },
-    { id: 2, title: 'Trajet annulé', description: 'Trajet #TR-001243 a été annulé', time: 'Il y a 15 min', icon: 'x-circle' },
-    { id: 3, title: 'Paiement reçu', description: 'Paiement de 1,500 GNF confirmé', time: 'Il y a 30 min', icon: 'dollar-sign' },
-  ];
+  const [notifications, setNotifications] = useState([
+    {
+      id: 1,
+      title: 'Nouveau chauffeur inscrit',
+      description: "Kouamé Adou vient de s'inscrire",
+      time: 'Il y a 5 min',
+      icon: CheckCircle,
+      type: 'success',
+      read: false,
+    },
+    {
+      id: 2,
+      title: 'Trajet annulé',
+      description: 'Trajet #TR-001243 a été annulé',
+      time: 'Il y a 15 min',
+      icon: AlertCircle,
+      type: 'error',
+      read: false,
+    },
+    {
+      id: 3,
+      title: 'Paiement reçu',
+      description: 'Paiement de 1,500 GNF confirmé',
+      time: 'Il y a 30 min',
+      icon: CheckCircle,
+      type: 'success',
+      read: true,
+    },
+    {
+      id: 4,
+      title: 'Maintenance programmée',
+      description: 'Maintenance prévue demain à 02:00',
+      time: 'Il y a 2h',
+      icon: Clock,
+      type: 'info',
+      read: true,
+    },
+  ]);
+
+  const unreadCount = useMemo(() => notifications.filter((n) => !n.read).length, [notifications]);
+
+  const { segments, first } = useMemo(() => parsePath(location.pathname, BASE_PATH), [location.pathname, BASE_PATH]);
+  const pageTitle = TITLES[first] || TITLES[''];
+
+  const breadcrumbs = useMemo(() => {
+    const crumbs = [{ label: platform.name || config.title, to: BASE_PATH }];
+    if (!segments.length) return crumbs;
+    let acc = BASE_PATH;
+    segments.forEach((seg) => {
+      acc += `/${seg}`;
+      crumbs.push({ label: TITLES[seg] || (seg.charAt(0).toUpperCase() + seg.slice(1)), to: acc });
+    });
+    return crumbs;
+  }, [segments, BASE_PATH, config.title, TITLES]);
+
+  useEffect(() => {
+    const onDocDown = (e) => {
+      if (notificationsOpen && !e.target.closest('.notifications-container')) setNotificationsOpen(false);
+      if (profileOpen && !e.target.closest('.profile-container')) setProfileOpen(false);
+    };
+    document.addEventListener('mousedown', onDocDown);
+    return () => document.removeEventListener('mousedown', onDocDown);
+  }, [notificationsOpen, profileOpen]);
+
+  const markAllAsRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+    setNotificationsOpen(false);
+    showToast?.('Toutes les notifications ont été marquées comme lues', 'success');
+  };
+
+  const markOne = (id) => {
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+    showToast?.('Notification marquée comme lue', 'success');
+  };
+
+  const badgeColor = (type) => {
+    if (type === 'success') return 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-300';
+    if (type === 'error') return 'bg-rose-100 text-rose-700 dark:bg-rose-950/30 dark:text-rose-300';
+    return 'bg-blue-100 text-blue-700 dark:bg-blue-950/30 dark:text-blue-300';
+  };
+
+  const profileLink = role === ROLES.ADMIN ? '/admin/profil' : '/chauffeur/profil';
+  const settingsLink = role === ROLES.ADMIN ? '/admin/parametres' : '/chauffeur/settings';
+  const supportLink = role === ROLES.ADMIN ? '#' : '/chauffeur/support';
+  const evaluationsLink = role === ROLES.ADMIN ? '#' : '/chauffeur/evaluations';
 
   return (
-    <header className="glass-header shadow-sm sticky top-0 z-20 px-6 py-4 ">
-      <div className="flex justify-between items-center ">
-        <div className="flex items-center space-x-4">
-           {/*  */}
-          <button
+    <header className="glass-header bg-white/90 dark:bg-gray-800  border-b-2 border-gray-200/30 dark:border-gray-900 shadow-sm animate-fade-in-down sticky top-0 z-30 px-4 md:px-6 py-3">
+      <div className="flex items-center justify-between gap-3">
+        {/* Left */}
+        <div className="flex items-center gap-3 min-w-0">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
             onClick={onMenuToggle}
-            className="lg:hidden p-3 rounded-xl bg-gradient-to-r from-green-50 to-blue-50 shadow-sm"
+            className="lg:hidden inline-flex h-10 w-10 items-center justify-center rounded-xl surface hover:bg-gray-50 dark:hover:bg-gray-700 ring-primary"
+            aria-label="Ouvrir le menu"
+            type="button"
           >
-            <Menu className="text-gray-900" />
-          </button>
+            <Menu className="h-5 w-5 text-slate-700 dark:text-slate-200" />
+          </motion.button>
 
-          <button
+          <motion.button
+            whileTap={{ scale: 0.98 }}
             onClick={onSidebarToggle}
-            className="hidden lg:flex p-3 rounded-xl  shadow-sm hover:shadow transition"
+            className="hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-xl surface dark:bg-gray-800 hover:bg-gray-100 dark:hover:bg-gray-700 ring-primary"
+            aria-label="Réduire/étendre la sidebar"
+            type="button"
           >
-            {sidebarCollapsed ? (
-              <Menu className="text-gray-600 rotate-90" />
-            ) : (
-              <Menu className="text-gray-600 -rotate-90" />
-            )}
-          </button>
+            <ChevronRight className={cn('h-5 w-5 text-slate-700 dark:text-slate-200 transition-transform', !sidebarCollapsed && 'rotate-180')} />
+          </motion.button>
 
-          <div>
-            <h1 className="text-2xl font-bold text-gray-800">Tableau de bord</h1>
-            <p className="text-sm text-gray-500">Bienvenue dans votre espace d'administration</p>
+          <div className="min-w-0">
+            <nav className="hidden md:flex items-center gap-2 text-sm">
+              {breadcrumbs.map((b, idx) => (
+                <React.Fragment key={b.to}>
+                  <Link
+                    to={b.to}
+                    className={cn(
+                      'font-semibold transition-colors',
+                      idx === breadcrumbs.length - 1
+                        ? 'text-slate-900 dark:text-slate-100'
+                        : 'text-slate-500 hover:text-primary-600 dark:text-slate-400 dark:hover:text-primary-400'
+                    )}
+                  >
+                    {b.label}
+                  </Link>
+                  {idx < breadcrumbs.length - 1 && <ChevronRight className="h-4 w-4 text-slate-400 dark:text-slate-600" />}
+                </React.Fragment>
+              ))}
+            </nav>
+            <div className="flex items-center gap-3 min-w-0">
+              <h1 className="text-lg md:text-xl font-semibold  tracking-tight text-slate-900 dark:text-slate-100 truncate">
+                {pageTitle}
+              </h1>
+
+            </div>
           </div>
         </div>
 
-        <div className="flex items-center space-x-4">
+        {/* Right */}
+        <div className="flex items-center gap-2">
           {/* Date */}
-          <div className="hidden md:flex items-center space-x-3 bg-gradient-to-r from-green-50 to-blue-50 px-4 py-2 rounded-xl">
-            <Calendar className="text-green-500 w-5 h-5" />
-            <span className="text-gray-700 font-medium">{currentDate}</span>
+          <div className="hidden lg:block w-72">
+            <span className="hidden md:inline text-sm text-slate-500 dark:text-slate-400">•</span>
+            <span className="hidden md:inline text-sm text-slate-500 dark:text-slate-400 truncate">{currentDate}</span>
           </div>
-
+          {/* Theme */}
+          <button
+            type="button"
+            onClick={toggleTheme}
+            className="inline-flex  h-10 w-10 items-center justify-center rounded-xl surface hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 ring-primary"
+            aria-label="Changer le thème"
+          >
+            {theme === 'dark' ? <Sun className="h-5 w-5 text-amber-500" /> : <Moon className="h-5 w-5 text-slate-700" />}
+          </button>
 
           {/* Notifications */}
-          <div className="relative">
+          <div className="relative notifications-container">
             <button
-              onClick={() => setNotificationsOpen(!notificationsOpen)}
-              className="p-3 rounded-xl bg-gradient-to-r from-green-50 to-blue-50 shadow-sm hover:shadow transition relative"
+              type="button"
+              onClick={() => setNotificationsOpen((v) => !v)}
+              className="relative inline-flex h-10 w-10 items-center justify-center rounded-xl surface hover:bg-gray-50 dark:bg-gray-800 dark:hover:bg-gray-700 ring-primary"
+              aria-label="Notifications"
             >
-              <Bell className="text-gray-600 w-5 h-5" />
-              <span className="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+              <Bell className="h-5 w-5 text-slate-700 dark:text-slate-200" />
+              {unreadCount > 0 && (
+                <span className="absolute -top-1 -right-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-rose-600 px-1 text-xs font-bold text-white shadow-sm">
+                  {unreadCount}
+                </span>
+              )}
             </button>
 
             <AnimatePresence>
               {notificationsOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-xl border border-gray-100 z-50"
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.18 }}
+                  className="notification-dropdown absolute right-0 mt-2 w-[22rem] md:w-[26rem] z-50"
                 >
-                  <div className="p-4 border-b">
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-bold text-gray-800">Notifications</h3>
-                      <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full">
-                        {notifications.length} nouvelles
-                      </span>
+                  <div className="p-4 border-b border-gray-200 dark:border-gray-900 bg-gray-50 dark:bg-gray-800">
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <h3 className="text-base font-extrabold text-slate-900 dark:text-slate-100">Notifications</h3>
+                        <p className="text-sm text-slate-500 dark:text-slate-400">{notifications.length} éléments</p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={markAllAsRead}
+                        className="text-sm font-semibold text-primary-600 hover:text-primary-700 dark:text-primary-400 dark:hover:text-primary-300"
+                      >
+                        Tout lire
+                      </button>
                     </div>
                   </div>
-                  <div className="max-h-80 overflow-y-auto">
-                    {notifications.map(notification => (
-                      <div
-                        key={notification.id}
-                        className="p-4 border-b hover:bg-gray-50 cursor-pointer transition"
+
+                  <div className="max-h-96 overflow-y-auto scrollbar-thin">
+                    {notifications.map((n) => (
+                      <button
+                        key={n.id}
+                        type="button"
+                        onClick={() => markOne(n.id)}
+                        className={cn(
+                          'w-full text-left p-4 border-b border-slate-200/60 dark:border-slate-800/60 transition-colors',
+                          'hover:bg-gray-50 dark:hover:bg-gray-700',
+                          n.read && 'opacity-75'
+                        )}
                       >
-                        <div className="flex items-start">
-                          <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center mr-3">
-                            <Bell className="text-green-600 w-5 h-5" />
+                        <div className="flex items-start gap-3">
+                          <div className={cn('h-9 w-9 rounded-xl flex items-center justify-center', badgeColor(n.type))}>
+                            <n.icon className="h-4 w-4" />
                           </div>
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-800">{notification.title}</p>
-                            <p className="text-sm text-gray-500 mt-1">{notification.description}</p>
-                            <p className="text-xs text-gray-400 mt-2">{notification.time}</p>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <p className="font-semibold text-slate-900 dark:text-slate-100 truncate">{n.title}</p>
+                              {!n.read && <span className="mt-1 h-2 w-2 rounded-full bg-primary-500" />}
+                            </div>
+                            <p className="mt-1 text-sm text-slate-600 dark:text-slate-400 truncate">{n.description}</p>
+                            <p className="mt-2 text-xs text-slate-400 dark:text-slate-500">{n.time}</p>
                           </div>
                         </div>
-                      </div>
+                      </button>
                     ))}
                   </div>
-                  <div className="p-3 border-t text-center">
-                    <Link to="/admin/notifications" className="text-green-600 text-sm font-medium">
-                      Voir toutes les notifications
+
+                  <div className="p-3 bg-gray-50 dark:bg-gray-800">
+                    <Link
+                      to={`${BASE_PATH}/rapports`}
+                      className="btn-secondary w-full justify-center"
+                      onClick={() => setNotificationsOpen(false)}
+                    >
+                      Voir rapports
                     </Link>
                   </div>
                 </motion.div>
@@ -111,55 +293,132 @@ const Header = ({ currentDate, onMenuToggle, onSidebarToggle, sidebarCollapsed, 
           </div>
 
           {/* Profile */}
-          <div className="relative">
+          <div className="relative profile-container">
             <button
-              onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center space-x-3 focus:outline-none group"
+              type="button"
+              onClick={() => setProfileOpen((v) => !v)}
+              className="inline-flex items-center gap-2 rounded-xl px-2 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors ring-primary"
+              aria-label="Menu utilisateur"
             >
-              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-100 to-blue-200 flex items-center justify-center ring-2 ring-green-500 ring-offset-2">
-                <User className="text-blue-700 w-5 h-5" />
+              <div className="h-10 w-10 rounded-full overflow-hidden shadow-sm">
+                {profile.avatar ? (
+                  <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover" />
+                ) : (
+                  <div className="h-full w-full bg-gradient-to-br from-primary-600 to-secondary-600 flex items-center justify-center text-white">
+                    <User className="h-5 w-5" />
+                  </div>
+                )}
               </div>
-              <div className="hidden md:block text-left">
-                <p className="text-sm font-medium text-gray-800">Administrateur</p>
-                <p className="text-xs text-gray-500">Gestionnaire</p>
+              <div className="hidden md:flex flex-col text-left">
+                <p className="text-sm font-extrabold leading-tight truncate max-w-[120px]">
+                  {profile.name}
+                </p>
+                <div className="flex items-center  rounded-lg gap-1.5 mt-0.5 inline-flex items-center rounded-full text-primary-600 px-2 py-0.5  text-xs leading-tight truncate">
+                  {role === ROLES.ADMIN ? (
+                    <span className="">
+                      Administrateur
+                    </span>
+                  ) : (
+                    <>
+                      <span className="">
+                        Chauffeur 
+                      </span>
+                      
+                    </>
+                  )}
+                </div>
               </div>
-              <ChevronDown className="text-gray-400 w-4 h-4 transition-transform group-hover:rotate-180" />
+              <ChevronDown className={cn('hidden md:block h-4 w-4 text-slate-400 transition-transform', profileOpen && 'rotate-180')} />
             </button>
 
             <AnimatePresence>
               {profileOpen && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-56 bg-white rounded-xl shadow-xl py-2 z-50"
+                  initial={{ opacity: 0, y: -8, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                  transition={{ duration: 0.18 }}
+                  className="profile-dropdown absolute right-0 mt-2 w-72 z-50 "
                 >
-                  <div className="px-4 py-3 border-b border-gray-100">
-                    <p className="font-semibold text-gray-900">Fela Baldé</p>
-                    <p className="text-sm text-gray-500">admin@takataka.ci</p>
+                  <div className="p-4 border-b border-gray-200 dark:border-gray-900 bg-gray-50 dark:bg-gray-800">
+                    <div className="flex items-center gap-3 mb-3">
+                      <div className="h-12 w-12 rounded-full overflow-hidden">
+                        {profile.avatar ? (
+                          <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="h-full w-full bg-gradient-to-br from-primary-600 to-secondary-600 flex items-center justify-center text-white">
+                            <User className="h-6 w-6" />
+                          </div>
+                        )}
+                      </div>
+                      <div>
+                        <p className="text-sm font-bold text-slate-900 dark:text-slate-100 truncate max-w-[180px] font-poppins">{profile.name}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[180px]">{profile.email}</p>
+                      </div>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <div className={cn(
+                        "inline-flex items-center justify-between gap-2 rounded-xl px-3 py-2 text-xs font-bold w-full",
+                        role === ROLES.ADMIN
+                          ? "bg-slate-100 text-slate-700 dark:bg-slate-900/50 dark:text-slate-300 border border-slate-200 dark:border-slate-800"
+                          : "bg-emerald-50 text-emerald-700 dark:bg-emerald-900/20 dark:text-emerald-300 border border-emerald-100 dark:border-emerald-800/50"
+                      )}>
+                        {/* <span className="uppercase tracking-widest text-[9px]">Status</span> */}
+                        <div className="flex items-center gap-1.5">
+                          <span className={cn("h-1.5 w-1.5 rounded-full", role === ROLES.ADMIN ? "bg-blue-500" : "bg-emerald-500")} />
+                          {role === ROLES.ADMIN ? "Administrateur Système" : "Chauffeur Partenaire"}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="py-2">
+
+                  <div className="p-2">
                     <Link
-                      to="/admin/profil"
-                      className="flex items-center px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition"
+                      to={profileLink}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                      onClick={() => setProfileOpen(false)}
                     >
-                      <User className="w-4 h-4 mr-3" />
+                      <User className="h-4 w-4 text-slate-400" />
                       Mon profil
                     </Link>
+
+                    {role === ROLES.CHAUFFEUR && (
+                      <div className="p-1 space-y-1 border-b border-gray-100 dark:border-gray-800/50 mb-1">
+                        <Link
+                          to={evaluationsLink}
+                          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-emerald-50 hover:text-emerald-700 dark:text-gray-200 dark:hover:bg-emerald-900/20 transition-all font-poppins"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <Star className="h-4 w-4 text-emerald-500" />
+                          Mes évaluations
+                        </Link>
+                        <Link
+                          to={supportLink}
+                          className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-gray-700 hover:bg-blue-50 hover:text-blue-700 dark:text-gray-200 dark:hover:bg-blue-900/20 transition-all font-poppins"
+                          onClick={() => setProfileOpen(false)}
+                        >
+                          <Bell className="h-4 w-4 text-blue-500" />
+                          Centre d'aide
+                        </Link>
+                      </div>
+                    )}
                     <Link
-                      to="/admin/parametres"
-                      className="flex items-center px-4 py-3 text-gray-700 hover:bg-green-50 hover:text-green-600 transition"
+                      to={settingsLink}
+                      className="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-700"
+                      onClick={() => setProfileOpen(false)}
                     >
-                      <SettingsIcon className="w-4 h-4 mr-3" />
+                      <Settings className="h-4 w-4 text-slate-400" />
                       Paramètres
                     </Link>
                   </div>
-                  <div className="border-t border-gray-100 pt-2">
+
+                  <div className="p-2 border-t border-gray-200 dark:border-gray-900">
                     <Link
-                      to="/admin/logout"
-                      className="flex items-center px-4 py-3 text-red-600 hover:bg-red-50 transition"
+                      to="/logout"
+                      className="flex items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm font-semibold text-rose-600 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-950/20"
+                      onClick={() => setProfileOpen(false)}
                     >
-                      <LogOut className="w-4 h-4 mr-3" />
+                      <LogOut className="h-4 w-4" />
                       Déconnexion
                     </Link>
                   </div>
@@ -171,6 +430,4 @@ const Header = ({ currentDate, onMenuToggle, onSidebarToggle, sidebarCollapsed, 
       </div>
     </header>
   );
-};
-
-export default Header;
+}

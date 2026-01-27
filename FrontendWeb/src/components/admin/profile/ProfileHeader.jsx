@@ -22,15 +22,15 @@ const ProfileHeader = ({
       className="flex flex-col md:flex-row md:items-center justify-between gap-4"
     >
       <div>
-        <h1 className="text-3xl font-bold text-gray-800">{title}</h1>
-        <p className="text-gray-600 mt-1">{description}</p>
+        <h1 className="text-3xl font-bold text-gray-800 dark:text-gray-100">{title}</h1>
+        <p className="text-gray-600 dark:text-gray-300 mt-1">{description}</p>
       </div>
       
       <div className="flex flex-wrap gap-3">
         {showAddButton && (
           <Button
-            variant="primary"
-            className="bg-gradient-to-r from-blue-700 to-teal-700"
+            variant="perso"
+            // className="bg-gradient-to-r from-blue-700 to-teal-700"
             icon={Plus}
             onClick={onAddClick}
           >
@@ -48,8 +48,8 @@ const ProfileHeader = ({
               Annuler
             </Button>
             <Button 
-              variant="primary"
-              className="bg-gradient-to-r from-teal-700 to-blue-700"
+              variant="perso"
+             
               icon={Save}
               onClick={onSave}
             >
@@ -58,8 +58,8 @@ const ProfileHeader = ({
           </>
         ) : (
           <Button 
-            variant="primary"
-            className="bg-gradient-to-r from-blue-700 to-teal-700"
+            variant="perso"
+            
             icon={Edit2}
             onClick={onEdit}
           >

@@ -150,9 +150,9 @@ export const actionColors = {
   [actionTypes.ACTIVATE]: 'text-green-500',
   [actionTypes.DEACTIVATE]: 'text-red-500',
   [actionTypes.DOWNLOAD]: 'text-purple-500',
-  [actionTypes.COPY]: 'text-gray-500',
-  [actionTypes.ARCHIVE]: 'text-gray-500',
-  default: 'text-gray-500'
+  [actionTypes.COPY]: 'text-gray-500 dark:text-gray-400',
+  [actionTypes.ARCHIVE]: 'text-gray-500 dark:text-gray-400',
+  default: 'text-gray-500 dark:text-gray-400'
 };
 
 // Mapping des étiquettes par type d'action
@@ -402,12 +402,12 @@ const TableActions = (props) => {
 
     return (
       <button
-        className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition duration-200 ${buttonClassName}`}
+        className={`p-2 hover:bg-gray-100 dark:hover:bg-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 rounded-lg transition duration-200 ${buttonClassName}`}
         onClick={() => setShowActions(!showActions)}
         aria-label="Actions"
         title="Actions"
       >
-        <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
+        <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400 dark:text-gray-400" />
       </button>
     );
   };
@@ -424,7 +424,7 @@ const TableActions = (props) => {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
             transition={{ duration: 0.15 }}
-            className={`absolute ${getMenuPosition()} w-48 bg-white dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-700 z-50 overflow-hidden ${menuClassName}`}
+            className={`absolute ${getMenuPosition()} w-48 bg-white dark:bg-gray-900 dark:bg-gray-900 rounded-xl shadow-lg border border-gray-200 dark:border-gray-800 dark:border-gray-700 z-50 overflow-hidden ${menuClassName}`}
             style={{ maxHeight, overflowY: 'auto' }}
           >
             <div className="py-1">
@@ -436,14 +436,14 @@ const TableActions = (props) => {
                 return (
                   <React.Fragment key={action.type || index}>
                     {showDivider && (
-                      <div className="border-t border-gray-200 dark:border-gray-700 my-1"></div>
+                      <div className="border-t border-gray-200 dark:border-gray-800 dark:border-gray-700 my-1"></div>
                     )}
                     
                     <button
-                      className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center text-sm ${
+                      className={`w-full px-4 py-2.5 text-left hover:bg-gray-50 dark:hover:bg-gray-800/60 dark:bg-gray-950 dark:hover:bg-gray-800 flex items-center text-sm ${
                         isDisabled 
-                          ? 'text-gray-400 dark:text-gray-500 cursor-not-allowed' 
-                          : 'text-gray-700 dark:text-gray-300'
+                          ? 'text-gray-400 dark:text-gray-500 dark:text-gray-500 cursor-not-allowed' 
+                          : 'text-gray-700 dark:text-gray-200 dark:text-gray-300'
                       } transition duration-150`}
                       onClick={() => !isDisabled && handleActionClick(action)}
                       disabled={isDisabled}
@@ -459,7 +459,7 @@ const TableActions = (props) => {
                           action.badgeColor === 'green' ? 'bg-green-100 text-green-800' :
                           action.badgeColor === 'blue' ? 'bg-blue-100 text-blue-800' :
                           action.badgeColor === 'yellow' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
+                          'bg-gray-100 dark:bg-gray-950 text-gray-800 dark:text-gray-100'
                         }`}>
                           {action.badge}
                         </span>
@@ -487,7 +487,7 @@ const TableActions = (props) => {
   //       <motion.div
   //         initial={{ opacity: 0, scale: 0.9 }}
   //         animate={{ opacity: 1, scale: 1 }}
-  //         className="bg-white dark:bg-gray-900 rounded-xl shadow-xl max-w-md w-full"
+  //         className="bg-white dark:bg-gray-900 dark:bg-gray-900 rounded-xl shadow-xl max-w-md w-full"
   //       >
   //         <div className="p-6">
   //           <div className="flex items-center mb-4">
@@ -495,23 +495,23 @@ const TableActions = (props) => {
   //               <AlertTriangle className="w-5 h-5 text-red-500 dark:text-red-400" />
   //             </div>
   //             <div>
-  //               <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
+  //               <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 dark:text-white">
   //                 {confirmTitle}
   //               </h3>
-  //               <p className="text-sm text-gray-500 dark:text-gray-400">
+  //               <p className="text-sm text-gray-500 dark:text-gray-400 dark:text-gray-400">
   //                 Action: {pendingAction.label}
   //               </p>
   //             </div>
   //           </div>
             
-  //           {/* <p className="text-gray-700 dark:text-gray-300 mb-6">
+  //           {/* <p className="text-gray-700 dark:text-gray-200 dark:text-gray-300 mb-6">
   //             {confirmMessage.replace('{item}', itemName).replace('{action}', actionLabel)}
   //           </p> */}
             
   //           <div className="flex justify-end space-x-3">
   //             <button
   //               onClick={handleCancel}
-  //               className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition"
+  //               className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-200 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 dark:bg-gray-950 dark:hover:bg-gray-800 rounded-lg transition"
   //             >
   //               Annuler
   //             </button>

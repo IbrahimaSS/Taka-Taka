@@ -834,7 +834,7 @@ const Documents = ({ showToast }) => {
       indigo: 'bg-indigo-100 text-indigo-600',
       pink: 'bg-pink-100 text-pink-600',
     };
-    return colorMap[type?.color] || 'bg-gray-100 text-gray-600';
+    return colorMap[type?.color] || 'bg-gray-100 dark:bg-gray-950 text-gray-600 dark:text-gray-300';
   };
 
   // Options de filtre
@@ -851,14 +851,7 @@ const Documents = ({ showToast }) => {
 
   return (
     <div className="space-y-6">
-      {/* Modal de visualisation document */}
-      <DocumentViewer
-        document={viewingDocument}
-        isOpen={!!viewingDocument}
-        onClose={() => setViewingDocument(null)}
-      />
-
-      {/* Modal détail chauffeur */}
+      {/* Barre de recherche et filtres */}
       {selectedDriver && (
         <Modal
           isOpen={!!selectedDriver}
@@ -871,13 +864,13 @@ const Documents = ({ showToast }) => {
         >
           <div className="space-y-6 max-h-[70vh] overflow-y-auto pr-2">
             {/* En-tête */}
-            <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4">
+            <div className="bg-gradient-to-r from-green-50 to-blue-50 dark:from-green-900 dark:to-blue-900 rounded-xl p-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="font-bold text-lg">{selectedDriver.name}</h3>
-                  <p className="text-gray-600">{selectedDriver.phone || ''} {selectedDriver.phone && selectedDriver.email ? '•' : ''} {selectedDriver.email || ''}</p>
+                  <p className="text-gray-600 dark:text-gray-300">{selectedDriver.phone || ''} {selectedDriver.phone && selectedDriver.email ? '•' : ''} {selectedDriver.email || ''}</p>
                   <div className="flex items-center mt-2">
-                    <div className="w-48 bg-gray-200 rounded-full h-2 mr-3">
+                    <div className="w-48 bg-gray-200 dark:bg-gray-800 rounded-full h-2 mr-3">
                       <div
                         className="bg-green-500 h-2 rounded-full transition-all duration-500"
                         style={{ width: `${selectedDriver.completeness}%` }}
@@ -887,7 +880,7 @@ const Documents = ({ showToast }) => {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm text-gray-500">Documents</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Documents</p>
                   <p className="text-2xl font-bold">{selectedDriver.totalDocuments}</p>
                 </div>
               </div>
@@ -968,14 +961,14 @@ const Documents = ({ showToast }) => {
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
-                    className={`border rounded-lg p-4 transition-all duration-200 ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
+                    className={`border rounded-lg p-4 transition-all duration-200 ${isSelected ? 'border-blue-500 bg-blue-50' : 'border-gray-200 dark:border-gray-800 hover:border-gray-300 dark:border-gray-700'
                       }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-3">
                         <button
                           onClick={() => handleSelectDocument(doc.id)}
-                          className={`w-5 h-5 border rounded flex items-center justify-center ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300'
+                          className={`w-5 h-5 border rounded flex items-center justify-center ${isSelected ? 'bg-blue-500 border-blue-500' : 'border-gray-300 dark:border-gray-700'
                             }`}
                         >
                           {isSelected && <Check className="w-3 h-3 text-white" />}
@@ -985,7 +978,7 @@ const Documents = ({ showToast }) => {
                         </div>
                         <div>
                           <p className="font-medium">{docType?.label}</p>
-                          <div className="flex items-center space-x-3 text-sm text-gray-500">
+                          <div className="flex items-center space-x-3 text-sm text-gray-500 dark:text-gray-400">
                             <span>N°: {doc.number || 'N/A'}</span>
                             <span>•</span>
                             <span>Exp: {formatDate(doc.expiryDate)}</span>
@@ -1043,7 +1036,7 @@ const Documents = ({ showToast }) => {
             </div>
 
             {/* ExportDropdown dans le modal */}
-            <div className="border-t border-gray-200 pt-4">
+            <div className="border-t border-gray-200 dark:border-gray-800 pt-4">
               <div className="flex items-center justify-between mb-3">
                 <h4 className="font-semibold">Exporter les données</h4>
                 <ExportDropdown
@@ -1057,7 +1050,7 @@ const Documents = ({ showToast }) => {
                   className="w-auto"
                 />
               </div>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 Exportez les documents de {selectedDriver.name} en CSV, Word ou PDF
               </p>
             </div>
@@ -1068,8 +1061,8 @@ const Documents = ({ showToast }) => {
       {/* Header avec ExportDropdown */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Documents des Chauffeurs</h1>
-          <p className="text-gray-600">Gérez et suivez tous les documents de vos chauffeurs</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">Documents des Chauffeurs</h1>
+          <p className="text-gray-600 dark:text-gray-300">Gérez et suivez tous les documents de vos chauffeurs</p>
         </div>
 
         <div className="flex flex-wrap gap-2">
@@ -1087,14 +1080,6 @@ const Documents = ({ showToast }) => {
               setTimeout(() => window.print(), 500);
             }}
           />
-
-          <Button
-            variant="primary"
-            icon={Upload}
-            onClick={() => setShowUploadModal(true)}
-          >
-            Uploader
-          </Button>
         </div>
       </div>
 
@@ -1118,7 +1103,7 @@ const Documents = ({ showToast }) => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle>Recherche de chauffeurs</CardTitle>
-              <p className="text-gray-600 text-sm">
+              <p className="text-gray-600 dark:text-gray-300 text-sm">
                 {filteredDrivers.length} chauffeur(s) trouvé(s)
               </p>
             </div>
@@ -1152,11 +1137,11 @@ const Documents = ({ showToast }) => {
         <CardContent>
           <div className="space-y-4">
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <input
                 type="text"
                 placeholder="Rechercher un chauffeur ou un document..."
-                className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition"
+                className="w-full pl-10 pr-4 py-3 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition"
                 value={searchTerm}
                 onChange={handleSearch}
               />
@@ -1172,11 +1157,11 @@ const Documents = ({ showToast }) => {
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 border-t">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         Statut des documents
                       </label>
                       <select
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-green-400 transition"
+                        className="w-full border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-lg px-3 py-2 text-sm outline-none focus:border-green-400 transition"
                         value={selectedFilters.status || 'all'}
                         onChange={(e) => handleFilterChange('status', e.target.value)}
                       >
@@ -1189,11 +1174,11 @@ const Documents = ({ showToast }) => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         Complétude du profil
                       </label>
                       <select
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-green-400 transition"
+                        className="w-full border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-lg px-3 py-2 text-sm outline-none focus:border-green-400 transition"
                         value={selectedFilters.completeness || 'all'}
                         onChange={(e) => handleFilterChange('completeness', e.target.value)}
                       >
@@ -1206,11 +1191,11 @@ const Documents = ({ showToast }) => {
                     </div>
 
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                         Type de document
                       </label>
                       <select
-                        className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-green-400 transition"
+                        className="w-full border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-lg px-3 py-2 text-sm outline-none focus:border-green-400 transition"
                         value={selectedFilters.type || 'all'}
                         onChange={(e) => handleFilterChange('type', e.target.value)}
                       >
@@ -1240,8 +1225,8 @@ const Documents = ({ showToast }) => {
           <CardContent>
             <div className="text-center py-12">
               <FileWarning className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Aucun chauffeur trouvé</h3>
-              <p className="text-gray-500">Essayez de modifier vos critères de recherche</p>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">Aucun chauffeur trouvé</h3>
+              <p className="text-gray-500 dark:text-gray-400">Essayez de modifier vos critères de recherche</p>
             </div>
           </CardContent>
         </Card>
@@ -1259,7 +1244,7 @@ const Documents = ({ showToast }) => {
                 >
                   <Card
                     hoverable
-                    className="h-full transition-all duration-300 hover:shadow-lg cursor-pointer"
+                    className="h-full  transition-all duration-300 hover:shadow-lg cursor-pointer"
                     onClick={() => handleViewDriver(driver)}
                   >
                     <div className="p-6">
@@ -1269,11 +1254,11 @@ const Documents = ({ showToast }) => {
                             {driver.name.charAt(0)}
                           </div>
                           <div>
-                            <h3 className="font-bold text-gray-800 text-lg">{driver.name}</h3>
-                            <p className="text-gray-600 text-sm">{driver.role}</p>
+                            <h3 className="font-bold text-gray-800 dark:text-gray-100 text-lg">{driver.name}</h3>
+                            <p className="text-gray-600 dark:text-gray-300 text-sm">{driver.role}</p>
                           </div>
                         </div>
-                        <ChevronRight className="w-5 h-5 text-gray-400" />
+                        <ChevronRight className="w-5 h-5 text-gray-400 dark:text-gray-500" />
                       </div>
 
                       <div className="space-y-4">
@@ -1282,20 +1267,20 @@ const Documents = ({ showToast }) => {
                         <div className="grid grid-cols-2 gap-3">
                           <div className="text-center p-3 bg-green-50 rounded-lg">
                             <CheckCircle className="w-6 h-6 text-green-600 mx-auto mb-1" />
-                            <p className="text-2xl font-bold text-gray-800">{driver.validCount}</p>
-                            <p className="text-xs text-gray-600">Valides</p>
+                            <p className="text-2xl font-bold text-gray-800 dark:text-gray-900/90 font-bold ">{driver.validCount}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-800/90 font-bold">Valides</p>
                           </div>
                           <div className="text-center p-3 bg-yellow-50 rounded-lg">
                             <Clock className="w-6 h-6 text-yellow-600 mx-auto mb-1" />
-                            <p className="text-2xl font-bold text-gray-800">{driver.pendingCount}</p>
-                            <p className="text-xs text-gray-600">En attente</p>
+                            <p className="text-2xl font-bold text-gray-800 dark:text-gray-900/90 font-bold">{driver.pendingCount}</p>
+                            <p className="text-xs text-gray-600 dark:text-gray-800/50 font-bold">En attente</p>
                           </div>
                         </div>
 
                         {/* Documents requis manquants */}
                         {driver.completeness < 100 && (
                           <div className="mt-4 pt-4 border-t">
-                            <p className="text-sm font-medium text-gray-700 mb-2">
+                            <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                               Documents requis manquants:
                             </p>
                             <div className="flex flex-wrap gap-2">
@@ -1339,6 +1324,13 @@ const Documents = ({ showToast }) => {
           )}
         </>
       )}
+
+      {/* Modal de visualisation document */}
+      <DocumentViewer
+        document={viewingDocument}
+        isOpen={!!viewingDocument}
+        onClose={() => setViewingDocument(null)}
+      />
     </div>
   );
 };

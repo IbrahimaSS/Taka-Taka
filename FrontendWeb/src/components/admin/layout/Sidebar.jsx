@@ -1,148 +1,215 @@
-// src/components/layout/Sidebar.jsx
-import React from 'react';
-import { motion } from 'framer-motion';
-import { NavLink } from 'react-router-dom';
-import { 
-  LayoutDashboard, Users, Car, Route, Wallet, CheckCircle,
-  AlertTriangle, FileText, BarChart3, Percent, Settings,
-  LogOut, ChevronLeft, ChevronRight
+import React, { useMemo, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+  Car,
+  LogOut,
+  ChevronLeft,
+  Star,
 } from 'lucide-react';
 import MenuItem from './MenuItem';
+import { cn } from '../../../utils/cn';
+import { useSettings } from '../../../hooks/useSettings';
+import { NAV_CONFIG, ROLES } from '../../../config/navConfig';
+import { useUserStore } from '../../../data/userStore';
 
-const Sidebar = ({ collapsed, mobileOpen, onToggleCollapse, onCloseMobile }) => {
-  const menuItems = [
-    { icon: LayoutDashboard, label: 'Tableau de bord', path: '/admin', count: null },
-    { icon: Users, label: 'Passagers', path: '/admin/utilisateurs', count: 24 },
-    { icon: Car, label: 'Chauffeurs', path: '/admin/chauffeurs', count: 156 },
-    { icon: FileText, label: 'Documents', path: '/admin/documents', count: null },
-    { icon: Route, label: 'Trajets', path: '/admin/trajets', count: '2.4K' },
-    { icon: Wallet, label: 'Paiements', path: '/admin/paiements', count: null },
-    { icon: CheckCircle, label: 'Validations', path: '/admin/validations', count: 12 },
-    { icon: Percent, label: 'Commissions', path: '/admin/commissions', count: null },
-    { icon: AlertTriangle, label: 'Litiges', path: '/admin/litiges', count: 8 },
-    { icon: BarChart3, label: 'Rapports', path: '/admin/rapports', count: null },
-    
-  ];
+const Sidebar = ({
+  collapsed,
+  mobileOpen,
+  onToggleCollapse,
+  onCloseMobile,
+  role = ROLES.ADMIN
+}) => {
+  const [activeSubMenu, setActiveSubMenu] = useState(null);
+  const { settings } = useSettings();
+  const { profile } = useUserStore();
+  const platform = settings.platform || {};
+
+  const config = NAV_CONFIG[role] || NAV_CONFIG[ROLES.ADMIN];
+  const menuItems = config.menuItems;
+
+  const toggleCollapse = () => {
+    onToggleCollapse?.();
+    if (!collapsed) setActiveSubMenu(null);
+  };
+
+  const Logo = ({ compact = false }) => (
+    <div className={cn('flex items-center gap-3', compact && 'justify-center')}>
+      <div className="inline-flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-600 shadow-sm overflow-hidden">
+        {platform.logo ? (
+          <img src={platform.logo} alt="Logo" className="w-full h-full object-cover" />
+        ) : (
+          <Car className="h-7 w-7 text-white" />
+        )}
+      </div>
+      {!compact && (
+        <div className="leading-tight min-w-0 flex-1">
+          <div className="text-xl font-bold text-slate-900 dark:text-white">
+            Taka<span className="text-transparent bg-gradient-to-r from-primary-600 to-secondary-600 bg-clip-text">Taka</span>
+          </div>
+          <div className="mt-1 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-semibold text-slate-700 dark:bg-slate-800 dark:text-slate-200 uppercase">
+            {config.title}
+          </div>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <>
-      {/* Desktop Sidebar */}
+      {/* Desktop */}
       <motion.aside
         initial={false}
-        animate={{
-          width: collapsed ? 80 : 288,
-        }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        className={`hidden lg:flex flex-col fixed left-0 top-0 h-screen glass-sidebar  shadow-xl z-30 ${
-          collapsed ? 'sidebar-collapsed ' : 'w-72'
-        }`}
+        animate={{ width: collapsed ? 80 : 280 }}
+        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+        className={cn(
+          'hidden lg:flex flex-col fixed inset-y-0 left-0 glass-sidebar bg-slate-200/30 shadow-lg z-50',
+          collapsed ? 'w-20' : 'w-[280px]'
+        )}
       >
-        <div className="p-6">
-          {/* Logo */}
-          <div className="flex items-center space-x-3 mb-10">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-800 rounded-xl flex items-center justify-center shadow-lg">
-              <Car className="text-white text-2xl" />
-            </div>
-            {!collapsed && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1 }}
-              >
-                <span className="text-2xl font-bold text-gray-800">
-                  Taka<span className="gradient-text">Taka</span>
-                </span>
-                <span className="text-xs bg-gradient-to-r from-green-100 to-blue-100 text-green-700 px-2 py-1 rounded-full ml-2 font-medium">
-                  Admin
-                </span>
-              </motion.div>
-            )}
-          </div>
+        <div className="p-5 border-b-[2px] border-gray-200 dark:border-gray-900">
+          <Logo compact={collapsed} />
+        </div>
 
-          {/* Menu */}
-        <nav className=" border-t space-y-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent overflow-y-auto overflow-x-hidden" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-            {menuItems.map((item, index) => (
+        <div className="flex-1 overflow-y-auto scrollbar-thin py-4 px-2">
+          <nav className="space-y-1">
+            {menuItems.map((item) => (
               <MenuItem
-                key={index}
+                key={`${item.label}-${item.path}`}
                 icon={item.icon}
                 label={item.label}
                 path={item.path}
                 count={item.count}
                 collapsed={collapsed}
+                subItems={item.subItems}
                 onClick={onCloseMobile}
               />
             ))}
           </nav>
+        </div>
 
-
-          {/* Logout */}
-          <div className="mt-8 pt-5 border-t border-gray-100">
-            <NavLink
-              to="/admin/logout"
-              className={({ isActive }) =>
-                `flex items-center ${collapsed ? 'justify-center' : 'space-x-4'} p-4 text-gray-600 rounded-xl hover:bg-red-50 hover:text-red-600 transition`
-              }
-            >
-              <div className="w-10 h-10 rounded-lg bg-red-100 flex items-center justify-center">
-                <LogOut className="text-red-500" />
+        <div className="p-4 border-t border-gray-200 dark:border-gray-900">
+          {!collapsed ? (
+            <div className={cn(
+              "flex items-center gap-3 rounded-2xl dark:bg-gray-800 surface p-3",
+            )}>
+              <div className="relative">
+                <div className={cn(
+                  "h-10 w-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm overflow-hidden bg-gradient-to-br from-primary-600 to-secondary-600",
+                )}>
+                  {profile.avatar ? (
+                    <img src={profile.avatar} alt={profile.name} className="h-full w-full object-cover" />
+                  ) : (
+                    profile.name.charAt(0)
+                  )}
+                </div>
+                {role === ROLES.CHAUFFEUR && (
+                  <span className="absolute -bottom-1 -right-1 h-4 w-4 bg-amber-400 rounded-full border-2 border-white dark:border-gray-900 flex items-center justify-center">
+                    <Star className="h-2 w-2 text-white fill-white" />
+                  </span>
+                )}
               </div>
-              {!collapsed && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="font-medium"
-                >
-                  Déconnexion
-                </motion.span>
-              )}
-            </NavLink>
-          </div>
-        </div>
-
-       
-      </motion.aside>
-
-      {/* Mobile Sidebar */}
-      <motion.aside
-        initial={false}
-        animate={{
-          x: mobileOpen ? 0 : -288,
-        }}
-        transition={{ duration: 0.4, ease: [0.4, 0, 0.2, 1] }}
-        className="lg:hidden fixed left-0 top-0 h-screen w-72 glass-sidebar shadow-xl z-40"
-      >
-        <div className="p-6">
-          {/* Mobile Logo */}
-          <div className="flex items-center space-x-3 mb-10">
-            <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-blue-800 rounded-xl flex items-center justify-center shadow-lg">
-              <Car className="text-white text-2xl" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold text-slate-900 dark:text-white truncate font-poppins">{profile.name}</p>
+                <div className="flex items-center gap-1">
+                  <span className={cn(
+                    "text-xs text-slate-500 dark:text-slate-400 truncate",
+                    role === ROLES.ADMIN ? "text-gray-500 dark:text-slate-400" : "text-gray-600 dark:text-emerald-400"
+                  )}>
+                    {role === ROLES.ADMIN ? "Administrateur" : "Chauffeur"}
+                  </span>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => (window.location.href = '/logout')}
+                className={cn(
+                  "inline-flex h-9 w-9 items-center justify-center rounded-xl transition-colors shadow-sm border",
+                  role === ROLES.ADMIN
+                    ? "bg-white dark:bg-slate-800 text-rose-600 border-slate-100 dark:border-slate-700 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                    : "bg-white dark:bg-gray-800 text-rose-500 border-emerald-100 dark:border-emerald-900/50 hover:bg-rose-50 dark:hover:bg-rose-950/20"
+                )}
+                aria-label="Déconnexion"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
-            <div>
-              <span className="text-2xl font-bold text-gray-800">
-                Taka<span className="gradient-text">Taka</span>
-              </span>
-              <span className="text-xs bg-gradient-to-r from-green-100 to-blue-100 text-green-700 px-2 py-1 rounded-full ml-2 font-medium">
-                Admin
-              </span>
+          ) : (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={() => (window.location.href = '/logout')}
+                className="inline-flex h-10 w-10 items-center justify-center rounded-xl surface text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                aria-label="Déconnexion"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
             </div>
-          </div>
-
-          {/* Mobile Menu */}
-          <nav className=" border-t space-y-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-transparent overflow-y-auto" style={{ maxHeight: 'calc(100vh - 250px)' }}>
-            {menuItems.map((item, index) => (
-              <MenuItem
-                key={index}
-                icon={item.icon}
-                label={item.label}
-                path={item.path}
-                count={item.count}
-                collapsed={false}
-                onClick={onCloseMobile}
-              />
-            ))}
-          </nav>
+          )}
         </div>
       </motion.aside>
+
+      {/* Mobile */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="mobile-menu-overlay lg:hidden"
+              onClick={onCloseMobile}
+            />
+
+            <motion.div
+              initial={{ x: -280 }}
+              animate={{ x: 0 }}
+              exit={{ x: -280 }}
+              transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+              className="lg:hidden fixed left-0 top-0 h-screen w-[280px] glass-sidebar shadow-2xl z-50"
+            >
+              <div className="h-full flex flex-col">
+                <div className="p-5 flex items-center justify-between border-b border-gray-200 dark:border-gray-900">
+                  <Logo />
+                  <button
+                    type="button"
+                    onClick={onCloseMobile}
+                    className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 bg-white/60 text-gray-700 hover:bg-gray-100 transition-colors dark:border-gray-900 dark:bg-gray-800 dark:text-gray-200 dark:hover:bg-gray-700"
+                    aria-label="Fermer"
+                  >
+                    <ChevronLeft className="h-5 w-5" />
+                  </button>
+                </div>
+
+                <nav className="flex-1 overflow-y-auto scrollbar-thin py-4">
+                  {menuItems.map((item) => (
+                    <MenuItem
+                      key={`m-${item.label}-${item.path}`}
+                      icon={item.icon}
+                      label={item.label}
+                      path={item.path}
+                      count={item.count}
+                      collapsed={false}
+                      subItems={item.subItems}
+                      onClick={onCloseMobile}
+                    />
+                  ))}
+                </nav>
+
+                <div className="p-4 border-t border-gray-200 dark:border-gray-900">
+                  <button
+                    type="button"
+                    onClick={() => (window.location.href = '/logout')}
+                    className="w-full inline-flex items-center justify-center gap-2 rounded-xl px-4 py-2.5 surface text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Déconnexion
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 };

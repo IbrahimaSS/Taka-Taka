@@ -59,7 +59,7 @@ const UserFormModal = ({
 
   const validateForm = () => {
     const newErrors = {};
-    
+
     if (!formData.name?.trim()) newErrors.name = 'Le nom est requis';
     if (!formData.email?.trim()) {
       newErrors.email = 'L\'email est requis';
@@ -67,7 +67,7 @@ const UserFormModal = ({
       newErrors.email = 'Email invalide';
     }
     if (!formData.role) newErrors.role = 'Le rôle est requis';
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -97,7 +97,7 @@ const UserFormModal = ({
 
   // S'assurer que permissions est toujours un objet
   const permissions = formData.permissions || {};
-  
+
   return (
     <Modal
       isOpen={isOpen}
@@ -109,16 +109,16 @@ const UserFormModal = ({
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Nom */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Nom complet *
             </label>
             <div className="relative">
-              <User className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+              <User className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <input
                 type="text"
                 value={formData.name || ''}
                 onChange={(e) => handleInputChange('name', e.target.value)}
-                className={`w-full border-2 ${errors.name ? 'border-red-300' : 'border-gray-200'} rounded-xl pl-10 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all`}
+                className={`w-full border-2 ${errors.name ? 'border-red-300' : 'border-gray-200 dark:border-gray-900'} dark:bg-gray-800 rounded-xl pl-10 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all`}
                 placeholder="John Doe"
               />
             </div>
@@ -127,16 +127,16 @@ const UserFormModal = ({
 
           {/* Email */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Email *
             </label>
             <div className="relative">
-              <Mail className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+              <Mail className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <input
                 type="email"
                 value={formData.email || ''}
                 onChange={(e) => handleInputChange('email', e.target.value)}
-                className={`w-full border-2 ${errors.email ? 'border-red-300' : 'border-gray-200'} rounded-xl pl-10 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all`}
+                className={`w-full border-2 ${errors.email ? 'border-red-300' : 'border-gray-200 dark:border-gray-900'} dark:bg-gray-800 rounded-xl pl-10 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all`}
                 placeholder="john@example.com"
               />
             </div>
@@ -145,16 +145,16 @@ const UserFormModal = ({
 
           {/* Téléphone */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Téléphone
             </label>
             <div className="relative">
-              <Phone className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+              <Phone className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500 w-5 h-5" />
               <input
                 type="tel"
                 value={formData.phone || ''}
                 onChange={(e) => handleInputChange('phone', e.target.value)}
-                className="w-full border-2 border-gray-200 rounded-xl pl-10 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
+                className="w-full border-2 border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl pl-10 pr-4 py-3 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all"
                 placeholder="+224 XXX XX XX XX"
               />
             </div>
@@ -162,7 +162,7 @@ const UserFormModal = ({
 
           {/* Rôle */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
               Rôle *
             </label>
             <div className="grid grid-cols-2 gap-2">
@@ -171,17 +171,16 @@ const UserFormModal = ({
                   key={role.id}
                   type="button"
                   onClick={() => handleInputChange('role', role.id)}
-                  className={`flex flex-col items-center justify-center p-3 border-2 rounded-xl transition-all ${
-                    formData.role === role.id 
-                      ? 'border-blue-600 bg-blue-50' 
-                      : 'border-gray-200 hover:border-gray-300 hover:bg-gray-50'
-                  }`}
+                  className={`flex flex-col items-center justify-center p-3 border-2 rounded-xl transition-all ${formData.role === role.id
+                    ? 'border-blue-600 bg-slate-200/30 dark:bg-gray-700'
+                    : 'border-gray-200 dark:border-gray-900 hover:border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-800'
+                    }`}
                 >
-                  <role.icon className={`w-5 h-5 mb-1 ${formData.role === role.id ? 'text-blue-600' : 'text-gray-400'}`} />
-                  <span className={`text-sm font-medium ${formData.role === role.id ? 'text-blue-700' : 'text-gray-700'}`}>
+                  <role.icon className={`w-5 h-5 mb-1 ${formData.role === role.id ? 'text-blue-600' : 'text-gray-400 dark:text-gray-500'}`} />
+                  <span className={`text-sm font-medium ${formData.role === role.id ? 'text-blue-700' : 'text-gray-700 dark:text-gray-200'}`}>
                     {role.label}
                   </span>
-                  <span className="text-xs text-gray-500 mt-1">{role.description}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 mt-1">{role.description}</span>
                 </button>
               ))}
             </div>
@@ -191,18 +190,17 @@ const UserFormModal = ({
 
         {/* Permissions */}
         <div>
-          <h4 className="font-medium text-gray-800 mb-3">Permissions</h4>
+          <h4 className="font-medium text-gray-800 dark:text-gray-100 mb-3">Permissions</h4>
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
             {Object.entries(permissions).map(([key, value]) => (
-              <label 
-                key={key} 
-                className={`flex items-center justify-between p-3 border-2 rounded-xl cursor-pointer transition-all ${
-                  value 
-                    ? 'border-teal-600 bg-teal-50' 
-                    : 'border-gray-200 hover:border-gray-300'
-                }`}
+              <label
+                key={key}
+                className={`flex items-center justify-between p-3 border-2 rounded-xl cursor-pointer transition-all ${value
+                  ? 'border-teal-600 bg-slate-200/30 dark:bg-gray-700'
+                  : 'border-gray-200 dark:border-gray-900 hover:border-gray-300 dark:border-gray-700 dark:bg-gray-800'
+                  }`}
               >
-                <span className="text-sm font-medium text-gray-700 capitalize">
+                <span className="text-sm font-medium text-gray-700 dark:text-gray-200 capitalize">
                   {key === 'view' && 'Lecture'}
                   {key === 'edit' && 'Édition'}
                   {key === 'create' && 'Création'}
@@ -221,12 +219,12 @@ const UserFormModal = ({
 
         {/* Options */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <label className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-all cursor-pointer">
+          <label className="flex items-center justify-between p-4 border-2 border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl hover:border-gray-300 dark:border-gray-700 transition-all cursor-pointer">
             <div className="flex items-center space-x-3">
               <Mail className="text-blue-600 w-5 h-5" />
               <div>
-                <p className="font-medium text-gray-800">Envoyer un email de bienvenue</p>
-                <p className="text-sm text-gray-500">L'utilisateur recevra ses identifiants par email</p>
+                <p className="font-medium text-gray-800 dark:text-gray-100">Envoyer un email de bienvenue</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">L'utilisateur recevra ses identifiants par email</p>
               </div>
             </div>
             <Switch
@@ -235,12 +233,12 @@ const UserFormModal = ({
             />
           </label>
 
-          <label className="flex items-center justify-between p-4 border-2 border-gray-200 rounded-xl hover:border-gray-300 transition-all cursor-pointer">
+          <label className="flex items-center justify-between p-4 border-2 border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl hover:border-gray-300 dark:border-gray-700 transition-all cursor-pointer">
             <div className="flex items-center space-x-3">
               <Key className="text-teal-600 w-5 h-5" />
               <div>
-                <p className="font-medium text-gray-800">Générer un mot de passe</p>
-                <p className="text-sm text-gray-500">Un mot de passe aléatoire sera créé</p>
+                <p className="font-medium text-gray-800 dark:text-gray-100">Générer un mot de passe</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Un mot de passe aléatoire sera créé</p>
               </div>
             </div>
             <Switch
@@ -251,11 +249,11 @@ const UserFormModal = ({
         </div>
 
         {/* Actions */}
-        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200 dark:border-gray-900">
           <Button variant="secondary" onClick={onClose}>
             Annuler
           </Button>
-          <Button 
+          <Button
             variant="primary"
             className="bg-gradient-to-r from-blue-700 to-teal-700"
             icon={Save}

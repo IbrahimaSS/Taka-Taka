@@ -5,17 +5,17 @@ import AdminApp from './pages/AdminApp';
 import PublicProviders from './PublicProviders';
 import HomePage from './pages/HomePage';
 // import LoginPage from './apps/public/pages/LoginPage';
-import ChauffeurDashboard from './pages/ChauffeurDashboard';
-import ChauffeurProfile from './components/chauffeur/ChauffeurProfile';
+import ChauffeurApp from './pages/ChauffeurApp';
 import Connexion from './pages/Connexion';
 import Inscription from './pages/Inscription';
+import Passenger from './pages/Passager';
 
 function NotFound() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="bg-white border border-gray-200 rounded-2xl p-8 text-center">
-        <h1 className="text-2xl font-bold text-gray-800">404</h1>
-        <p className="mt-2 text-gray-600">Page introuvable.</p>
+    <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-950">
+      <div className="rounded-2xl surface p-8 text-center shadow-soft">
+        <h1 className="text-2xl font-extrabold text-slate-900 dark:text-slate-100">404</h1>
+        <p className="mt-2 text-slate-600 dark:text-slate-300">Page introuvable.</p>
       </div>
     </div>
   );
@@ -31,9 +31,15 @@ export default function App() {
           <Route path="/connexion" element={<Connexion />} />
           <Route path="/inscription" element={<Inscription />} />
 
+          {/* Passager */}
+          <Route path="/passager/*" element={<Passenger />} />
+
+          {/* Compat anciens liens */}
+          <Route path="/passagers" element={<Navigate to="/passager" replace />} />
+          <Route path="/passagers/*" element={<Navigate to="/passager" replace />} />
+
           {/* Chauffeur */}
-          <Route path="/chauffeur" element={<ChauffeurDashboard />} />
-          <Route path="/chauffeur/profil" element={<ChauffeurProfile />} />
+          <Route path="/chauffeur/*" element={<ChauffeurApp />} />
 
           {/* Compat anciens liens */}
           <Route path="/chauffeurs" element={<Navigate to="/chauffeur" replace />} />

@@ -1,47 +1,92 @@
-// src/components/ui/Card.jsx
+// src/components/ui/Card.jsx - VERSION MODERNE
 import React from 'react';
 import { motion } from 'framer-motion';
-
+import clsx from 'clsx';
 
 // Card composant pour afficher du contenu dans une carte stylisée
-const Card = ({ 
-  children, 
-  className = '', 
-  hoverable = false, 
+const Card = ({
+  children,
+  className = '',
+  hoverable = false,
   padding = 'p-6',
-  onClick 
+  onClick,
+  animate = true
 }) => {
+  const Component = animate ? motion.div : 'div';
+  const props = animate ? {
+    whileHover: hoverable ? { y: -4, transition: { duration: 0.2 } } : {},
+    initial: { opacity: 0, y: 20 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: 0.3 }
+  } : {};
+
   return (
-    <motion.div
-      whileHover={hoverable ? { y: -5, transition: { duration: 0.2 } } : {}}
-      className={`bg-white rounded-2xl border border-gray-200 shadow-sm ${padding} ${className} ${
-        hoverable ? 'hover:shadow-md transition-shadow duration-300' : ''
-      }`}
+    <Component
+      {...props}
+      className={clsx(
+        'card',
+        hoverable && 'card-hover',
+        padding,
+        onClick && 'cursor-pointer',
+        'bg-white dark:bg-gray-800 dark:border-gray-900 rounded-2xl border border-gray-200 shadow-sm',
+        className
+      )}
       onClick={onClick}
     >
       {children}
-    </motion.div>
+    </Component>
   );
 };
 
-export const CardHeader = ({ children, className = '' }) => (
-  <div className={`border-b border-gray-100 pb-4 mb-4 ${className}`}>{children}</div>
+export const CardHeader = ({ children, className = '', align = 'start' }) => (
+  <div className={clsx(
+    'border-b border-gray-100 dark:border-gray-900 pb-4 mb-4',
+    align === 'center' && 'text-center',
+    align === 'end' && 'text-right',
+    className
+  )}>
+    {children}
+  </div>
 );
 
-export const CardTitle = ({ children, className = '' }) => (
-  <h3 className={`text-xl font-bold text-gray-800 ${className}`}>{children}</h3>
-);
+export const CardTitle = ({ children, className = '', size = 'lg' }) => {
+  const sizes = {
+    sm: 'text-lg font-semibold',
+    md: 'text-xl font-semibold',
+    lg: 'text-2xl font-bold',
+    xl: 'text-3xl font-bold',
+  };
+
+  return (
+    <h3 className={clsx(sizes[size], 'text-gray-800 dark:text-gray-100 ', className)}>
+      {children}
+    </h3>
+  );
+};
 
 export const CardDescription = ({ children, className = '' }) => (
-  <p className={`text-gray-500 text-sm ${className}`}>{children}</p>
+  <p className={clsx('text-gray-500 dark:text-gray-400 text-sm mt-1', className)}>
+    {children}
+  </p>
 );
 
 export const CardContent = ({ children, className = '' }) => (
-  <div className={className}>{children}</div>
+  <div className={clsx('space-y-4   dark:bg-gray-800 dark:border-gray-900', className)}>
+    {children}
+  </div>
 );
 
-export const CardFooter = ({ children, className = '' }) => (
-  <div className={`border-t border-gray-100 pt-4 mt-4 ${className}`}>{children}</div>
+export const CardFooter = ({ children, className = '', align = 'end' }) => (
+  <div className={clsx(
+    'border-t border-gray-100 dark:bg-gray-800 dark:border-gray-900 pt-4 mt-4',
+    align === 'center' && 'text-center',
+    align === 'start' && 'text-left',
+    align === 'end' && 'text-right',
+    align === 'between' && 'flex justify-between',
+    className
+  )}>
+    {children}
+  </div>
 );
 
 export default Card;

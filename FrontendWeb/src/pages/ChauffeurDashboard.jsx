@@ -17,7 +17,7 @@ export default function ChauffeurDashboard() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-slate-/ dark:bg-slate-950">
       {/* Header Sidebar (en haut) */}
       <HeaderSidebar
         userName="Mariama"

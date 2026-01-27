@@ -52,7 +52,7 @@ const Pagination = ({
   return (
     <div className={clsx('flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0', className)}>
       {showInfo && totalItems > 0 && (
-        <div className="text-sm text-gray-500">
+        <div className="text-sm text-gray-500 dark:text-gray-400">
           Affichage de {startItem} à {endItem} sur {totalItems} éléments
         </div>
       )}
@@ -65,8 +65,8 @@ const Pagination = ({
           className={clsx(
             'w-10 h-10 rounded-lg border flex items-center justify-center transition',
             currentPage === 1
-              ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-              : 'border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400'
+              ? 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+              : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400'
           )}
         >
           <ChevronLeft className="w-4 h-4" />
@@ -76,7 +76,7 @@ const Pagination = ({
         {showNumbers && getPageNumbers().map((page, index) => (
           <React.Fragment key={index}>
             {page === '...' ? (
-              <span className="w-10 h-10 flex items-center justify-center text-gray-400">
+              <span className="w-10 h-10 flex items-center justify-center text-gray-400 dark:text-gray-500">
                 <MoreHorizontal className="w-4 h-4" />
               </span>
             ) : (
@@ -86,7 +86,7 @@ const Pagination = ({
                   'w-10 h-10 rounded-lg border text-sm font-medium transition',
                   currentPage === page
                     ? 'bg-green-500 border-green-500 text-white shadow-sm'
-                    : 'border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400'
+                    : 'border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400'
                 )}
               >
                 {page}
@@ -102,8 +102,8 @@ const Pagination = ({
           className={clsx(
             'w-10 h-10 rounded-lg border flex items-center justify-center transition',
             currentPage === totalPages
-              ? 'border-gray-200 text-gray-400 cursor-not-allowed'
-              : 'border-gray-300 text-gray-600 hover:bg-gray-50 hover:border-gray-400'
+              ? 'border-gray-200 dark:border-gray-800 text-gray-400 dark:text-gray-500 cursor-not-allowed'
+              : 'border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 hover:border-gray-400'
           )}
         >
           <ChevronRight className="w-4 h-4" />
@@ -112,8 +112,8 @@ const Pagination = ({
 
       {/* Page Size Selector */}
       {/* <div className="flex items-center space-x-2">
-        <span className="text-sm text-gray-500">Afficher par page:</span>
-        <select className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-400 transition">
+        <span className="text-sm text-gray-500 dark:text-gray-400">Afficher par page:</span>
+        <select className="border border-gray-200 dark:border-gray-800 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-400 transition">
           <option value="10">5</option>
           <option value="25">10</option>
           <option value="50">20</option>

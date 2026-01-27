@@ -1,12 +1,10 @@
-// src/components/ui/Modal.jsx
+// src/components/ui/Modal.jsx - VERSION MODERNE
 import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
+import clsx from 'clsx';
 
-
-
-// Modal component pour afficher des dialogues modaux
-const Modal = ({ isOpen, onClose, children, title,  size = 'md' }) => {
+const Modal = ({ isOpen, onClose, children, title, size = 'md', closeOnOverlayClick = true }) => {
   useEffect(() => {
     const handleEscape = (e) => {
       if (e.key === 'Escape') onClose();
@@ -25,45 +23,69 @@ const Modal = ({ isOpen, onClose, children, title,  size = 'md' }) => {
 
   const sizeClasses = {
     sm: 'max-w-md',
-    md: 'max-w-2xl',
-    lg: 'max-w-4xl',
-    xl: 'max-w-6xl',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
+    full: 'max-w-full mx-4',
   };
 
   return (
     <AnimatePresence>
       {isOpen && (
         <>
+          {/* Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 overflow-auto z-50 flex items-center justify-center "
-            onClick={onClose}
+            className="fixed inset-0 bg-black/10  backdrop-blur-sm z-[1000]"
+            onClick={closeOnOverlayClick ? onClose : undefined}
           />
-          
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ type: 'spring', damping: 25 }}
-            className={`fixed inset-0 z-50 flex items-center justify-center p-4 sm:items-end sm:justify-end sm:pr-4 sm:pb-4`}
-          >
-            <div className={`bg-white rounded-2xl shadow-2xl overflow-hidden max-h-[90vh] w-full ${sizeClasses[size]}`}>
+
+          {/* Modal Container */}
+          <div className="fixed inset-0 z-[1001]  flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className={clsx(
+                'bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-h-[90vh] flex flex-col overflow-hidden',
+                sizeClasses[size]
+              )}
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
               {title && (
-                <div className="flex justify-between items-center p-6 border-b border-gray-200">
-                  <h3 className="text-xl font-bold text-gray-800">{title}</h3>
+                <div className="flex  justify-between items-center  p-6 border-b border-gray-200 dark:border-gray-900 bg-gradient-to-r from-gray-50 to-white dark:from-gray-800 dark:to-gray-800">
+                  <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">{title}</h3>
                   <button
                     onClick={onClose}
-                    className="p-2 hover:bg-gray-100 rounded-lg transition"
+                    className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-xl transition-colors"
+                    aria-label="Fermer"
                   >
-                    <X className="w-5 h-5 text-gray-500" />
+                    <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
                   </button>
                 </div>
               )}
-              <div className="p-6">{children}</div>
-            </div>
-          </motion.div>
+
+              {/* Content */}
+              <div className="flex-1 overflow-y-auto  scrollbar-thin p-6">
+                {children}
+              </div>
+
+              {/* Close button for modals without title */}
+              {!title && (
+                <button
+                  onClick={onClose}
+                  className="absolute top-4  right-4 p-2 hover:bg-gray-100 dark:hover:bg-gray-800 dark:bg-gray-800 rounded-xl transition-colors"
+                  aria-label="Fermer"
+                >
+                  <X className="w-5 h-5 text-gray-500 dark:text-gray-400" />
+                </button>
+              )}
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

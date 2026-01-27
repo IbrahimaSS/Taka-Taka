@@ -47,7 +47,7 @@ const generatePayments = (count = 100) => {
     const commission = Math.round((revenue * commissionRate) / 100);
     const payable = revenue - commission;
     const status = statuses[Math.floor(Math.random() * statuses.length)];
-    
+
     return {
       id: `PAY-${String(i + 1000).padStart(6, '0')}`,
       driver: driver.name,
@@ -79,7 +79,7 @@ const generatePayments = (count = 100) => {
 };
 
 // Composant pour les actions rapides
-const PaymentActions = ({ payment, onView, onProcess, onEdit,}) => {
+const PaymentActions = ({ payment, onView, onProcess, onEdit, }) => {
   const [showActions, setShowActions] = useState(false);
   const menuRef = useRef(null);
 
@@ -97,10 +97,10 @@ const PaymentActions = ({ payment, onView, onProcess, onEdit,}) => {
   return (
     <div className="relative" ref={menuRef}>
       <button
-        className="p-2 hover:bg-gray-100 rounded-lg transition"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-lg transition"
         onClick={() => setShowActions(!showActions)}
       >
-        <MoreVertical className="w-4 h-4 text-gray-500" />
+        <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
       </button>
 
       <AnimatePresence>
@@ -109,11 +109,11 @@ const PaymentActions = ({ payment, onView, onProcess, onEdit,}) => {
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+            className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-900 z-50"
           >
             <div className="py-1">
               <button
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                 onClick={() => {
                   onView(payment);
                   setShowActions(false);
@@ -124,7 +124,7 @@ const PaymentActions = ({ payment, onView, onProcess, onEdit,}) => {
               </button>
               {payment.status === 'pending' && (
                 <button
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                   onClick={() => {
                     onProcess(payment);
                     setShowActions(false);
@@ -135,7 +135,7 @@ const PaymentActions = ({ payment, onView, onProcess, onEdit,}) => {
                 </button>
               )}
               <button
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                 onClick={() => {
                   onEdit(payment);
                   setShowActions(false);
@@ -144,8 +144,8 @@ const PaymentActions = ({ payment, onView, onProcess, onEdit,}) => {
                 <Edit3 className="w-4 h-4 mr-2 text-yellow-500" />
                 Modifier
               </button>
-              <div className="border-t border-gray-200 my-1"></div>
-              
+              <div className="border-t border-gray-200 dark:border-gray-900 my-1"></div>
+
             </div>
           </motion.div>
         )}
@@ -196,10 +196,10 @@ const Commissions = () => {
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
     window.addEventListener('resize', checkMobile);
-    
+
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
@@ -225,40 +225,46 @@ const Commissions = () => {
     { header: 'Email', accessor: 'email' },
     { header: 'Téléphone', accessor: 'phone' },
     { header: 'Localisation', accessor: 'location' },
-    { header: 'Service', accessor: 'service', formatter: (value) => {
-      const serviceLabels = {
-        moto_taxi: 'Moto-taxi',
-        taxi_shared: 'Taxi partagé',
-        private_car: 'Voiture privée',
-        delivery: 'Livraison'
-      };
-      return serviceLabels[value] || value;
-    }},
+    {
+      header: 'Service', accessor: 'service', formatter: (value) => {
+        const serviceLabels = {
+          moto_taxi: 'Moto-taxi',
+          taxi_shared: 'Taxi partagé',
+          private_car: 'Voiture privée',
+          delivery: 'Livraison'
+        };
+        return serviceLabels[value] || value;
+      }
+    },
     { header: 'Trajets', accessor: 'trips' },
     { header: 'Revenus (GNF)', accessor: 'revenue', formatter: (value) => value.toLocaleString('fr-FR') },
     { header: 'Taux Commission (%)', accessor: 'commissionRate' },
     { header: 'Commission (GNF)', accessor: 'commission', formatter: (value) => value.toLocaleString('fr-FR') },
     { header: 'À verser (GNF)', accessor: 'payable', formatter: (value) => value.toLocaleString('fr-FR') },
-    { header: 'Statut', accessor: 'status', formatter: (value) => {
-      const statusLabels = {
-        pending: 'À payer',
-        paid: 'Payé',
-        failed: 'Échoué',
-        processing: 'En cours'
-      };
-      return statusLabels[value] || value;
-    }},
+    {
+      header: 'Statut', accessor: 'status', formatter: (value) => {
+        const statusLabels = {
+          pending: 'À payer',
+          paid: 'Payé',
+          failed: 'Échoué',
+          processing: 'En cours'
+        };
+        return statusLabels[value] || value;
+      }
+    },
     { header: 'Date Paiement', accessor: 'paymentDate', formatter: (value) => value || 'Non payé' },
     { header: 'Date Échéance', accessor: 'dueDate' },
-    { header: 'Méthode Paiement', accessor: 'paymentMethod', formatter: (value) => {
-      const methodLabels = {
-        orange_money: 'Orange Money',
-        mtn_money: 'MTN Money',
-        bank_transfer: 'Virement bancaire',
-        cash: 'Espèces'
-      };
-      return methodLabels[value] || value;
-    }},
+    {
+      header: 'Méthode Paiement', accessor: 'paymentMethod', formatter: (value) => {
+        const methodLabels = {
+          orange_money: 'Orange Money',
+          mtn_money: 'MTN Money',
+          bank_transfer: 'Virement bancaire',
+          cash: 'Espèces'
+        };
+        return methodLabels[value] || value;
+      }
+    },
     { header: 'Compte', accessor: 'account' },
     { header: 'Banque', accessor: 'bank', formatter: (value) => value || 'N/A' },
     { header: 'Numéro Compte', accessor: 'accountNumber', formatter: (value) => value || 'N/A' },
@@ -347,18 +353,18 @@ const Commissions = () => {
     setTimeout(() => {
       setPayments(prev => prev.map(payment =>
         payment.id === paymentId
-          ? { 
-              ...payment, 
-              status: 'paid', 
-              paymentDate: new Date().toLocaleDateString('fr-FR'), 
-              processedBy: 'Admin',
-              notes: [...payment.notes, { 
-                id: payment.notes.length + 1, 
-                user: 'Admin', 
-                message: comment || 'Paiement traité', 
-                date: new Date().toLocaleString('fr-FR') 
-              }]
-            }
+          ? {
+            ...payment,
+            status: 'paid',
+            paymentDate: new Date().toLocaleDateString('fr-FR'),
+            processedBy: 'Admin',
+            notes: [...payment.notes, {
+              id: payment.notes.length + 1,
+              user: 'Admin',
+              message: comment || 'Paiement traité',
+              date: new Date().toLocaleString('fr-FR')
+            }]
+          }
           : payment
       ));
 
@@ -378,18 +384,18 @@ const Commissions = () => {
     setTimeout(() => {
       setPayments(prev => prev.map(payment =>
         selectedPayments.includes(payment.id)
-          ? { 
-              ...payment, 
-              status: 'paid', 
-              paymentDate: new Date().toLocaleDateString('fr-FR'), 
-              processedBy: 'Admin',
-              notes: [...payment.notes, { 
-                id: payment.notes.length + 1, 
-                user: 'Admin', 
-                message: 'Paiement traité en masse', 
-                date: new Date().toLocaleString('fr-FR') 
-              }]
-            }
+          ? {
+            ...payment,
+            status: 'paid',
+            paymentDate: new Date().toLocaleDateString('fr-FR'),
+            processedBy: 'Admin',
+            notes: [...payment.notes, {
+              id: payment.notes.length + 1,
+              user: 'Admin',
+              message: 'Paiement traité en masse',
+              date: new Date().toLocaleString('fr-FR')
+            }]
+          }
           : payment
       ));
 
@@ -501,7 +507,7 @@ const Commissions = () => {
 
     const { label, variant, icon: Icon } = config[status] || config.pending;
     return (
-      <Badge  className={`text-${color} bg-${color}`}>
+      <Badge className={`text-${color} bg-${color} dark:bg-gray-900/40`}>
         <Icon className="w-3 h-3 mr-1" />
         {label}
       </Badge>
@@ -524,10 +530,10 @@ const Commissions = () => {
       purple: 'bg-purple-100 text-purple-800',
       orange: 'bg-orange-100 text-orange-800'
     };
-    const colorClass = colorMap[color] || 'bg-gray-100 text-gray-800';
+    const colorClass = colorMap[color] || 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100';
 
     return (
-      <Badge className={`text-${color} bg-${color}-200`}>
+      <Badge className={`text-${color} bg-${color}-200 dark:bg-gray-900/40 `}>
         <Icon className="w-3 h-3 mr-1" />
         {label}
       </Badge>
@@ -548,12 +554,12 @@ const Commissions = () => {
       orange: 'bg-orange-100 text-orange-800',
       yellow: 'bg-yellow-100 text-yellow-800',
       blue: 'bg-blue-100 text-blue-800',
-      gray: 'bg-gray-100 text-gray-800'
+      gray: 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100'
     };
-    const colorClass = colorMap[color] || 'bg-gray-100 text-gray-800';
+    const colorClass = colorMap[color] || 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-100';
 
     return (
-      <Badge variant="secondary" className={colorClass}>
+      <Badge variant="secondary" className={`${colorClass}  `}>
         <Icon className="w-3 h-3 mr-1" />
         {label}
       </Badge>
@@ -570,12 +576,12 @@ const Commissions = () => {
               key={payment.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="bg-white rounded-xl border border-gray-200 p-4 space-y-2"
+              className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-900 p-4 space-y-2"
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <div className="font-bold text-gray-800">{payment.driver}</div>
-                  <div className="text-sm text-gray-500">{payment.driverId}</div>
+                  <div className="font-bold text-gray-800 dark:text-gray-100">{payment.driver}</div>
+                  <div className="text-sm text-gray-500 dark:text-gray-400">{payment.driverId}</div>
                 </div>
                 <div className="flex items-center space-x-2">
                   {renderStatus(payment.status)}
@@ -585,25 +591,25 @@ const Commissions = () => {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className="text-xs text-gray-500">Trajets</p>
-                  <p className="font-medium text-gray-800">{payment.trips}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Trajets</p>
+                  <p className="font-medium text-gray-800 dark:text-gray-100">{payment.trips}</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Taux</p>
-                  <p className="font-medium text-gray-800">{payment.commissionRate}%</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Taux</p>
+                  <p className="font-medium text-gray-800 dark:text-gray-100">{payment.commissionRate}%</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">Revenus</p>
-                  <p className="font-medium text-gray-800">{(payment.revenue / 1000).toFixed(0)}K GNF</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">Revenus</p>
+                  <p className="font-medium text-gray-800 dark:text-gray-100">{(payment.revenue / 1000).toFixed(0)}K GNF</p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500">À verser</p>
-                  <p className="font-medium text-gray-800">{(payment.payable / 1000).toFixed(0)}K GNF</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">À verser</p>
+                  <p className="font-medium text-gray-800 dark:text-gray-100">{(payment.payable / 1000).toFixed(0)}K GNF</p>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center pt-2 border-t border-gray-100">
-                <div className="text-sm text-gray-500">
+              <div className="flex justify-between items-center pt-2 border-t border-gray-100 dark:border-gray-900">
+                <div className="text-sm text-gray-500 dark:text-gray-400">
                   Échéance: {payment.dueDate}
                 </div>
                 <div className="flex space-x-1">
@@ -650,35 +656,35 @@ const Commissions = () => {
         >
           {paginatedPayments.map((payment) => (
             <TableRow key={payment.id}>
-              
+
               <TableCell>
                 <div className="flex items-center">
-                 
+
                   <div>
-                    <p className="font-medium text-gray-800">{payment.driver}</p>
-                    
-                    <p className="text-xs text-gray-400">Échéance: {payment.dueDate}</p>
+                    <p className="font-medium text-gray-800 dark:text-gray-100">{payment.driver}</p>
+
+                    <p className="text-xs text-gray-400 dark:text-gray-500">Échéance: {payment.dueDate}</p>
                   </div>
                 </div>
               </TableCell>
-              <TableCell className="hidden sm:table-cell">
+              <TableCell className="hidden  sm:table-cell">
                 {renderService(payment.service)}
               </TableCell>
-            
+
               <TableCell>
-                <div className="font-bold text-gray-800">{(payment.revenue / 1000).toFixed(0)}K GNF</div>
+                <div className="font-bold text-gray-800 dark:text-gray-100">{(payment.revenue / 1000).toFixed(0)}K GNF</div>
               </TableCell>
               <TableCell className="hidden md:table-cell">
-                <div className="font-bold text-gray-800">{(payment.commission / 1000).toFixed(0)}K GNF</div>
-                <div className="text-sm text-gray-500">{payment.commissionRate}%</div>
+                <div className="font-bold text-gray-800 dark:text-gray-100">{(payment.commission / 1000).toFixed(0)}K GNF</div>
+                <div className="text-sm text-gray-500 dark:text-gray-400">{payment.commissionRate}%</div>
               </TableCell>
               <TableCell>
-                <div className="font-bold text-gray-800">{(payment.payable / 1000).toFixed(0)}K GNF</div>
+                <div className="font-bold text-gray-800 dark:text-gray-100">{(payment.payable / 1000).toFixed(0)}K GNF</div>
               </TableCell>
               <TableCell className="hidden sm:table-cell">
                 {renderStatus(payment.status)}
               </TableCell>
-            
+
               <TableCell className="w-24 text-right">
                 <PaymentActions
                   payment={payment}
@@ -733,8 +739,8 @@ const Commissions = () => {
             {/* Informations du chauffeur */}
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Informations du chauffeur</h3>
-                <div className="bg-gray-50 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Informations du chauffeur</h3>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
                   <div className="flex items-center mb-3">
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-green-500 to-blue-700 flex items-center justify-center mr-3">
                       <span className="text-white font-bold">
@@ -742,21 +748,21 @@ const Commissions = () => {
                       </span>
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800">{payment.driver}</p>
-                      <p className="text-sm text-gray-500">{payment.driverId}</p>
+                      <p className="font-bold text-gray-800 dark:text-gray-100">{payment.driver}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{payment.driverId}</p>
                     </div>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center">
-                      <Mail className="w-4 h-4 text-gray-400 mr-2" />
+                      <Mail className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
                       <span className="text-sm">{payment.email}</span>
                     </div>
                     <div className="flex items-center">
-                      <Phone className="w-4 h-4 text-gray-400 mr-2" />
+                      <Phone className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
                       <span className="text-sm">{payment.phone}</span>
                     </div>
                     <div className="flex items-center">
-                      <MapPin className="w-4 h-4 text-gray-400 mr-2" />
+                      <MapPin className="w-4 h-4 text-gray-400 dark:text-gray-500 mr-2" />
                       <span className="text-sm">{payment.location}</span>
                     </div>
                   </div>
@@ -765,21 +771,21 @@ const Commissions = () => {
 
               {/* Informations de paiement */}
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Informations de paiement</h3>
-                <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mt-16 mb-3">Informations de paiement</h3>
+                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Compte:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Compte:</span>
                     <span className="font-medium">{payment.account}</span>
                   </div>
                   {payment.bank && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Banque:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Banque:</span>
                       <span className="font-medium">{payment.bank}</span>
                     </div>
                   )}
                   {payment.accountNumber && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Numéro de compte:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Numéro de compte:</span>
                       <span className="font-medium">{payment.accountNumber}</span>
                     </div>
                   )}
@@ -790,33 +796,33 @@ const Commissions = () => {
             {/* Détails financiers */}
             <div className="space-y-4">
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Détails financiers</h3>
-                <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-4">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Détails financiers</h3>
+                <div className="bg-slate-200/30 dark:bg-gray-800 rounded-xl p-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="text-center">
-                      <p className="text-sm text-gray-500">Trajets</p>
-                      <p className="text-2xl font-bold text-gray-800">{payment.trips}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Trajets</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{payment.trips}</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-gray-500">Taux</p>
-                      <p className="text-2xl font-bold text-gray-800">{payment.commissionRate}%</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Taux</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{payment.commissionRate}%</p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-gray-500">Revenus bruts</p>
-                      <p className="text-2xl font-bold text-gray-800">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Revenus bruts</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                         {(payment.revenue / 1000).toFixed(0)}K GNF
                       </p>
                     </div>
                     <div className="text-center">
-                      <p className="text-sm text-gray-500">Commission</p>
-                      <p className="text-2xl font-bold text-gray-800">
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Commission</p>
+                      <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                         {(payment.commission / 1000).toFixed(0)}K GNF
                       </p>
                     </div>
                   </div>
-                  <div className="mt-4 pt-4 border-t border-gray-200">
+                  <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-800">
                     <div className="flex justify-between items-center">
-                      <span className="text-lg font-medium text-gray-700">À verser:</span>
+                      <span className="text-lg font-medium text-gray-700 dark:text-gray-200">À verser:</span>
                       <span className="text-2xl font-bold text-green-600">
                         {(payment.payable / 1000).toFixed(0)}K GNF
                       </span>
@@ -827,21 +833,21 @@ const Commissions = () => {
 
               {/* Métadonnées */}
               <div>
-                <h3 className="text-sm font-medium text-gray-500 mb-3">Métadonnées</h3>
-                <div className="bg-gray-50 rounded-xl p-4 space-y-3">
+                <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-3">Métadonnées</h3>
+                <div className="bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 space-y-3">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Date de création:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Date de création:</span>
                     <span className="font-medium">{payment.createdAt}</span>
                   </div>
                   {payment.paymentDate && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Date de paiement:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Date de paiement:</span>
                       <span className="font-medium">{payment.paymentDate}</span>
                     </div>
                   )}
                   {payment.processedBy && (
                     <div className="flex justify-between">
-                      <span className="text-gray-600">Traité par:</span>
+                      <span className="text-gray-600 dark:text-gray-300">Traité par:</span>
                       <span className="font-medium">{payment.processedBy}</span>
                     </div>
                   )}
@@ -850,29 +856,8 @@ const Commissions = () => {
             </div>
           </div>
 
-          {/* Notes et commentaires */}
-          {payment.notes && payment.notes.length > 0 && (
-            <div>
-              <h3 className="text-sm font-medium text-gray-500 mb-3">Historique des notes</h3>
-              <div className="space-y-3">
-                {payment.notes.map((note) => (
-                  <div key={note.id} className="bg-gray-50 rounded-xl p-3">
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="flex items-center">
-                        <User className="w-4 h-4 text-gray-400 mr-2" />
-                        <span className="font-medium text-sm">{note.user}</span>
-                      </div>
-                      <span className="text-xs text-gray-500">{note.date}</span>
-                    </div>
-                    <p className="text-sm text-gray-700">{note.message}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
-
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3 pt-6 border-t border-gray-200 dark:border-gray-800">
             <Button
               variant="secondary"
               icon={X}
@@ -881,9 +866,9 @@ const Commissions = () => {
             >
               Fermer
             </Button>
-            
+
             <Button
-              variant="warning"
+              variant="primary"
               icon={Edit3}
               onClick={() => {
                 setModalState(prev => ({ ...prev, showDetails: false, showEdit: true }));
@@ -894,7 +879,7 @@ const Commissions = () => {
             </Button>
             {payment.status === 'pending' && (
               <Button
-                variant="success"
+                variant="perso"
                 icon={CheckCircle}
                 onClick={() => {
                   setModalState(prev => ({ ...prev, showDetails: false, showProcess: true }));
@@ -932,7 +917,7 @@ const Commissions = () => {
       >
         <div className="space-y-6 scroll-m-t-2 overflow-y-auto h-[70vh]">
           {/* Informations de base */}
-          <div className="bg-gray-50 rounded-xl p-4 mb-4">
+          <div className="bg-gray-50 dark:bg-gray-900/40 rounded-xl p-4 mb-4">
             <div className="flex items-center mb-3">
               <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-500 to-blue-700 flex items-center justify-center mr-3">
                 <span className="text-white font-bold">
@@ -940,17 +925,17 @@ const Commissions = () => {
                 </span>
               </div>
               <div>
-                <p className="font-bold text-gray-800">{payment.driver}</p>
-                <p className="text-sm text-gray-500">{payment.driverId}</p>
+                <p className="font-bold text-gray-800 dark:text-gray-100">{payment.driver}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">{payment.driverId}</p>
               </div>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <p className="text-xs text-gray-500">Service</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Service</p>
                 <p className="font-medium">{getServiceLabel(payment.service)}</p>
               </div>
               <div>
-                <p className="text-xs text-gray-500">Revenus bruts</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Revenus bruts</p>
                 <p className="font-medium">{(payment.revenue / 1000).toFixed(0)}K GNF</p>
               </div>
             </div>
@@ -960,7 +945,7 @@ const Commissions = () => {
           <div className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Nombre de trajets
                 </label>
                 <input
@@ -969,12 +954,12 @@ const Commissions = () => {
                   max="1000"
                   value={editForm.trips}
                   onChange={(e) => setEditForm(prev => ({ ...prev, trips: parseInt(e.target.value) || 0 }))}
-                  className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                  className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                   Taux de commission (%)
                 </label>
                 <div className="relative">
@@ -985,21 +970,21 @@ const Commissions = () => {
                     step="0.5"
                     value={editForm.commissionRate}
                     onChange={(e) => setEditForm(prev => ({ ...prev, commissionRate: parseFloat(e.target.value) || 0 }))}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 pr-12 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                    className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 pr-12 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
                   />
-                  <span className="absolute right-3 top-2 text-gray-500">%</span>
+                  <span className="absolute right-3 top-2 text-gray-500 dark:text-gray-400">%</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Méthode de paiement
               </label>
               <select
                 value={editForm.paymentMethod}
                 onChange={(e) => setEditForm(prev => ({ ...prev, paymentMethod: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
               >
                 <option value="orange_money">Orange Money</option>
                 <option value="mtn_money">MTN Mobile Money</option>
@@ -1008,7 +993,7 @@ const Commissions = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Numéro de compte / téléphone
               </label>
               <input
@@ -1016,12 +1001,12 @@ const Commissions = () => {
                 value={editForm.account}
                 onChange={(e) => setEditForm(prev => ({ ...prev, account: e.target.value }))}
                 placeholder="+224 6XX XX XX XX"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Notes (optionnel)
               </label>
               <textarea
@@ -1029,26 +1014,26 @@ const Commissions = () => {
                 onChange={(e) => setEditForm(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Ajouter une note sur les modifications..."
                 rows="3"
-                className="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
+                className="w-full border border-gray-300 dark:border-gray-700 rounded-lg px-4 py-2 focus:ring-2 focus:ring-green-500 focus:border-green-500 outline-none"
               />
             </div>
           </div>
 
           {/* Récapitulatif */}
           <div className="bg-blue-50 rounded-xl p-4">
-            <h4 className="text-sm font-medium text-gray-700 mb-3">Récapitulatif</h4>
+            <h4 className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">Récapitulatif</h4>
             <div className="space-y-2">
               <div className="flex justify-between">
-                <span className="text-gray-600">Commission recalculée:</span>
+                <span className="text-gray-600 dark:text-gray-300">Commission recalculée:</span>
                 <span className="font-bold text-red-600">{(commission / 1000).toFixed(0)}K GNF</span>
               </div>
               <div className="flex justify-between">
-                <span className="text-gray-600">À verser recalculé:</span>
+                <span className="text-gray-600 dark:text-gray-300">À verser recalculé:</span>
                 <span className="font-bold text-green-600">{(payable / 1000).toFixed(0)}K GNF</span>
               </div>
-              <div className="pt-2 border-t border-gray-300">
+              <div className="pt-2 border-t border-gray-300 dark:border-gray-700">
                 <div className="flex justify-between">
-                  <span className="font-medium text-gray-700">Différence:</span>
+                  <span className="font-medium text-gray-700 dark:text-gray-200">Différence:</span>
                   <span className={`font-bold ${payable > payment.payable ? 'text-green-600' : 'text-red-600'}`}>
                     {payable > payment.payable ? '+' : ''}{((payable - payment.payable) / 1000).toFixed(1)}K GNF
                   </span>
@@ -1058,7 +1043,7 @@ const Commissions = () => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex justify-end space-x-3 pt-4 border-t border-gray-200 dark:border-gray-800">
             <Button
               variant="secondary"
               onClick={() => setModalState(prev => ({ ...prev, showEdit: false }))}
@@ -1094,7 +1079,7 @@ const Commissions = () => {
   const chartHeight = isMobile ? '220px' : '300px';
 
   return (
-    <div className="space-y-4 md:space-y-6 px-2 md:px-0">
+    <div className="space-y-4 md:space-y-6 px-2">
       {/* Toast Notification */}
       {toast.show && (
         <Toast
@@ -1122,7 +1107,7 @@ const Commissions = () => {
         loading={modalState.loading}
       />
 
-      
+
 
       {/* Modal de détails */}
       <PaymentDetailsModal />
@@ -1137,8 +1122,8 @@ const Commissions = () => {
         className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des commissions</h1>
-          <p className="text-gray-500 text-sm md:text-base">Suivez et gérez les commissions de la plateforme</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">Gestion des commissions</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">Suivez et gérez les commissions de la plateforme</p>
         </div>
 
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -1183,7 +1168,7 @@ const Commissions = () => {
       </div>
 
       {/* Commission Chart */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div className="lg:col-span-2">
           <ChartCard
             title="Évolution des commissions"
@@ -1228,9 +1213,9 @@ const Commissions = () => {
 
         <Card>
           <CardHeader>
-            <CardTitle>Répartition par service</CardTitle>
+            <CardTitle  >Répartition par service</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
+          <CardContent className="space-y-2">
             {[
               { label: 'Moto-taxi', percentage: '35%', amount: '220K GNF', color: 'green' },
               { label: 'Taxi partagé', percentage: '45%', amount: '283K GNF', color: 'blue' },
@@ -1238,8 +1223,8 @@ const Commissions = () => {
             ].map((service, idx) => (
               <div key={idx}>
                 <div className="flex justify-between mb-1">
-                  <span className="text-sm font-medium text-gray-700">{service.label}</span>
-                  <span className="text-sm font-bold text-gray-800">{service.percentage}</span>
+                  <span className="text-sm font-medium text-gray-700 dark:text-gray-200">{service.label}</span>
+                  <span className="text-sm font-bold text-gray-800 dark:text-gray-100">{service.percentage}</span>
                 </div>
                 <div className="progress-bar">
                   <div
@@ -1247,13 +1232,13 @@ const Commissions = () => {
                     style={{ width: service.percentage }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">{service.amount}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{service.amount}</p>
               </div>
             ))}
-            <div className="mt-6 pt-6 border-t border-gray-100">
+            <div className="mt-6 pt-6 border-t border-gray-100 dark:border-gray-800">
               <div className="text-center">
-                <p className="text-sm text-gray-500">Commission moyenne par trajet</p>
-                <p className="text-2xl font-bold text-gray-800">257 GNF</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Commission moyenne par trajet</p>
+                <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">257 GNF</p>
               </div>
             </div>
           </CardContent>
@@ -1264,11 +1249,11 @@ const Commissions = () => {
       <Card hoverable={false}>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           <div className="relative lg:col-span-2">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
             <input
               type="text"
               placeholder="Rechercher un chauffeur, ID ou compte..."
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition text-sm md:text-base"
+              className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition text-sm md:text-base"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -1278,7 +1263,7 @@ const Commissions = () => {
           </div>
 
           <select
-            className="border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
+            className="border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
             value={serviceFilter}
             onChange={(e) => {
               setServiceFilter(e.target.value);
@@ -1292,7 +1277,7 @@ const Commissions = () => {
           </select>
 
           <select
-            className="border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
+            className="border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
             value={statusFilter}
             onChange={(e) => {
               setStatusFilter(e.target.value);
@@ -1307,7 +1292,7 @@ const Commissions = () => {
           </select>
 
           <select
-            className="border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
+            className="border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
             value={methodFilter}
             onChange={(e) => {
               setMethodFilter(e.target.value);
@@ -1323,7 +1308,7 @@ const Commissions = () => {
       </Card>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto">
         <div className="min-w-max md:min-w-0">
           <Tabs
             tabs={commissionTabs}
@@ -1344,20 +1329,20 @@ const Commissions = () => {
             <div>
               <CardTitle>
                 {activeTab === 'pending' ? 'Paiements en attente' :
-                 activeTab === 'paid' ? 'Paiements payés' :
-                 activeTab === 'failed' ? 'Paiements échoués' : 'Tous les paiements'}
-                <span className="ml-2 text-gray-500">({filteredPayments.length})</span>
+                  activeTab === 'paid' ? 'Paiements payés' :
+                    activeTab === 'failed' ? 'Paiements échoués' : 'Tous les paiements'}
+                <span className="ml-2 text-gray-500 dark:text-gray-400">({filteredPayments.length})</span>
               </CardTitle>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 {selectedPayments.length > 0 && `${selectedPayments.length} sélectionné(s) • `}
                 {paginatedPayments.length} affiché(s) sur {filteredPayments.length}
               </p>
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Afficher :</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">Afficher :</span>
               <select
-                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-400 transition w-full md:w-auto"
+                className="border border-gray-200 dark:bg-gray-900/50 dark:border-gray-800 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-400 transition w-full md:w-auto"
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
@@ -1392,9 +1377,9 @@ const Commissions = () => {
 
           {paginatedPayments.length === 0 && (
             <div className="text-center py-12">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">Aucun paiement trouvé</p>
-              <p className="text-gray-400 text-sm mt-1">
+              <AlertCircle className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">Aucun paiement trouvé</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
                 Essayez de modifier vos filtres ou votre recherche
               </p>
             </div>

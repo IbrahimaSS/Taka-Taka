@@ -23,10 +23,10 @@ const SecuritySettings = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card hoverable className="border-2 border-gray-100 hover:border-red-100 transition-all duration-300">
+      <Card hoverable className="border-2 border-gray-100 dark:border-gray-900 hover:border-red-100 transition-all duration-300">
         <CardHeader>
           <CardTitle>Sécurité du compte</CardTitle>
-          <p className="text-gray-500 text-sm">Protégez votre compte avec ces fonctionnalités</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Protégez votre compte avec ces fonctionnalités</p>
         </CardHeader>
         <CardContent className="space-y-6">
           {[
@@ -44,23 +44,23 @@ const SecuritySettings = () => {
               icon: Bell,
               recommended: true
             },
-           
+
           ].map((item) => (
-            <div key={item.key} className="flex items-center justify-between p-4 border-2 border-gray-100 rounded-xl hover:border-gray-200 transition-all">
+            <div key={item.key} className="flex items-center justify-between p-4 border-2 border-gray-100 dark:border-gray-900 rounded-xl hover:border-gray-200 dark:border-gray-900 transition-all">
               <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-xl ${item.recommended ? 'bg-red-100' : 'bg-gray-100'} flex items-center justify-center`}>
-                  <item.icon className={`${item.recommended ? 'text-red-500' : 'text-gray-500'} w-6 h-6`} />
+                <div className={`w-12 h-12 rounded-xl ${item.recommended ? 'bg-red-100' : 'bg-gray-100 dark:bg-gray-800'} flex items-center justify-center`}>
+                  <item.icon className={`${item.recommended ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'} w-6 h-6`} />
                 </div>
                 <div>
                   <div className="flex items-center space-x-2">
-                    <p className="font-semibold text-gray-800">{item.label}</p>
+                    <p className="font-semibold text-gray-800 dark:text-gray-100">{item.label}</p>
                     {item.recommended && (
                       <span className="px-2 py-1 bg-red-100 text-red-700 text-xs font-semibold rounded-full">
                         Recommandé
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500">{item.description}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
                 </div>
               </div>
               <Switch
@@ -73,27 +73,27 @@ const SecuritySettings = () => {
         </CardContent>
       </Card>
 
-      <Card hoverable className="border-2 border-gray-100 hover:border-blue-100 transition-all duration-300">
+      <Card hoverable className="border-2 border-gray-100 dark:border-gray-900 hover:border-blue-100 transition-all duration-300">
         <CardHeader>
           <CardTitle>Changer votre mot de passe</CardTitle>
-          <p className="text-gray-500 text-sm">Mettez à jour votre mot de passe régulièrement</p>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">Mettez à jour votre mot de passe régulièrement</p>
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Mot de passe actuel
               </label>
               <div className="relative">
-                <Key className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+                <Key className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500 w-5 h-5" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full border-2 border-gray-200 rounded-xl pl-10 pr-10 py-3 outline-none focus:border-blue-400 transition-all"
+                  className="w-full border-2 border-gray-200 dark:bg-gray-800 dark:border-gray-900 rounded-xl pl-10 pr-10 py-3 outline-none focus:border-blue-400 transition-all"
                   placeholder="••••••••"
                 />
                 <button
                   type="button"
-                  className="absolute right-3 top-3.5 text-gray-400 hover:text-gray-600"
+                  className="absolute right-3 top-3.5 text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:text-gray-300"
                   onClick={() => setShowPassword(!showPassword)}
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
@@ -101,28 +101,28 @@ const SecuritySettings = () => {
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Nouveau mot de passe
               </label>
               <div className="relative">
-                <Key className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+                <Key className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500 w-5 h-5" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full border-2 border-gray-200 rounded-xl pl-10 pr-10 py-3 outline-none focus:border-blue-400 transition-all"
+                  className="w-full border-2 border-gray-200 dark:bg-gray-800 dark:border-gray-900 rounded-xl pl-10 pr-10 py-3 outline-none focus:border-blue-400 transition-all"
                   placeholder="••••••••"
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-2">Minimum 8 caractères avec majuscules, minuscules et chiffres</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Minimum 8 caractères avec majuscules, minuscules et chiffres</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-2">
                 Confirmer le nouveau mot de passe
               </label>
               <div className="relative">
-                <Key className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+                <Key className="absolute left-3 top-3.5 text-gray-400 dark:text-gray-500 w-5 h-5" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full border-2 border-gray-200 rounded-xl pl-10 pr-10 py-3 outline-none focus:border-blue-400 transition-all"
+                  className="w-full border-2 border-gray-200 dark:bg-gray-800 dark:border-gray-900 rounded-xl pl-10 pr-10 py-3 outline-none focus:border-blue-400 transition-all"
                   placeholder="••••••••"
                 />
               </div>
@@ -130,11 +130,10 @@ const SecuritySettings = () => {
           </div>
         </CardContent>
         <CardFooter>
-          <Button 
-            variant="primary" 
-            icon={Key} 
+          <Button
+            variant="perso"
+            icon={Key}
             fullWidth
-            className="bg-gradient-to-br from-teal-700 to-blue-700 hover:from-teal-800 hover:to-blue-800"
           >
             Mettre à jour le mot de passe
           </Button>

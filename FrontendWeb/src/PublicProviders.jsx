@@ -2,7 +2,6 @@ import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { ThemeProvider } from './context/ThemeContext';
 
 export default function PublicProviders() {
   useEffect(() => {
@@ -14,9 +13,5 @@ export default function PublicProviders() {
     });
   }, []);
 
-  return (
-    <ThemeProvider>
-      <Outlet />
-    </ThemeProvider>
-  );
+  return <Outlet />;
 }

@@ -4,15 +4,15 @@ import clsx from 'clsx';
 
 
 // Composant pour les onglets de navigation
-const Tabs = ({ 
-  tabs, 
-  activeTab, 
-  onChange, 
+const Tabs = ({
+  tabs,
+  activeTab,
+  onChange,
   className = '',
-  variant = 'default' 
+  variant = 'default'
 }) => {
   const variants = {
-    default: 'border-gray-200',
+    default: 'border-gray-200 dark:bg-gray-800 dark:border-gray-800',
     primary: 'border-green-200',
   };
 
@@ -24,7 +24,7 @@ const Tabs = ({
             key={tab.id}
             onClick={() => onChange(tab.id)}
             className={clsx(
-              'flex items-center px-6 py-4 text-gray-600 hover:text-gray-800 font-medium border-b-2 transition-colors whitespace-nowrap',
+              'flex items-center px-6 py-4 text-gray-600 dark:text-gray-300 hover:text-gray-800 dark:text-gray-100 font-medium border-b-2 transition-colors whitespace-nowrap',
               activeTab === tab.id
                 ? 'border-green-500 text-green-600'
                 : 'border-transparent'

@@ -12,7 +12,7 @@ const HomePage = () => {
   const [selectedOption, setSelectedOption] = useState('standard');
 
   return (
-    <div className="bg-gray-50 dark:bg-gray-900 text-gray-800 dark:text-gray-200 overflow-x-hidden">
+    <div className="bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 overflow-x-hidden">
 
 
       <Navbar />

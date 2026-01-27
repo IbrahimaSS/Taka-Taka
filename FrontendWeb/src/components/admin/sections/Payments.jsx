@@ -16,16 +16,28 @@ import {
   DollarSign, Repeat, Hourglass, Percent,
   Download, Smartphone, CreditCard,
   User, Car, CheckCircle, XCircle, Calendar,
-  Eye, TrendingUp, Search,
+  Eye, Filter, TrendingUp, BarChart, PieChart, Search,
   MoreVertical, RefreshCw, FileText,
-  FileSpreadsheet, AlertCircle,
-  ChartLine,
-  Copy, Share2,
-  ExternalLink, Receipt,
-  TrendingDown,
-  CreditCard as CreditCardIcon,
-  ArrowUpRight, ArrowDownRight
+  FileSpreadsheet, FileDown, AlertCircle, Clock,
+  Plus, ChevronDown, ChartLine,
+  Activity, Shield, Archive, FileJson,
+  CalendarDays, HardDrive, Copy, Share2, Bell,
+  Lock, Unlock, Trash2, Edit2, Save, Upload, Folder,
+  Settings, HelpCircle, Info, DownloadCloud,
+  ExternalLink, Receipt, QrCode, Wallet, Banknote,
+  TrendingDown, ShieldCheck, Wifi, Battery,
+  SmartphoneCharging, CreditCard as CreditCardIcon,
+  ArrowUpRight, ArrowDownRight, WalletCards,
+  Smartphone as SmartphoneIcon,
+  MessageSquare, Users, MapPin, Star,
+  FileType, EyeOff, Database, Network,
+  Maximize2, ZoomIn, ZoomOut, RotateCw, Hash,
+  Grid, Volume2, Sun, Moon, CloudRain,
+  ChevronRight, ChevronLeft, ArrowRight,
+  Hand
 } from 'lucide-react';
+import { color } from 'chart.js/helpers';
+import { col } from 'framer-motion/client';
 
 // Données de démonstration enrichies
 const generatePayments = (count = 50) => {
@@ -153,7 +165,7 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
               initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: -10 }}
-              className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+              className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-900 z-50"
             >
               <div className="py-2">
                 <button
@@ -161,7 +173,7 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
                     onExport?.(payment, 'pdf');
                     setShowExportMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                 >
                   <FileText className="w-4 h-4 mr-3 text-red-500" />
                   Export PDF
@@ -171,7 +183,7 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
                     onExport?.(payment, 'csv');
                     setShowExportMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                 >
                   <FileSpreadsheet className="w-4 h-4 mr-3 text-green-500" />
                   Export CSV
@@ -181,7 +193,7 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
                     onExport?.(payment, 'doc');
                     setShowExportMenu(false);
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                 >
                   <FileText className="w-4 h-4 mr-3 text-blue-500" />
                   Export DOC
@@ -192,11 +204,11 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
         </AnimatePresence>
       </div>
       <button
-        className="p-2 hover:bg-gray-100 rounded-lg transition"
+        className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 dark:bg-gray-800 rounded-lg transition"
         onClick={() => setShowActions(!showActions)}
         title="Plus d'actions"
       >
-        <MoreVertical className="w-4 h-4 text-gray-500" />
+        <MoreVertical className="w-4 h-4 text-gray-500 dark:text-gray-400" />
       </button>
       <AnimatePresence>
         {showActions && (
@@ -204,7 +216,7 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
             initial={{ opacity: 0, scale: 0.95, y: -10 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className="absolute right-0 top-full mt-2 w-56 bg-white rounded-xl shadow-lg border border-gray-200 z-50"
+            className="absolute right-0 top-full mt-2 w-56 bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-200 dark:border-gray-900 z-50"
           >
             <div className="py-1">
               <button
@@ -212,7 +224,7 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
                   onView(payment);
                   setShowActions(false);
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
               >
                 <Eye className="w-4 h-4 mr-2 text-blue-500" />
                 Voir détails
@@ -224,19 +236,19 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
                     onDownload?.(payment);
                     setShowActions(false);
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                 >
                   <Download className="w-4 h-4 mr-2 text-green-500" />
                   Télécharger facture
                 </button>
-              )}  
+              )}
               {payment.refundable && (
                 <button
                   onClick={() => {
                     onRefund?.(payment);
                     setShowActions(false);
                   }}
-                  className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                  className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
                 >
                   <RefreshCw className="w-4 h-4 mr-2 text-orange-500" />
                   Rembourser
@@ -247,9 +259,9 @@ const PaymentActions = ({ payment, onView, onDownload, onRefund, onExport }) => 
                   onExport?.(payment, 'print');
                   setShowActions(false);
                 }}
-                className="w-full px-4 py-2 text-left hover:bg-gray-50 flex items-center text-sm text-gray-700"
+                className="w-full px-4 py-2 text-left hover:bg-gray-50 dark:hover:bg-gray-700 dark:bg-gray-800 flex items-center text-sm text-gray-700 dark:text-gray-200"
               >
-                <FileText className="w-4 h-4 mr-2 text-gray-500" />
+                <FileText className="w-4 h-4 mr-2 text-gray-500 dark:text-gray-400" />
                 Imprimer
               </button>
             </div>
@@ -295,18 +307,18 @@ const MobilePaymentCard = ({ payment, isSelected, onSelect, onAction }) => {
   };
 
   return (
-    <div className={`bg-white rounded-xl border ${isSelected ? 'border-green-400 bg-green-50' : 'border-gray-200'} p-4 mb-3`}>
+    <div className={`bg-white dark:bg-gray-800 rounded-xl border ${isSelected ? 'border-green-400 bg-green-50' : 'border-gray-200 dark:border-gray-900'} p-4 mb-3`}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-start space-x-3">
           <input
             type="checkbox"
-            className="mt-1 rounded border-gray-300 text-green-500 focus:ring-green-400"
+            className="mt-1 rounded border-gray-300 dark:border-gray-700 text-green-500 focus:ring-green-400"
             checked={isSelected}
             onChange={(e) => onSelect(payment.id, e.target.checked)}
           />
           <div>
-            <h3 className="font-bold text-gray-800 text-sm">{payment.id}</h3>
-            <p className="text-gray-500 text-xs mt-1">{payment.passenger.name} → {payment.driver.name}</p>
+            <h3 className="font-bold text-gray-800 dark:text-gray-100 text-sm">{payment.id}</h3>
+            <p className="text-gray-500 dark:text-gray-400 text-xs mt-1">{payment.passenger.name} → {payment.driver.name}</p>
             <div className="flex items-center mt-2 space-x-2">
               {getMethodBadge(payment.method)}
               {getStatusBadge(payment.status)}
@@ -314,12 +326,12 @@ const MobilePaymentCard = ({ payment, isSelected, onSelect, onAction }) => {
           </div>
         </div>
         <div className="text-right">
-          <p className="font-bold text-gray-800">{payment.amount}</p>
-          <p className="text-xs text-gray-500">{payment.date}</p>
+          <p className="font-bold text-gray-800 dark:text-gray-100">{payment.amount}</p>
+          <p className="text-xs text-gray-500 dark:text-gray-400">{payment.date}</p>
         </div>
       </div>
 
-      <div className="flex justify-between items-center text-xs text-gray-500 border-t border-gray-100 pt-3">
+      <div className="flex justify-between items-center text-xs text-gray-500 dark:text-gray-400 border-t border-gray-100 dark:border-gray-900 pt-3">
         <div className="flex items-center">
           <User className="w-3 h-3 mr-1" />
           {payment.passenger.name}
@@ -407,7 +419,7 @@ const Payments = () => {
         subtitle: `+${Math.round(totalAmount * 0.18 / 1000)}K vs mois dernier`
       },
       {
-        title: "Total des paiements",
+        title: "Total paiements",
         value: payments.length.toString(),
         icon: Repeat,
         color: "blue",
@@ -708,9 +720,9 @@ const Payments = () => {
   const getMethodBadge = (method) => {
     const config = {
       'cash': { label: 'Espèces', color: 'green', icon: DollarSign },
-      'orange': { label: 'Orange Money',  color: 'yellow', icon: Smartphone },
+      'orange': { label: 'Orange Money', color: 'yellow', icon: Smartphone },
       'mtn': { label: 'MTN ', color: 'red', icon: CreditCard },
-      'card': { label: 'Carte', color: 'gray', icon: CreditCardIcon }, 
+      'card': { label: 'Carte', color: 'gray', icon: CreditCardIcon },
     };
 
     const { label, color, icon: Icon } = config[method] || config.cash;
@@ -765,8 +777,8 @@ const Payments = () => {
           {/* En-tête */}
           <div className="flex items-start justify-between">
             <div>
-              <h2 className="text-xl font-bold text-gray-800">Transaction {payment.id}</h2>
-              <p className="text-gray-600 mt-1">
+              <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Transaction {payment.id}</h2>
+              <p className="text-gray-600 dark:text-gray-300 mt-1">
                 Référence: {payment.reference} • {payment.date} à {payment.time}
               </p>
               <div className="flex items-center mt-2 space-x-2">
@@ -776,8 +788,8 @@ const Payments = () => {
               </div>
             </div>
             <div className="text-right">
-              <p className="text-2xl font-bold text-gray-800">{payment.amount}</p>
-              <p className="text-sm text-gray-500">Net: {payment.netAmount}</p>
+              <p className="text-2xl font-bold text-gray-800 dark:text-gray-100">{payment.amount}</p>
+              <p className="text-sm text-gray-500 dark:text-gray-400">Net: {payment.netAmount}</p>
             </div>
           </div>
 
@@ -789,19 +801,19 @@ const Payments = () => {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Trajet ID</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Trajet ID</p>
                   <p className="font-medium">{payment.trip.id}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Itinéraire</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Itinéraire</p>
                   <p className="font-medium">{payment.trip.route}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Distance</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Distance</p>
                   <p className="font-medium">{payment.trip.distance}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 mb-1">Durée</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Durée</p>
                   <p className="font-medium">{payment.trip.duration}</p>
                 </div>
               </div>
@@ -817,17 +829,17 @@ const Payments = () => {
               <CardContent>
                 <div className="space-y-3">
                   <div className="flex items-center space-x-3">
-                    <div className="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full  flex items-center justify-center">
                       <User className="text-green-600" size={24} />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800">{payment.passenger.name}</p>
-                      <p className="text-sm text-gray-600">{payment.passenger.phone}</p>
+                      <p className="font-bold text-gray-800 dark:text-gray-100">{payment.passenger.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{payment.passenger.phone}</p>
                     </div>
                   </div>
                   <div className="text-sm">
-                    <p className="text-gray-500">Email: {payment.passenger.email}</p>
-                    <p className="text-gray-500">Note: {payment.passenger.rating}/5</p>
+                    <p className="text-gray-500 dark:text-gray-400">Email: {payment.passenger.email}</p>
+                    <p className="text-gray-500 dark:text-gray-400">Note: {payment.passenger.rating}/5</p>
                   </div>
                 </div>
               </CardContent>
@@ -844,13 +856,13 @@ const Payments = () => {
                       <Car className="text-blue-600" size={24} />
                     </div>
                     <div>
-                      <p className="font-bold text-gray-800">{payment.driver.name}</p>
-                      <p className="text-sm text-gray-600">{payment.driver.phone}</p>
+                      <p className="font-bold text-gray-800 dark:text-gray-100">{payment.driver.name}</p>
+                      <p className="text-sm text-gray-600 dark:text-gray-300">{payment.driver.phone}</p>
                     </div>
                   </div>
                   <div className="text-sm">
-                    <p className="text-gray-500">Compte: {payment.driver.account}</p>
-                    <p className="text-gray-500">Note: {payment.driver.rating}/5</p>
+                    <p className="text-gray-500 dark:text-gray-400">Compte: {payment.driver.account}</p>
+                    <p className="text-gray-500 dark:text-gray-400">Note: {payment.driver.rating}/5</p>
                   </div>
                 </div>
               </CardContent>
@@ -865,24 +877,24 @@ const Payments = () => {
             <CardContent>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Montant total:</span>
+                  <span className="text-gray-600 dark:text-gray-300">Montant total:</span>
                   <span className="font-medium">{payment.amount}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Commission ({payment.commissionRate}):</span>
+                  <span className="text-gray-600 dark:text-gray-300">Commission ({payment.commissionRate}):</span>
                   <span className="font-medium text-red-600">-{payment.commission}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Frais de plateforme:</span>
+                  <span className="text-gray-600 dark:text-gray-300">Frais de plateforme:</span>
                   <span className="font-medium">-{payment.fees.platform}</span>
                 </div>
                 {payment.fees.processing !== '0 GNF' && (
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Frais de traitement:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Frais de traitement:</span>
                     <span className="font-medium">-{payment.fees.processing}</span>
                   </div>
                 )}
-                <div className="border-t border-gray-200 pt-3 mt-3">
+                <div className="border-t border-gray-200 dark:border-gray-800 pt-3 mt-3">
                   <div className="flex justify-between font-bold">
                     <span>Montant net:</span>
                     <span className="text-green-600">{payment.netAmount}</span>
@@ -893,7 +905,7 @@ const Payments = () => {
           </Card>
 
           {/* Informations techniques */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
             <Card>
               <CardHeader>
                 <CardTitle>Informations techniques</CardTitle>
@@ -901,25 +913,25 @@ const Payments = () => {
               <CardContent>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">ID Transaction:</span>
+                    <span className="text-gray-600 dark:text-gray-300">ID Transaction:</span>
                     <span className="font-medium">{payment.transactionId}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Référence:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Référence:</span>
                     <span className="font-medium">{payment.reference}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Traité le:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Traité le:</span>
                     <span className="font-medium">{payment.processedAt || 'Non traité'}</span>
                   </div>
-                  <div className="flex justify-between">
-                    <span className="text-gray-600">Passerelle:</span>
+                  {/* <div className="flex justify-between">
+                    <span className="text-gray-600 dark:text-gray-300">Passerelle:</span>
                     <span className="font-medium">{payment.paymentGateway}</span>
-                  </div>
+                  </div> */}
                 </div>
               </CardContent>
             </Card>
-
+            {/* 
             <Card>
               <CardHeader>
                 <CardTitle>Métadonnées</CardTitle>
@@ -927,30 +939,30 @@ const Payments = () => {
               <CardContent>
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Facture:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Facture:</span>
                     <span className="font-medium">{payment.invoiceNumber}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Score de risque:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Score de risque:</span>
                     <span className={`font-medium ${payment.riskScore > 70 ? 'text-red-600' : payment.riskScore > 30 ? 'text-yellow-600' : 'text-green-600'}`}>
                       {payment.riskScore}/100
                     </span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Appareil:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Appareil:</span>
                     <span className="font-medium">{payment.metadata.device}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-gray-600">Pays:</span>
+                    <span className="text-gray-600 dark:text-gray-300">Pays:</span>
                     <span className="font-medium">{payment.country}</span>
                   </div>
                 </div>
               </CardContent>
-            </Card>
+            </Card> */}
           </div>
 
           {/* Actions */}
-          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200">
+          <div className="flex flex-col sm:flex-row justify-end space-y-2 sm:space-y-0 sm:space-x-3 pt-4 border-t border-gray-200 dark:border-gray-800">
             <Button
               variant="secondary"
               onClick={() => setModalState(prev => ({ ...prev, showDetails: false }))}
@@ -959,7 +971,7 @@ const Payments = () => {
             </Button>
             {payment.invoiceGenerated && (
               <Button
-                variant="primary"
+                variant="perso"
                 icon={Download}
                 onClick={() => {
                   handleDownloadInvoice(payment);
@@ -1031,8 +1043,8 @@ const Payments = () => {
         className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4"
       >
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-800">Gestion des Paiements</h1>
-          <p className="text-gray-500 text-sm md:text-base">Surveillez et gérez toutes les transactions financières</p>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100">Gestion des Paiements</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm md:text-base">Surveillez et gérez toutes les transactions financières</p>
         </div>
 
         <div className="flex flex-wrap gap-2 w-full md:w-auto">
@@ -1076,7 +1088,7 @@ const Payments = () => {
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
                   <CardTitle>Évolution des paiements</CardTitle>
-                  <p className="text-gray-500 text-sm">Revenus et commissions sur 30 jours</p>
+                  <p className="text-gray-500 dark:text-gray-400 text-sm">Revenus et commissions sur 30 jours</p>
                 </div>
                 <div className="flex space-x-2">
                   <Button
@@ -1127,29 +1139,29 @@ const Payments = () => {
             <CardContent>
               <div className="space-y-4">
                 {paymentMethods.map((method) => (
-                  <div key={method.type} className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-lg transition">
+                  <div key={method.type} className="flex items-center justify-between p-3 hover:bg-gray-50 dark:hover:bg-gray-800/60 dark:bg-gray-800 rounded-lg transition">
                     <div className="flex items-center">
                       <div className={`w-10 h-10 rounded-lg flex items-center justify-center mr-3 ${method.color === 'green' ? 'bg-green-100' :
                         method.color === 'orange' ? 'bg-orange-100' :
                           method.color === 'blue' ? 'bg-blue-100' :
                             method.color === 'purple' ? 'bg-purple-100' :
-                              method.color === 'red' ? 'bg-red-100' : 'bg-gray-100'
+                              method.color === 'red' ? 'bg-red-100' : 'bg-gray-100 dark:bg-gray-800'
                         }`}>
                         <method.icon className={
                           method.color === 'green' ? 'text-green-500' :
                             method.color === 'orange' ? 'text-orange-500' :
                               method.color === 'blue' ? 'text-blue-500' :
                                 method.color === 'purple' ? 'text-purple-500' :
-                                  method.color === 'red' ? 'text-red-500' : 'text-gray-500'
+                                  method.color === 'red' ? 'text-red-500' : 'text-gray-500 dark:text-gray-400'
                         } />
                       </div>
                       <div>
-                        <p className="font-medium text-gray-800">{method.label}</p>
-                        <p className="text-sm text-gray-500">{method.percentage}% ({method.count})</p>
+                        <p className="font-medium text-gray-800 dark:text-gray-100">{method.label}</p>
+                        <p className="text-sm text-gray-500 dark:text-gray-400">{method.percentage}% ({method.count})</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-gray-800">{method.amount}</p>
+                      <p className="font-bold text-gray-800 dark:text-gray-100">{method.amount}</p>
                       <p className="text-sm text-green-500 flex items-center justify-end">
                         <TrendingUp className="w-3 h-3 mr-1" />
                         {method.trend}
@@ -1184,11 +1196,11 @@ const Payments = () => {
       <Card hoverable={false}>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="relative lg:col-span-2">
-            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 dark:text-gray-500 w-5 h-5" />
             <input
               type="text"
               placeholder="Rechercher une transaction..."
-              className="w-full pl-12 pr-4 py-3 border border-gray-200 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition text-sm md:text-base"
+              className="w-full pl-12 pr-4 py-3 border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl focus:border-green-400 focus:ring-2 focus:ring-green-100 outline-none transition text-sm md:text-base"
               value={search}
               onChange={(e) => {
                 setSearch(e.target.value);
@@ -1198,7 +1210,7 @@ const Payments = () => {
           </div>
 
           <select
-            className="border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
+            className="border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
             value={paymentFilter}
             onChange={(e) => {
               setPaymentFilter(e.target.value);
@@ -1213,7 +1225,7 @@ const Payments = () => {
           </select>
 
           <select
-            className="border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
+            className="border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl px-4 py-3 outline-none focus:border-green-400 focus:ring-2 focus:ring-green-100 transition text-sm md:text-base"
             value={methodFilter}
             onChange={(e) => {
               setMethodFilter(e.target.value);
@@ -1231,21 +1243,21 @@ const Payments = () => {
 
           <div className="col-span-2 grid grid-cols-2 gap-4 ">
             <div>
-              <label className="block text-sm text-gray-600 mb-2">Du</label>
+              <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">Du</label>
               <input
                 type="date"
                 value={dateRange.start}
                 onChange={(e) => setDateRange({ ...dateRange, start: e.target.value })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-400 transition"
+                className="w-full border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl px-4 py-3 outline-none focus:border-green-400 transition"
               />
             </div>
             <div>
-              <label className="block text-sm text-gray-600 mb-2">Au</label>
+              <label className="block text-sm text-gray-600 dark:text-gray-300 mb-2">Au</label>
               <input
                 type="date"
                 value={dateRange.end}
                 onChange={(e) => setDateRange({ ...dateRange, end: e.target.value })}
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 outline-none focus:border-green-400 transition"
+                className="w-full border border-gray-200 dark:border-gray-900 dark:bg-gray-800 rounded-xl px-4 py-3 outline-none focus:border-green-400 transition"
               />
             </div>
           </div>
@@ -1253,7 +1265,7 @@ const Payments = () => {
       </Card>
 
       {/* Tabs */}
-      <div className="bg-white rounded-xl border border-gray-200 overflow-x-auto">
+      <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-800 overflow-x-auto">
         <div className="min-w-max md:min-w-0">
           <Tabs
             tabs={tabs}
@@ -1273,16 +1285,16 @@ const Payments = () => {
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
             <div>
               <CardTitle>Transactions ({filteredPayments.length})</CardTitle>
-              <p className="text-gray-500 text-sm">
+              <p className="text-gray-500 dark:text-gray-400 text-sm">
                 {selectedPayments.length > 0 && `${selectedPayments.length} sélectionné(s) • `}
                 {paginatedPayments.length} affiché(s) sur {filteredPayments.length}
               </p>
             </div>
 
             <div className="flex items-center gap-2 w-full md:w-auto">
-              <span className="text-sm text-gray-500 whitespace-nowrap">Afficher :</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">Afficher :</span>
               <select
-                className="border border-gray-200 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-400 transition w-full md:w-auto"
+                className="border border-gray-200 dark:bg-gray-900/40 dark:border-gray-800 rounded-lg px-3 py-1.5 text-sm outline-none focus:border-green-400 transition w-full md:w-auto"
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(Number(e.target.value));
@@ -1332,8 +1344,8 @@ const Payments = () => {
                         <User className="text-white " size={14} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-800">{payment.passenger.name}</p>
-                        <p className="text-xs text-gray-500">{payment.passenger.phone}</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{payment.passenger.name}</p>
+                        {/* <p className="text-xs text-gray-500 dark:text-gray-400">{payment.passenger.phone}</p> */}
                       </div>
                     </div>
                   </TableCell>
@@ -1343,21 +1355,21 @@ const Payments = () => {
                         <Car className="text-blue-500" size={14} />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-gray-800">{payment.driver.name}</p>
-                        <p className="text-xs text-gray-500">{payment.driver.phone}</p>
+                        <p className="text-sm font-medium text-gray-800 dark:text-gray-100">{payment.driver.name}</p>
+                        {/* <p className="text-xs text-gray-500 dark:text-gray-400">{payment.driver.phone}</p> */}
                       </div>
                     </div>
                   </TableCell>
                   <TableCell>
-                    <div className="font-medium text-gray-800">{payment.trip.route}</div>
-                    <div className="text-xs text-gray-600">{payment.date}</div>
+                    <div className="font-medium text-gray-800 dark:text-gray-100">{payment.trip.route}</div>
+                    <div className="text-xs text-gray-600 dark:text-gray-300">{payment.date}</div>
                   </TableCell>
                   <TableCell>
                     {getMethodBadge(payment.method)}
                   </TableCell>
                   <TableCell>
-                    <div className="font-bold text-gray-800">{payment.amount}</div>
-                    <div className="text-sm text-gray-500"> {getStatusBadge(payment.status)}</div>
+                    <div className="font-bold text-gray-800 dark:text-gray-100">{payment.amount}</div>
+                    <div className="text-sm text-gray-500 dark:text-gray-400"> {getStatusBadge(payment.status)}</div>
                   </TableCell>
 
                   <TableCell>
@@ -1390,9 +1402,9 @@ const Payments = () => {
 
           {paginatedPayments.length === 0 && (
             <div className="text-center py-12">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">Aucune transaction trouvée</p>
-              <p className="text-gray-400 text-sm mt-1">
+              <AlertCircle className="w-12 h-12 text-gray-400 dark:text-gray-500 mx-auto mb-4" />
+              <p className="text-gray-500 dark:text-gray-400">Aucune transaction trouvée</p>
+              <p className="text-gray-400 dark:text-gray-500 text-sm mt-1">
                 Essayez de modifier vos filtres ou de rafraîchir la liste
               </p>
             </div>

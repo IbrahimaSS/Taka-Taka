@@ -1,6 +1,7 @@
+// src/App.jsx - VERSION MODERNE COMPLÈTE
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, useLocation } from 'react-router-dom';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 
@@ -10,68 +11,54 @@ import Header from '../components/admin/layout/Header';
 
 // Section Components
 import Dashboard from '../components/admin/sections/Dashboard';
-import Users from '../components/admin/sections/Users';
-import Drivers from '../components/admin/sections/Drivers';
-import Trips from '../components/admin/sections/Trips';
+import Users from '../components/admin/sections/Passagers';
+import Drivers from '../components/admin/sections/Chauffeurs';
+import Trips from '../components/admin/sections/Trajets';
+import Payments from '../components/admin/sections/Payments';
 import Validations from '../components/admin/sections/Validations';
-import Disputes from '../components/admin/sections/Disputes';
+import Disputes from '../components/admin/sections/Litiges';
 import Documents from '../components/admin/sections/Documents';
 import Reports from '../components/admin/sections/Reports';
 import Commissions from '../components/admin/sections/Commissions';
 import Settings from '../components/admin/sections/Settings';
-import Payments from '../components/admin/sections/Payments';
 import UserProfile from '../components/admin/profile/UserProfile';
 
 // UI Components
-import Toast from '../components/admin/ui/Toast';
-import Modal from '../components/admin/ui/Modal';
+import Toast from '../components/admin/ui/Toaste';
+import Modal from '../components/admin/ui/Modale';
 
-function Placeholder({ title = 'Page' }) {
-  return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6">
-      <h2 className="text-xl font-bold text-gray-800">{title}</h2>
-      <p className="text-gray-600 mt-2">À implémenter.</p>
-    </div>
-  );
-}
-
-export default function AdminApp() {
+function AdminApp() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [toast, setToast] = useState(null);
   const [modal, setModal] = useState(null);
   const [currentDate, setCurrentDate] = useState('');
+  const location = useLocation();
 
   useEffect(() => {
-    const update = () => setCurrentDate(format(new Date(), 'EEEE d MMMM yyyy', { locale: fr }));
-    update();
-    const interval = setInterval(update, 60000);
+    setCurrentDate(format(new Date(), 'EEEE d MMMM yyyy', { locale: fr }));
+
+    const interval = setInterval(() => {
+      setCurrentDate(format(new Date(), 'EEEE d MMMM yyyy', { locale: fr }));
+    }, 60000);
+
     return () => clearInterval(interval);
   }, []);
 
-  const showToast = (title, message, type = 'success') => {
-    setToast({ title, message, type });
-    setTimeout(() => setToast(null), 1000);
+  const showToast = (message, type = 'success', duration = 3000) => {
+    setToast({ message, type, duration });
   };
 
-  const showModal = (content) => setModal(content);
-  const closeModal = () => setModal(null);
+  const showModal = (content) => {
+    setModal(content);
+  };
+
+  const closeModal = () => {
+    setModal(null);
+  };
 
   return (
-    <div className="flex min-h-screen bg-gray-100 bg-gradient-to-br from-primary-50 to-secondary-100 font-poppins">
-      {/* Overlay for mobile */}
-      <AnimatePresence>
-        {mobileSidebarOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 lg:hidden"
-            onClick={() => setMobileSidebarOpen(false)}
-          />
-        )}
-      </AnimatePresence>
-
+    <div className="flex min-h-screen inset-0 bg-gray-100 bg-gradient-to-br from-primary-50 to-secondary-100  dark:from-gray-800  dark:bg-slate-900 text-slate-900 dark:text-slate-100">
       {/* Sidebar */}
       <Sidebar
         collapsed={sidebarCollapsed}
@@ -81,11 +68,9 @@ export default function AdminApp() {
       />
 
       {/* Main Content */}
-      <div
-        className={`flex-1 transition-all duration-400 ease-in-out ${
-          sidebarCollapsed ? 'lg:ml-[10%]' : 'lg:ml-72'
-        }`}
-      >
+      <div className={`flex-1 transition-all duration-300 ease-in-out ${sidebarCollapsed ? 'lg:ml-20' : 'lg:ml-72'
+        }`}>
+        {/* Header */}
         <Header
           currentDate={currentDate}
           onMenuToggle={() => setMobileSidebarOpen(!mobileSidebarOpen)}
@@ -93,41 +78,155 @@ export default function AdminApp() {
           sidebarCollapsed={sidebarCollapsed}
           showToast={showToast}
         />
+        <main className="content-padding">
+          <div className="content-container">
+            {/* Main Content Area */}
+            <AnimatePresence mode="wait">
+              <Routes location={location} key={location.pathname}>
+                {/* Route par défaut pour /admin */}
+                <Route index element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Dashboard showToast={showToast} />
+                  </motion.div>
+                } />
 
-        <main className="p-4 md:p-6">
-          <Routes>
-            <Route index element={<Dashboard showToast={showToast} />} />
-            <Route path="utilisateurs" element={<Users showToast={showToast} />} />
-            <Route path="chauffeurs" element={<Drivers showToast={showToast} />} />
-            <Route path="trajets" element={<Trips showToast={showToast} />} />
-            <Route path="paiements" element={<Payments />} />
-            <Route path="validations" element={<Validations showToast={showToast} />} />
-            <Route path="litiges" element={<Disputes showToast={showToast} />} />
-            <Route path="documents" element={<Documents showToast={showToast} />} />
-            <Route path="rapports" element={<Reports showToast={showToast} />} />
-            <Route path="commissions" element={<Commissions showToast={showToast} />} />
-            <Route path="parametres" element={<Settings showToast={showToast} />} />
-            <Route path="profil" element={<UserProfile />} />
-            <Route path="notifications" element={<Placeholder title="Notifications" />} />
-            <Route path="logout" element={<Placeholder title="Déconnexion" />} />
-          </Routes>
+                {/* Les autres routes - elles sont maintenant relatives à /admin */}
+                <Route path="utilisateurs" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Users showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="chauffeurs" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Drivers showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="trajets" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Trips showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="paiements" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Payments showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="validations" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Validations showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="litiges" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Disputes showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="documents" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Documents showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="rapports" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Reports showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="commissions" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Commissions showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="parametres" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <Settings showToast={showToast} />
+                  </motion.div>
+                } />
+                <Route path="profil" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                  >
+                    <UserProfile showToast={showToast} />
+                  </motion.div>
+                } />
+
+                {/* Route pour /admin directement (dashboard) */}
+                <Route path="" element={
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -20 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Dashboard showToast={showToast} />
+                  </motion.div>
+                } />
+              </Routes>
+            </AnimatePresence>
+          </div>
         </main>
 
         {/* Footer */}
-        <footer className="border-t border-gray-200 bg-white px-6 py-4">
+        <footer className="border-t border-slate-200/70 dark:border-slate-800/70 bg-white/80 dark:bg-gray-800/40 backdrop-blur-sm px-6 py-4">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-600 text-sm mb-2 md:mb-0">
-              © 2025 TakaTaka Admin. Tous droits réservés.
+            <p className="text-slate-600 dark:text-slate-300 text-sm mb-2 md:mb-0">
+              © {new Date().getFullYear()} TakaTaka Admin. Tous droits réservés.
             </p>
             <div className="flex items-center space-x-6">
-              <a href="#" className="text-gray-500 hover:text-green-600 transition text-sm">
+              <a href="#" className="text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-all duration-200 text-sm hover:underline">
                 Aide
               </a>
-              <a href="#" className="text-gray-500 hover:text-green-600 transition text-sm">
+              <a href="#" className="text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-all duration-200 text-sm hover:underline">
                 Sécurité
               </a>
-              <a href="#" className="text-gray-500 hover:text-green-600 transition text-sm">
-                Paramètres
+              <a href="#" className="text-slate-500 dark:text-slate-400 hover:text-primary-600 transition-all duration-200 text-sm hover:underline">
+                Confidentialité
               </a>
             </div>
           </div>
@@ -144,3 +243,5 @@ export default function AdminApp() {
     </div>
   );
 }
+
+export default AdminApp;

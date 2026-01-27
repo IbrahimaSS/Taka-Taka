@@ -10,7 +10,7 @@ const NotificationSettings = () => {
     emailNotifications: true,
     pushNotifications: true,
     smsNotifications: false,
-  
+
     securityAlerts: true
   });
 
@@ -30,15 +30,15 @@ const NotificationSettings = () => {
   };
 
   return (
-    <Card hoverable className="border-2 border-gray-100 hover:border-purple-100 transition-all duration-300">
+    <Card hoverable className="border-2 border-gray-100 dark:border-gray-900 hover:border-purple-100 transition-all duration-300">
       <CardHeader>
         <CardTitle>Préférences de notification</CardTitle>
-        <p className="text-gray-500 text-sm">Contrôlez comment et quand vous recevez des notifications</p>
+        <p className="text-gray-500 dark:text-gray-400 text-sm">Contrôlez comment et quand vous recevez des notifications</p>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
           <div>
-            <h4 className="font-semibold text-gray-800 mb-4 text-lg">Canaux de notification</h4>
+            <h4 className="font-semibold text-gray-800 dark:text-gray-100 mb-4 text-lg">Canaux de notification</h4>
             <div className="space-y-4">
               {[
                 {
@@ -59,7 +59,7 @@ const NotificationSettings = () => {
                   description: 'Recevez des notifications par SMS',
                   icon: Smartphone
                 },
-               
+
                 {
                   key: 'securityAlerts',
                   label: 'Alertes de sécurité',
@@ -67,14 +67,14 @@ const NotificationSettings = () => {
                   icon: Shield
                 }
               ].map((item) => (
-                <div key={item.key} className="flex items-center justify-between p-4 border-2 border-gray-100 rounded-xl hover:border-gray-200 transition-all">
+                <div key={item.key} className="flex items-center justify-between p-4 border-2 border-gray-100 dark:border-gray-900 rounded-xl hover:border-gray-200 dark:border-gray-900 transition-all">
                   <div className="flex items-center space-x-4">
                     <div className="w-12 h-12 rounded-xl bg-purple-100 flex items-center justify-center">
                       <item.icon className="text-purple-500 w-6 h-6" />
                     </div>
                     <div>
-                      <p className="font-semibold text-gray-800">{item.label}</p>
-                      <p className="text-sm text-gray-500">{item.description}</p>
+                      <p className="font-semibold text-gray-800 dark:text-gray-100">{item.label}</p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">{item.description}</p>
                     </div>
                   </div>
                   <Switch
@@ -92,11 +92,10 @@ const NotificationSettings = () => {
         <Button variant="secondary" icon={BellOff} onClick={() => handleToggleAll(false)}>
           Tout désactiver
         </Button>
-        <Button 
-          variant="primary" 
-          icon={Bell} 
+        <Button
+          variant="perso"
+          icon={Bell}
           onClick={() => handleToggleAll(true)}
-          className="bg-gradient-to-r from-teal-700 to-blue-700 hover:from-teal-800 hover:to-blue-800"
         >
           Tout activer
         </Button>

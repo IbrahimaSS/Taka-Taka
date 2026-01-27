@@ -62,14 +62,14 @@ const Progress = ({
       {/* Label and percentage */}
       {showLabel && labelPosition === 'top' && (
         <div className="flex justify-between items-center">
-          <span className="text-sm font-medium text-gray-700">
+          <span className="text-sm font-medium text-gray-700 dark:text-gray-200">
             Progression
           </span>
           <div className="flex items-center space-x-2">
             <span className={clsx('text-sm font-bold', getStatusColor(percentage))}>
               {percentage.toFixed(1)}%
             </span>
-            <span className="text-xs text-gray-500">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
               {getStatusText(percentage)}
             </span>
           </div>
@@ -77,7 +77,7 @@ const Progress = ({
       )}
 
       {/* Progress bar */}
-      <div className={clsx('w-full bg-gray-200 rounded-full overflow-hidden', sizes[size])}>
+      <div className={clsx('w-full bg-gray-200 dark:bg-gray-800 rounded-full overflow-hidden', sizes[size])}>
         <div
           className={clsx(
             'h-full rounded-full transition-all duration-500',
@@ -92,7 +92,7 @@ const Progress = ({
       {/* Bottom label */}
       {showLabel && labelPosition === 'right' && (
         <div className="flex justify-between items-center">
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-600 dark:text-gray-300">
             {value} / {max}
           </span>
           <span className={clsx('text-sm font-bold', getStatusColor(percentage))}>
@@ -110,7 +110,7 @@ const Progress = ({
                 'w-2 h-2 rounded-full mb-1',
                 step.completed ? colors[color] : 'bg-gray-300'
               )} />
-              <span className="text-xs text-gray-500">{step.label}</span>
+              <span className="text-xs text-gray-500 dark:text-gray-400">{step.label}</span>
             </div>
           ))}
         </div>
