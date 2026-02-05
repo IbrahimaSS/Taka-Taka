@@ -1,4 +1,3 @@
-// src/models/Paiement.js
 const mongoose = require("mongoose");
 
 const paiementSchema = new mongoose.Schema(
@@ -6,6 +5,19 @@ const paiementSchema = new mongoose.Schema(
         reservation: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Reservation",
+        required: true,
+        unique: true, // 1 paiement par trajet
+        },
+
+        passager: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Utilisateurs",
+        required: true,
+        },
+
+        chauffeur: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Utilisateurs",
         required: true,
         },
 
@@ -35,23 +47,34 @@ const paiementSchema = new mongoose.Schema(
         enum: ["CASH", "MTN_MONEY", "ORANGE_MONEY"],
         required: true,
         },
+
+        // Versement chauffeur (back‑office / comptabilité)
         verse: {
         type: Boolean,
-        default: false
+        default: false,
         },
+
         verseLe: {
-        type: Date
+        type: Date,
+        default: null,
         },
+
         versePar: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Utilisateurs"
+        ref: "Utilisateurs",
+        default: null,
         },
+
         commentaireVersement: {
-        type: String
-        }
-        
+        type: String,
+        default: null,
+        },
     },
     { timestamps: true }
 );
+
+// Index utiles
+paiementSchema.index({ chauffeur: 1 });
+paiementSchema.index({ statut: 1 });
 
 module.exports = mongoose.model("Paiement", paiementSchema);

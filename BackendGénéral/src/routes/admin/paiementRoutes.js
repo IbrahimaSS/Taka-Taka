@@ -2,7 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const { verifierToken } = require("../../middlewares/authMiddlewares");
-const { autoriserRoles } = require("../../middlewares/roleMiddlewares");
+const { autoriserRoles } = require("../../middlewares/roleMiddlewares.js");
 const paiementController = require("../../controllers/admin/paiementControllers");
 
 

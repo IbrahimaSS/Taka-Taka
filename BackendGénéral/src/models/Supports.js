@@ -4,17 +4,12 @@ const supportSchema = new mongoose.Schema(
     {
         utilisateur: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Utilisateur",
+        ref: "Utilisateurs",
         required: true,
         },
-        nom: {
-        type: String,
-        required: true,
-        },
-        prenom: {
-        type: String,
-        required: true,
-        },
+        nom: String,
+        prenom: String,
+
         sujet: {
         type: String,
         required: true,
@@ -25,6 +20,25 @@ const supportSchema = new mongoose.Schema(
         required: true,
         trim: true,
         },
+
+        canal: {
+        type: String,
+        enum: ["APP", "CHAT", "EMAIL"],
+        default: "APP",
+        },
+
+        reservation: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Reservation",
+        default: null,
+        },
+
+        piecesJointes: [
+        {
+            type: String,
+        },
+        ],
+
         statut: {
         type: String,
         enum: ["OUVERT", "EN_COURS", "FERME"],

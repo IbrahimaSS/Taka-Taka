@@ -18,36 +18,12 @@ app.get("/", (req, res) => {
         horodatage: new Date().toISOString(),
     });
 });
-
+//==================== GESTIONS COMPTE =====================
 //Gestion Utilisateurs
-const authRoutes = require("./routes/authRoutes");
-const utilisateurRoutes = require("./routes/utilisateurRoutes");
+const authRoutes = require("./routes/compte/authRoutes");
+//Montage
 app.use("/api/auth", authRoutes);
-app.use("/api/utilisateurs", utilisateurRoutes);
 
-//Contacter Support
-const supportRoutes = require("./routes/supportRoutes");
-app.use("/api/support", supportRoutes);
-
-//Notification
-const notificationRoutes = require("./routes/notificationRoutes");
-app.use("/api/notifications", notificationRoutes);
-
-//Gestion Trajets
-const trajetRoutesP = require("./routes/trajetRoutes");
-app.use("/api/trajets", trajetRoutesP);
-
-//Réservations
-const reservationRoutes = require("./routes/reservationRoutes");
-app.use("/api/reservations", reservationRoutes);
-
-//Notations
-const evaluationRoutes = require("./routes/evaluationRoutes");
-app.use("/api/evaluations", evaluationRoutes);
-
-//Litiges
-const litigeRoutesP = require("./routes/litigeRoutes");
-app.use("/api/litiges", litigeRoutesP);
 
 // ===================== ROUTES ADMIN =====================
 const dashboardRoutes = require("./routes/admin/dashboardRoutes");
@@ -74,8 +50,46 @@ app.use("/api/admin", rapportRoutes);
 app.use("/api/admin", litigeRoutes);
 app.use("/api/admin", profileRoutes);
 
+// ===================== ROUTES PASSAGER ET BRANCHEMENT =====================
+//Passager - Estimations
+const estimationRoutesP = require("./routes/passager/estimationsRoutes");
+app.use("/api/estimations", estimationRoutesP);
 
+//Passager - Reservations Immédiates
+const reservationImmediateRoutesP = require("./routes/passager/reservationImmediateRoutes");
+app.use("/api/reservations-immediate", reservationImmediateRoutesP);
 
+//Passager - Paiements
+const paiementRoutesP = require("./routes/passager/paiementsRoutes");
+app.use("/api/paiements", paiementRoutesP);
+
+//Passager - Réservations Planifiées
+const reservationPlanifieeRoutesP = require("./routes/passager/reservationsPlanifieeRoutes");
+app.use("/api/passager/reservations-planifiees", reservationPlanifieeRoutesP);
+
+//Passager - Trajets
+const trajetsRoutesP = require("./routes/passager/trajetsRoutes");
+app.use("/api/passager", trajetsRoutesP);
+
+//Passager - Historiques des Paiements
+const listesPaiements = require("./routes/passager/listesPaimentsRoutes");
+app.use("/api/passager/paiements", listesPaiements);
+
+//Stats Passager - Planning
+const statsRoutesPlanning = require("./routes/passager/statsRoutesPlanning");
+app.use("/api/passager", statsRoutesPlanning);
+
+//Profil
+const profileRoutesP = require("./routes/passager/profileRoutes");
+app.use("/api/passager/profile", profileRoutesP);
+
+//Changement Mot de Passe
+const motDePasseRoutesP = require("./routes/passager/motDePasseRoutes");
+app.use("/api/passager", motDePasseRoutesP);
+
+//Notifications
+const notificationsRoutesP = require("./routes/passager/notificationsRoutes");
+app.use("/api/passager", notificationsRoutesP);
 
 
 

@@ -30,10 +30,29 @@ const reservationSchema = new mongoose.Schema(
 
         statut: {
         type: String,
-        enum: ["EN_ATTENTE", "ACCEPTEE", "EN_COURS", "TERMINEE"],
+        enum: [
+            "EN_ATTENTE",
+            "ACCEPTEE",
+            "ASSIGNEE",
+            "EN_COURS",
+            "TERMINEE",
+            "ANNULEE",
+        ],
         default: "EN_ATTENTE",
         },
 
+        typeCourse: {
+        type: String,
+        enum: ["IMMEDIATE", "PLANIFIEE"],
+        default: "IMMEDIATE",
+        },
+
+        datePlanifiee: {
+        type: Date,
+        default: null,
+        },
+
+        // suivi réel du trajet
         dateDebut: {
         type: Date,
         default: null,
@@ -44,29 +63,31 @@ const reservationSchema = new mongoose.Schema(
         default: null,
         },
 
-        // PAIEMENT : N'EXISTE QU'APRÈS TERMINEE
-        paiement: {
-            statut: {
-                type: String,
-                enum: ["EN_ATTENTE", "EN_ATTENTE_CONFIRMATION", "PAYE", "ECHEC"],
-            },
-            methode: {
-                type: String,
-                enum: ["CASH", "ORANGE_MONEY", "MTN_MONEY"],
-                default: null,
-            },
-            telephone: {
-                type: String,
-                default: null, // NUMÉRO SAISI PAR LE PASSAGER
-            },
-            reference: {
-                type: String,
-                default: null, // id transaction OM / MTN
-            },
+        // annulation
+        annuleeLe: Date,
+        annuleePar: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Utilisateurs",
         },
 
+        // snapshot paiement
+        paiement: {
+        statut: {
+            type: String,
+            enum: ["EN_ATTENTE", "PAYE", "ECHEC"],
+        },
+        methode: {
+            type: String,
+            enum: ["CASH", "ORANGE_MONEY", "MTN_MONEY"],
+        },
+        },
     },
     { timestamps: true }
 );
+
+// index utiles
+reservationSchema.index({ passager: 1, createdAt: -1 });
+reservationSchema.index({ chauffeur: 1, statut: 1 });
+reservationSchema.index({ datePlanifiee: 1 });
 
 module.exports = mongoose.model("Reservation", reservationSchema);

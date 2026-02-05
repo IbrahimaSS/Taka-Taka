@@ -1,9 +1,9 @@
 const express = require("express");
 const router = express.Router();
 
-const authController = require("../controllers/authControllers");
-const { validerConnexion } = require("../validators/connexionValidators");
-const { validerInscription } = require("../validators/inscriptionValidators");
+const authController = require("../../controllers/compte/authControllers");
+const { validerConnexion } = require("../../validators/connexionValidators");
+const { validerInscription } = require("../../validators/inscriptionValidators");
 
 // Initialisation inscription + génération OTP
 router.post("/init-inscription", validerInscription, authController.initInscription);

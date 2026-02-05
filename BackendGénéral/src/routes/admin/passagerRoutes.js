@@ -3,7 +3,7 @@ const router = express.Router();
 
 // Middlewares
 const { verifierToken } = require("../../middlewares/authMiddlewares");
-const { autoriserRoles } = require("../../middlewares/roleMiddlewares");
+const { autoriserRoles } = require("../../middlewares/roleMiddlewares.js");
 
 // Controller PASSAGER uniquement
 const passagerController = require("../../controllers/admin/passagerControllers");

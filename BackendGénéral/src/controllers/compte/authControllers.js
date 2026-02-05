@@ -1,11 +1,11 @@
 const { validationResult } = require("express-validator");
 
-const authService = require("../services/authService");
-const otpService = require("../services/OtpService");
+const authService = require("../../services/authService");
+const otpService = require("../../services/OtpService");
 
-const InscriptionTemporaire = require("../models/InscriptionsTemporaire");
+const InscriptionTemporaire = require("../../models/InscriptionsTemporaire");
 
-// CONNEXION
+//============================= CONNEXION =============================================
 exports.connexion = async (req, res) => {
     try {
         const erreurs = validationResult(req);
@@ -62,7 +62,7 @@ exports.connexion = async (req, res) => {
     }
     };
 
-    // INIT INSCRIPTION + OTP
+    //============================= INIT INSCRIPTION + OTP =============================
     exports.initInscription = async (req, res) => {
     try {
         // RÉCUPÉRATION DES ERREURS DU VALIDATOR
@@ -142,7 +142,7 @@ exports.connexion = async (req, res) => {
     }
     };
 
-    // VÉRIFICATION OTP
+    //============================= VÉRIFICATION OTP =================================
     exports.verifierOtp = async (req, res) => {
     try {
         const { telephone, code } = req.body;
@@ -166,7 +166,7 @@ exports.connexion = async (req, res) => {
     }
     };
 
-    // FINALISER INSCRIPTION
+    //============================= FINALISER INSCRIPTION =============================
     exports.finaliserInscription = async (req, res) => {
     try {
         const { telephone } = req.body;

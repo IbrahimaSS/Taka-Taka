@@ -38,6 +38,7 @@ const evaluationSchema = new mongoose.Schema(
         ressenti: {
         type: String,
         enum: ["EXCELLENT", "TRES_BIEN", "CORRECT", "MEDIOCRE"],
+        default: null,
         },
 
         pointsForts: [
@@ -60,5 +61,8 @@ const evaluationSchema = new mongoose.Schema(
     },
     { timestamps: true }
 );
+
+// Index pour stats & moyennes chauffeur
+evaluationSchema.index({ chauffeur: 1 });
 
 module.exports = mongoose.model("Evaluation", evaluationSchema);
