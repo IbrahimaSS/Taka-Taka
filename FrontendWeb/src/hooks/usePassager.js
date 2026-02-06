@@ -14,6 +14,9 @@ const useUsers = (initialUsers = []) => {
 
   const setInitialUsers = (arr = []) => setUsers(Array.isArray(arr) ? arr : []);
 
+  // TODO API (admin/passagers):
+  // Remplacer fetchFromApi par apiClient + API_ROUTES.passengers.list
+  // Voir: src/services/apiClient.js et src/services/apiRoutes.js
   const fetchFromApi = async (url, options) => {
     setLoading(true);
     setError(null);

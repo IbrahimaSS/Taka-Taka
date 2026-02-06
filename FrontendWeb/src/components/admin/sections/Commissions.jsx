@@ -154,6 +154,9 @@ const PaymentActions = ({ payment, onView, onProcess, onEdit, }) => {
   );
 };
 
+// TODO API (admin/commissions):
+// Remplacer les donnees simulees par des appels backend
+// Exemple: GET /admin/commissions, GET /admin/commissions/summary
 const Commissions = () => {
   // États principaux
   const [payments, setPayments] = useState(() => generatePayments(100));

@@ -100,4 +100,19 @@ export const useTripStore = create((set) => ({
         trip.id === id ? { ...trip, status: 'cancelled' } : trip
       ),
     })),
+
+  // Ajouter une nouvelle course (depuis les demandes temps réel)
+  addTrip: (trip) =>
+    set((state) => ({
+      trips: [trip, ...state.trips],
+    })),
+
+  // Mettre à jour le statut d'une course
+  updateTripStatus: (id, status) =>
+    set((state) => ({
+      trips: state.trips.map((trip) =>
+        trip.id === id ? { ...trip, status } : trip
+      ),
+    })),
 }));
+

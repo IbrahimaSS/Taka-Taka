@@ -1,9 +1,12 @@
 // components/passager/RealTimeTracking.jsx
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Polyline, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { leafletIcons, ensureLeafletIcons } from '../maps/leafletIcons';
+import MapController from '../maps/MapController';
+import { GeolocationService } from '../../services/geolocation';
 import {
   Car,
   User,
@@ -38,31 +41,10 @@ import {
 import toast from 'react-hot-toast';
 import EmergencyButton from '../passager/EmergencyButton';
 
-// Fix for default markers
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-// Composant pour contrôler le centre de la carte
-const MapController = ({ center, zoom }) => {
-  const map = useMap();
-
-  useEffect(() => {
-    if (center) {
-      map.setView(center, zoom, {
-        animate: true,
-        duration: 1
-      });
-    }
-  }, [center, zoom, map]);
-
-  return null;
-};
+// MapController is now imported from shared components
 
 const RealTimeTracking = ({
+  role = 'passenger',
   trip,
   driver,
   onBack,
@@ -302,75 +284,11 @@ const RealTimeTracking = ({
     showToast('Trajet réinitialisé pour démonstration', 'info');
   };
 
-  // Icônes personnalisées Leaflet
-  const customIcons = {
-    driver: L.divIcon({
-      html: `
-        <div class="relative">
-          <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-full border-4 border-white shadow-xl animate-pulse flex items-center justify-center">
-            <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
-            </svg>
-          </div>
-          <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap shadow-lg backdrop-blur-sm">
-            ${tripData.driver.name}
-          </div>
-        </div>
-      `,
-      className: 'custom-driver-marker',
-      iconSize: [48, 48],
-      iconAnchor: [24, 48],
-    }),
-    passenger: L.divIcon({
-      html: `
-        <div class="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full border-3 border-white shadow-lg flex items-center justify-center">
-          <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-          </svg>
-        </div>
-      `,
-      className: 'custom-passenger-marker',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-    }),
-    departure: L.divIcon({
-      html: `
-        <div class="relative">
-          <div class="w-10 h-10 bg-gradient-to-r from-green-500 to-green-600 rounded-full border-3 border-white shadow-lg flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
-            </svg>
-          </div>
-          <div class="absolute -bottom-7 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-2 py-1 rounded text-xs font-bold shadow">
-            Départ
-          </div>
-        </div>
-      `,
-      className: 'custom-departure-marker',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-    }),
-    destination: L.divIcon({
-      html: `
-        <div class="relative">
-          <div class="w-10 h-10 bg-gradient-to-r from-red-500 to-red-600 rounded-full border-3 border-white shadow-lg flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-              <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7z"/>
-            </svg>
-          </div>
-          <div class="absolute -bottom-7 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-2 py-1 rounded text-xs font-bold shadow">
-            Arrivée
-          </div>
-        </div>
-      `,
-      className: 'custom-destination-marker',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-    })
-  };
+  // Les icônes sont maintenant centralisées dans leafletIcons.js
 
   // Effets
   useEffect(() => {
+    ensureLeafletIcons();
     // Initialisation de l'heure
     updateTime();
     timeInterval.current = setInterval(updateTime, 60000);
@@ -533,8 +451,12 @@ const RealTimeTracking = ({
                   <User className="w-5 h-5 text-green-600 dark:text-green-400" />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Chauffeur</p>
-                  <p className="font-bold text-gray-800 dark:text-gray-100">{tripData.driver.name}</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
+                    {role === 'driver' ? 'Passager Principal' : 'Chauffeur'}
+                  </p>
+                  <p className="font-bold text-gray-800 dark:text-gray-100">
+                    {role === 'driver' ? (trip?.passengerName || 'Passager') : tripData.driver.name}
+                  </p>
                   <div className="flex items-center mt-1">
                     {[...Array(5)].map((_, i) => (
                       <Star
@@ -646,7 +568,7 @@ const RealTimeTracking = ({
                   <MapController center={driverPosition} zoom={15} />
 
                   {/* Marqueurs */}
-                  <Marker position={tripData.departure.coords} icon={customIcons.departure}>
+                  <Marker position={tripData.departure.coords} icon={leafletIcons.start}>
                     <Popup>
                       <div className="p-2">
                         <p className="font-bold text-green-600">📍 Départ</p>
@@ -656,7 +578,7 @@ const RealTimeTracking = ({
                     </Popup>
                   </Marker>
 
-                  <Marker position={tripData.destination.coords} icon={customIcons.destination}>
+                  <Marker position={tripData.destination.coords} icon={leafletIcons.end}>
                     <Popup>
                       <div className="p-2">
                         <p className="font-bold text-red-600">🏁 Destination</p>
@@ -666,7 +588,7 @@ const RealTimeTracking = ({
                     </Popup>
                   </Marker>
 
-                  <Marker position={driverPosition} icon={customIcons.driver}>
+                  <Marker position={driverPosition} icon={leafletIcons.driver}>
                     <Popup>
                       <div className="p-2">
                         <p className="font-bold">{tripData.driver.name}</p>
@@ -677,10 +599,10 @@ const RealTimeTracking = ({
                     </Popup>
                   </Marker>
 
-                  <Marker position={passengerPosition} icon={customIcons.passenger}>
+                  <Marker position={passengerPosition} icon={leafletIcons.user}>
                     <Popup>
                       <div className="p-2">
-                        <p className="font-bold text-blue-600">👤 Votre position</p>
+                        <p className="font-bold text-blue-600">👤 {role === 'driver' ? `Passager: ${trip?.passengerName}` : 'Votre position'}</p>
                         <p className="text-sm">En attente du chauffeur</p>
                       </div>
                     </Popup>
@@ -715,7 +637,9 @@ const RealTimeTracking = ({
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mr-2"></div>
-                  <span className="text-xs text-gray-600 dark:text-gray-400">Votre position</span>
+                  <span className="text-xs text-gray-600 dark:text-gray-400">
+                    {role === 'driver' ? 'Position du passager' : 'Votre position'}
+                  </span>
                 </div>
                 <div className="flex items-center">
                   <div className="w-3 h-3 bg-gradient-to-r from-green-50 to-green-100 dark:from-green-600 dark:to-green-700 rounded-full mr-2 border border-green-200 dark:border-green-800"></div>
@@ -765,7 +689,7 @@ const RealTimeTracking = ({
                   className="w-full bg-blue-500 text-white py-3 rounded-xl font-medium hover:bg-blue-600 transition-colors flex items-center justify-center gap-3"
                 >
                   <Phone className="w-5 h-5" />
-                  <span>Appeler le chauffeur</span>
+                  <span>{role === 'driver' ? 'Appeler le passager' : 'Appeler le chauffeur'}</span>
                 </motion.button>
 
                 <motion.button

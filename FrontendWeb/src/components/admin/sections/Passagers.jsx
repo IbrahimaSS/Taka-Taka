@@ -51,6 +51,9 @@ const Users = ({ showToast }) => {
   const menuRefs = useRef({});
 
   // Données des utilisateurs
+  // TODO API (admin/passagers):
+  // Remplacer ces donnees simulees par un fetch via passengerService/adminService
+  // Exemple: GET API_ROUTES.passengers.list
   const usersData = [
     {
       id: 1,
@@ -295,6 +298,8 @@ const Users = ({ showToast }) => {
   };
 
   const handleToggleStatus = (user) => {
+    // TODO API (admin/passagers):
+    // Remplacer la maj locale par un appel backend (ex: PATCH /passengers/:id/status)
     setConfirmModal({
       isOpen: true,
       title: user.status === 'active' ? 'Désactiver l\'utilisateur' : 'Activer l\'utilisateur',

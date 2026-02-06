@@ -36,6 +36,9 @@ const Drivers = ({ showToast }) => {
   });
 
   // Données simulées
+  // TODO API (admin/chauffeurs):
+  // Remplacer ces donnees simulees par un fetch via driverService/adminService
+  // Exemple: GET API_ROUTES.drivers.list
   const initialDrivers = [
     {
       id: 1,
@@ -254,6 +257,8 @@ const Drivers = ({ showToast }) => {
   };
 
   // Initialisation des données
+  // TODO API (admin/chauffeurs):
+  // Remplacer le setTimeout par un appel backend pour charger les chauffeurs
   useEffect(() => {
     const loadDrivers = async () => {
       setLoading(true);

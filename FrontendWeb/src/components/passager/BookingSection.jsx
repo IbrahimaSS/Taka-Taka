@@ -2,109 +2,28 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import {
-  MapPin, Navigation, Car, Clock, Search, Loader2, X, Check,
-  Phone, ChevronRight, Calendar, Download, Eye, History,
+  MapPin, Navigation, Car, Search, Check,
+  Phone, Calendar, Download, Eye, History,
   Loader
 } from 'lucide-react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvent } from 'react-leaflet';
-import L from 'leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMapEvent } from 'react-leaflet';
 import toast from 'react-hot-toast';
 import 'leaflet/dist/leaflet.css';
 
 // Composants UI réutilisables
 import Button from '../admin/ui/Bttn';
-import Card, { CardHeader, CardTitle, CardContent, CardFooter } from '../admin/ui/Card';
-import Table, { TableRow, TableCell, TableHeader } from '../admin/ui/Table';
+import Card, { CardHeader, CardTitle, CardContent } from '../admin/ui/Card';
+import Table, { TableRow, TableCell } from '../admin/ui/Table';
 import Badge from '../admin/ui/Badge';
 import Progress from '../admin/ui/Progress';
 import Modal from '../admin/ui/Modal';
 
-// Services et hooks
+// Services, hooks et infrastructure map
 import { GeolocationService } from '../../services/geolocation';
-import useDebounce from '../../hooks/useDebounce';
+import { leafletIcons, ensureLeafletIcons } from '../maps/leafletIcons';
+import MapController from '../maps/MapController';
 
-// Configuration Leaflet avec icône chauffeur
-const leafletConfig = {
-  icons: {
-    default: L.icon({
-      iconUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png',
-      iconRetinaUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon-2x.png',
-      shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-      iconSize: [25, 41],
-      iconAnchor: [12, 41],
-    }),
-    user: L.divIcon({
-      html: `<div class="relative">
-              <div class="w-10 h-10 bg-blue-500 rounded-full border-4 border-white shadow-lg animate-pulse"></div>
-              <div class="absolute inset-0 flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5a2.5 2.5 0 010-5 2.5 2.5 0 010 5z"/>
-                </svg>
-              </div>
-            </div>`,
-      className: 'custom-user-marker',
-      iconSize: [40, 40],
-      iconAnchor: [20, 40],
-    }),
-    pickup: L.divIcon({
-      html: `<div class="relative">
-              <div class="w-8 h-8 bg-green-500 rounded-full border-3 border-white shadow-lg"></div>
-              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs font-bold text-green-700 bg-white px-2 py-1 rounded shadow">
-                Départ
-              </div>
-            </div>`,
-      className: 'custom-pickup-marker',
-      iconSize: [32, 48],
-      iconAnchor: [16, 32],
-    }),
-    destination: L.divIcon({
-      html: `<div class="relative">
-              <div class="w-8 h-8 bg-red-500 rounded-full border-3 border-white shadow-lg"></div>
-              <div class="absolute -bottom-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap text-xs font-bold text-red-700 bg-white px-2 py-1 rounded shadow">
-                Arrivée
-              </div>
-            </div>`,
-      className: 'custom-destination-marker',
-      iconSize: [32, 48],
-      iconAnchor: [16, 32],
-    }),
-    driver: L.divIcon({
-      html: `<div class="relative">
-              <div class="w-12 h-12 bg-gradient-to-r from-green-500 to-blue-600 rounded-full border-4 border-white shadow-xl animate-pulse flex items-center justify-center">
-                <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/>
-                </svg>
-              </div>
-              <div class="absolute -bottom-8 left-1/2 transform -translate-x-1/2 bg-black/90 text-white px-3 py-1 rounded-lg text-xs font-bold whitespace-nowrap shadow-lg backdrop-blur-sm">
-                Chauffeur
-              </div>
-            </div>`,
-      className: 'custom-driver-marker',
-      iconSize: [48, 48],
-      iconAnchor: [24, 48],
-    })
-  }
-};
-
-// Composant pour le centrage automatique
-function MapCenterUpdater({ center, zoom }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (center) {
-      map.setView(center, zoom || map.getZoom(), {
-        animate: true,
-        duration: 1
-      });
-    }
-  }, [center, zoom, map]);
-
-  return null;
-}
-
-
-
-// Composant pour les événements de carte
+// Les contrôles de carte et icônes sont maintenant centralisés
 function MapEvents({ onPickupSelect, onDestinationSelect, selectionMode }) {
   useMapEvent({
     click(e) {
@@ -116,7 +35,6 @@ function MapEvents({ onPickupSelect, onDestinationSelect, selectionMode }) {
         toast.success('Destination sélectionnée');
       }
     }
-    // Note: les événements locationfound/locationerror sont gérés par locateUser()
   });
 
   return null;
@@ -151,7 +69,6 @@ const BookingSection = ({
   currentDriver,
   tripStatus,
   isOnMapView,
-  onStartTrip,
   onShowTracking
 }) => {
   const [formData, setFormData] = useState({
@@ -180,6 +97,11 @@ const BookingSection = ({
 
   const mapRef = useRef();
   const searchTimeoutRef = useRef();
+
+  // Initialiser les icônes
+  useEffect(() => {
+    ensureLeafletIcons();
+  }, []);
 
   // Initialiser les données si un trajet est en cours
   useEffect(() => {
@@ -212,6 +134,28 @@ const BookingSection = ({
     }
   }, [currentDriver, isOnMapView]);
 
+  // Suivi de la permission de geolocalisation
+  useEffect(() => {
+    if (!navigator.permissions || !navigator.permissions.query) return;
+
+    let status;
+    navigator.permissions.query({ name: 'geolocation' })
+      .then((permissionStatus) => {
+        status = permissionStatus;
+        setHasLocationPermission(permissionStatus.state !== 'denied');
+        permissionStatus.onchange = () => {
+          setHasLocationPermission(permissionStatus.state !== 'denied');
+        };
+      })
+      .catch(() => {});
+
+    return () => {
+      if (status) {
+        status.onchange = null;
+      }
+    };
+  }, []);
+
 
   // Localiser l'utilisateur
   const locateUser = useCallback(async () => {
@@ -225,18 +169,19 @@ const BookingSection = ({
 
     try {
       const position = await GeolocationService.getCurrentPosition();
-      const { latitude, longitude } = position.coords;
+      const { lat, lng } = position;
 
-      const location = [latitude, longitude];
+      const location = [lat, lng];
       setUserLocation(location);
       setPickupLocation(location);
       setMapCenter(location);
+      setHasLocationPermission(true);
 
       // Obtenir l'adresse
-      const address = await GeolocationService.reverseGeocode(latitude, longitude);
+      const address = await GeolocationService.reverseGeocode(lat, lng);
       setFormData(prev => ({
         ...prev,
-        pickup: address || `Position actuelle (${latitude.toFixed(4)}, ${longitude.toFixed(4)})`
+        pickup: address || `Position actuelle (${lat.toFixed(4)}, ${lng.toFixed(4)})`
       }));
 
       // Centrer la carte
@@ -255,6 +200,9 @@ const BookingSection = ({
         case 1: message = 'Permission de localisation refusée'; break;
         case 2: message = 'Position indisponible'; break;
         case 3: message = 'Délai de localisation dépassé'; break;
+      }
+      if (error.code === 1 || error.code === 0) {
+        setHasLocationPermission(false);
       }
       toast.error(message);
     } finally {
@@ -280,11 +228,13 @@ const BookingSection = ({
 
       try {
         const results = await GeolocationService.geocodeAddress(value);
-        const formattedResults = results.map(item => ({
-          lat: parseFloat(item.lat),
-          lng: parseFloat(item.lon),
-          display_name: item.display_name
-        }));
+        const formattedResults = results
+          .map(item => ({
+            lat: parseFloat(item.lat),
+            lng: parseFloat(item.lon),
+            display_name: item.display_name
+          }))
+          .filter(item => !isNaN(item.lat) && !isNaN(item.lng));
 
         setSuggestions(prev => ({ ...prev, [type]: formattedResults }));
       } catch (error) {
@@ -301,6 +251,11 @@ const BookingSection = ({
   // Sélection d'une suggestion
   const handleSelectSuggestion = useCallback((type, suggestion) => {
     const location = [suggestion.lat, suggestion.lng];
+
+    if (isNaN(location[0]) || isNaN(location[1])) {
+      console.warn('handleSelectSuggestion: Invalid coordinates', location);
+      return;
+    }
 
     if (type === 'pickup') {
       setPickupLocation(location);
@@ -328,6 +283,8 @@ const BookingSection = ({
     try {
       const address = await GeolocationService.reverseGeocode(latlng.lat, latlng.lng);
 
+      if (isNaN(latlng.lat) || isNaN(latlng.lng)) return;
+
       if (type === 'pickup') {
         setPickupLocation(location);
         setFormData(prev => ({ ...prev, pickup: address }));
@@ -351,18 +308,10 @@ const BookingSection = ({
   const calculatePrice = useCallback(() => {
     if (!pickupLocation || !destinationLocation) return null;
 
-    const R = 6371; // Rayon de la Terre en km
     const [lat1, lon1] = pickupLocation;
     const [lat2, lon2] = destinationLocation;
 
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c;
+    const distance = GeolocationService.calculateDistance(lat1, lon1, lat2, lon2);
 
     // Tarifs en GNF
     const rates = {
@@ -384,25 +333,24 @@ const BookingSection = ({
   const handleSubmit = (e) => {
     e.preventDefault();
 
-    // if (!formData.pickup || !formData.destination) {
-    //   toast.error('Veuillez spécifier le départ et la destination');
-    //   return;
-    // }
+    if (!formData.pickup || !formData.destination) {
+      toast.error('Veuillez spécifier le départ et la destination');
+      return;
+    }
 
-    // const priceData = calculatePrice();
-    // if (!priceData) {
-    //   toast.error('Veuillez sélectionner les positions sur la carte');
-    //   return;
-    // }
-
+    const calculatedPrice = calculatePrice();
+    if (!calculatedPrice) {
+      toast.error('Veuillez sélectionner les positions sur la carte');
+      return;
+    }
     const tripData = {
       ...formData,
       pickupCoords: pickupLocation,
       destinationCoords: destinationLocation,
       userLocation: userLocation || pickupLocation,
-      estimatedPrice: priceData.price,
-      estimatedDistance: `${priceData.distance} km`,
-      estimatedDuration: `${priceData.duration} min`,
+      estimatedPrice: calculatedPrice?.price || '0',
+      estimatedDistance: calculatedPrice ? `${calculatedPrice.distance} km` : '0 km',
+      estimatedDuration: calculatedPrice ? `${calculatedPrice.duration} min` : '0 min',
       timestamp: new Date().toISOString()
     };
 
@@ -762,7 +710,7 @@ const BookingSection = ({
                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                   />
 
-                  <MapCenterUpdater center={mapCenter} zoom={16} />
+                  <MapController center={mapCenter} zoom={16} />
                   <MapEvents
                     onPickupSelect={(latlng) => handleMapSelection('pickup', latlng)}
                     onDestinationSelect={(latlng) => handleMapSelection('destination', latlng)}
@@ -773,7 +721,7 @@ const BookingSection = ({
                   {userLocation && (
                     <Marker
                       position={userLocation}
-                      icon={leafletConfig.icons.user}
+                      icon={leafletIcons.user}
                     >
                       <Popup>
                         <div className="p-2">
@@ -786,7 +734,7 @@ const BookingSection = ({
                   {pickupLocation && (
                     <Marker
                       position={pickupLocation}
-                      icon={leafletConfig.icons.pickup}
+                      icon={leafletIcons.start}
                     >
                       <Popup>
                         <div className="p-2">
@@ -800,7 +748,7 @@ const BookingSection = ({
                   {destinationLocation && (
                     <Marker
                       position={destinationLocation}
-                      icon={leafletConfig.icons.destination}
+                      icon={leafletIcons.end}
                     >
                       <Popup>
                         <div className="p-2">
@@ -815,7 +763,7 @@ const BookingSection = ({
                   {shouldShowDriver && currentDriver.location && (
                     <Marker
                       position={currentDriver.location}
-                      icon={leafletConfig.icons.driver}
+                      icon={leafletIcons.driver}
                     >
                       <Popup>
                         <div className="p-2">

@@ -256,6 +256,9 @@ const TableActions = ({ driver, onView, onValidate, onReject }) => {
 };
 
 // Composant principal
+// TODO API (admin/validations):
+// Remplacer les donnees simulees et les actions locales par des appels backend
+// Exemple: GET API_ROUTES.admin.validations, POST API_ROUTES.admin.validateDriver(id)
 const Validations = ({ showToast }) => {
   // États pour la gestion des données
   const [search, setSearch] = useState('');

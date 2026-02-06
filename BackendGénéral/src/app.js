@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require("path");
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require ('morgan');
@@ -9,6 +10,15 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use(helmet());
 
+// CORS avec cookies
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
+app.use(
+    cors({
+        origin: FRONTEND_ORIGIN,
+        credentials: true,
+    })
+);
+
 app.use(morgan("dev"));
 
 app.get("/", (req, res) => {
@@ -18,6 +28,9 @@ app.get("/", (req, res) => {
         horodatage: new Date().toISOString(),
     });
 });
+
+// Fichiers uploads (documents chauffeur)
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
 //==================== GESTIONS COMPTE =====================
 //Gestion Utilisateurs
 const authRoutes = require("./routes/compte/authRoutes");
@@ -91,6 +104,9 @@ app.use("/api/passager", motDePasseRoutesP);
 const notificationsRoutesP = require("./routes/passager/notificationsRoutes");
 app.use("/api/passager", notificationsRoutesP);
 
+// ===================== ROUTES CHAUFFEUR =====================
+const chauffeurProfileRoutes = require("./routes/chauffeur/profileRoutes");
+app.use("/api/chauffeur", chauffeurProfileRoutes);
 
 
 

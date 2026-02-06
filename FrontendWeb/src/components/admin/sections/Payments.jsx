@@ -349,6 +349,9 @@ const MobilePaymentCard = ({ payment, isSelected, onSelect, onAction }) => {
   );
 };
 
+// TODO API (admin/paiements):
+// Remplacer les donnees simulees et les actions locales par des appels backend
+// Exemple: GET API_ROUTES.payments.list, POST API_ROUTES.payments.confirm
 const Payments = () => {
   // États principaux
   const [payments, setPayments] = useState(() => generatePayments(50));

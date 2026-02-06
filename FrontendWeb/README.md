@@ -35,34 +35,4 @@ npm run dev
 
 ---
 
-## Notes sur l’assemblage
 
-- Le projet **Passager** a été intégré sous : `src/apps/passager/`
-- Le routeur principal a été mis à jour dans : `src/App.jsx`
-- Les classes CSS **spécifiques** au module passager (préfixées `passenger-*`) ont été ajoutées dans : `src/styles/globals.css`
-- Les dépendances Leaflet + Socket.io (utilisées par le module passager) ont été ajoutées dans : `package.json`
-
----
-
-## Structure
-
-```
-src/
-  apps/
-    passager/
-      components/
-      context/
-      hooks/
-      pages/
-      services/
-      utils/
-  components/          # accueil, admin, chauffeur
-  pages/               # routes top-level
-  styles/
-```
-
----
-
-## Cahier des charges
-
-- Les notes initiales ont été conservées dans : `docs/notes-cahier-des-charges.md`

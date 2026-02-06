@@ -50,6 +50,9 @@ export default function useDriverActions({ setDrivers, showToast } = {}) {
             ? 'inactive'
             : 'suspended';
 
+      // TODO API (admin/chauffeurs):
+      // Remplacer la maj locale par un appel backend (ex: adminService / driverService)
+      // Exemple: POST /admin/validations ou PATCH /drivers/:id/status
       if (typeof setDrivers === 'function') {
         setDrivers((prev) =>
           Array.isArray(prev)

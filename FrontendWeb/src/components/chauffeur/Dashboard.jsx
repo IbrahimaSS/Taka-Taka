@@ -1,13 +1,20 @@
 import { useState, useEffect } from 'react';
-import { 
-  Clock, 
-  Bell, 
-  Car, 
+import { Link } from 'react-router-dom';
+import {
+  Clock,
+  Bell,
+  Car,
   DollarSign,
   Activity
 } from 'lucide-react';
+import UserLocationMap from '../maps/UserLocationMap';
+import { useDriverContext } from '../../context/DriverContext';
+import { GeolocationService } from '../../services/geolocation';
 
 export default function Dashboard() {
+  // Contexte chauffeur pour le temps réel
+  const { isOnline, pendingRequestsCount, stats: driverStats } = useDriverContext();
+
   // État pour les statistiques
   const [stats, setStats] = useState({
     onlineSince: "2h 15min",
@@ -34,12 +41,12 @@ export default function Dashboard() {
     if (match) {
       let hours = parseInt(match[1]);
       let minutes = parseInt(match[2]) + 1;
-      
+
       if (minutes >= 60) {
         hours += 1;
         minutes = 0;
       }
-      
+
       return `${hours}h ${minutes}min`;
     }
     return currentTime;
@@ -99,7 +106,7 @@ export default function Dashboard() {
         </div>
 
         {/* Carte 4: Revenus journaliers */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-shadow duration-300"> 
+        <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 p-6 hover:shadow-xl transition-shadow duration-300">
           <div className="flex items-start justify-between mb-4">
             <div className="p-2 rounded-lg bg-emerald-50">
               <DollarSign className="w-6 h-6 text-emerald-500" />
@@ -119,20 +126,93 @@ export default function Dashboard() {
       <div className="mt-8">
         <h2 className="text-lg font-semibold text-gray-800 mb-4 dark:text-white">Actions rapides</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <button className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          <Link
+            to="/chauffeur/trips"
+            className="relative flex items-center justify-center gap-2 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
             <Bell className="w-5 h-5 text-blue-500" />
             <span className="font-medium text-gray-800 dark:text-white">Voir les demandes</span>
-          </button>
-          
-          <button className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+            {pendingRequestsCount > 0 && (
+              <span className="absolute -top-2 -right-2 inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-rose-500 px-1.5 text-xs font-bold text-white shadow-lg animate-pulse">
+                {pendingRequestsCount}
+              </span>
+            )}
+          </Link>
+
+          <Link
+            to="/chauffeur/trips"
+            className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
             <Car className="w-5 h-5 text-green-500" />
             <span className="font-medium text-gray-800 dark:text-white">Mes trajets</span>
-          </button>
-          
-          <button className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+          </Link>
+
+          <Link
+            to="/chauffeur/revenues"
+            className="flex items-center justify-center gap-2 p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
             <DollarSign className="w-5 h-5 text-amber-500" />
             <span className="font-medium text-gray-800 dark:text-white">Consulter les revenus</span>
-          </button>
+          </Link>
+        </div>
+      </div>
+      <LocationCard />
+    </div>
+  );
+}
+
+// Composant de localisation en temps réel
+function LocationCard() {
+  const [userLocation, setUserLocation] = useState({
+    lat: 9.6412, // Conakry, Guinée par défaut
+    lng: -13.5784,
+    address: "Mamou, Guinée"
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Obtenir la position de l'utilisateur
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const position = await GeolocationService.getCurrentPosition();
+        setUserLocation({
+          lat: position.lat,
+          lng: position.lng,
+          address: "Votre position actuelle"
+        });
+      } catch (error) {
+        console.log("Erreur de géolocalisation:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchLocation();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 p-8 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+        <p className="text-gray-600 dark:text-gray-400">Localisation en cours...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-100 dark:border-gray-700 overflow-hidden">
+        {/* En-tête */}
+        <div className="p-4 border-b border-gray-100 dark:border-gray-700 bg-gradient-to-r from-blue-500/5 to-green-500/5">
+          <h2 className="text-lg font-bold text-gray-800 dark:text-white">Votre position en Guinée</h2>
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            {userLocation.address} | {userLocation.lat.toFixed(4)}°, {userLocation.lng.toFixed(4)}°
+          </p>
+        </div>
+
+        {/* Carte OpenStreetMap */}
+        <div className="relative h-96">
+          <UserLocationMap lat={userLocation.lat} lng={userLocation.lng} height={384} />
         </div>
       </div>
     </div>

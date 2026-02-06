@@ -440,6 +440,9 @@ const generateReports = (count = 50) => {
 
 // ============= COMPOSANT PRINCIPAL =============
 
+// TODO API (admin/rapports):
+// Remplacer les donnees simulees et la generation locale par des appels backend
+// Exemple: GET API_ROUTES.admin.reports, POST /admin/reports/generate
 const Reports = () => {
   // États
   const [reports, setReports] = useState(() => generateReports(50));

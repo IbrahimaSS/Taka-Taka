@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Phone, Shield, Users, AlertTriangle, X, Heart, MapPin, Bell } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { GeolocationService } from '../../services/geolocation';
 
 // Composants réutilisables
 import Button from '../admin/ui/Bttn';
@@ -60,34 +61,24 @@ const EmergencyButton = () => {
     },
   ];
 
-  const getCurrentLocation = () => {
+  const getCurrentLocation = async () => {
     setLocationStatus('fetching');
-    // Simuler la récupération de la localisation
-    setTimeout(() => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            const location = {
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-              accuracy: position.coords.accuracy,
-              timestamp: new Date().toISOString()
-            };
-            setLastLocation(location);
-            setLocationStatus('success');
-            toast.success('Position récupérée avec succès');
-          },
-          (error) => {
-            console.error('Erreur de géolocalisation:', error);
-            setLocationStatus('error');
-            toast.error('Impossible de récupérer la position');
-          }
-        );
-      } else {
-        setLocationStatus('error');
-        toast.error('Géolocalisation non supportée');
-      }
-    }, 1000);
+    try {
+      const position = await GeolocationService.getCurrentPosition();
+      const location = {
+        ...position,
+        timestamp: new Date().toISOString()
+      };
+      setLastLocation(location);
+      setLocationStatus('success');
+      toast.success('Position récupérée avec succès');
+      return location;
+    } catch (error) {
+      console.error('Erreur de géolocalisation:', error);
+      setLocationStatus('error');
+      toast.error('Impossible de récupérer la position');
+      return null;
+    }
   };
 
   const handleEmergencyCall = async () => {

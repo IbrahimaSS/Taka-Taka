@@ -4,15 +4,28 @@ const Utilisateur = require("../models/Utilisateurs");
 exports.verifierToken = async (req, res, next) => {
     try {
         const authHeader = req.headers.authorization;
+        const cookieHeader = req.headers.cookie || "";
 
-        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        const lireCookie = (name) => {
+        const cookies = cookieHeader.split(";").map((c) => c.trim());
+        const found = cookies.find((c) => c.startsWith(`${name}=`));
+        if (!found) return null;
+        return decodeURIComponent(found.split("=")[1]);
+        };
+
+        let token = null;
+        if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+        } else {
+        token = lireCookie("takataka_token");
+        }
+
+        if (!token) {
         return res.status(401).json({
             succes: false,
             message: "Accès refusé. Token manquant",
         });
         }
-
-        const token = authHeader.split(" ")[1];
 
         let donnees;
         try {

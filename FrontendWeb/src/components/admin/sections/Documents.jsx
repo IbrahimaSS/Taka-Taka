@@ -19,6 +19,9 @@ import DocumentViewer from '../ui/DocumentViewer';
 import ExportDropdown from '../ui/ExportDropdown';
 import { exportToCSV, exportToPDF, exportToWord } from '../../../utils/exporters';
 
+// TODO API (admin/documents):
+// Remplacer les donnees simulees et les validations locales par des appels backend
+// Exemple: GET /admin/documents, POST /admin/validations/:id
 const Documents = ({ showToast }) => {
   // États principaux
   const [documents, setDocuments] = useState([]);

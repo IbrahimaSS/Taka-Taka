@@ -12,7 +12,7 @@ const documentSchema = new mongoose.Schema(
         // Type de document
         type: {
         type: String,
-        enum: ["PERMIS", "ASSURANCE", "CARTE_GRISE"],
+        enum: ["PERMIS", "ASSURANCE", "CARTE_GRISE", "IDENTITE", "PHOTO_VEHICULE"],
         required: true,
         },
 

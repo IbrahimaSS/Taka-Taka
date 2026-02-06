@@ -256,8 +256,10 @@ const TripDetailsModal = ({ trip, isOpen, onClose, onDelete, onDownload }) => (
             onClick={onDelete}
             icon={Trash2}
             size="large"
-            className="w-12"
+            className="w-13 h-12"
           />
+            
+
         </div>
       </div>
     )}

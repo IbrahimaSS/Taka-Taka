@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bell, Gift, User, MapPin, LogOut, Navigation, Moon, Sun, Car } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { formatDistanceToNow } from 'date-fns';
+import { fr } from 'date-fns/locale';
 import { usePassenger } from '../../context/PassengerContext';
 import { useTheme } from '../../context/ThemeContext';
-
+import { useNotificationCenter } from '../../context/NotificationContext';
 
 const PassengerNavbar = ({
   activeTab,
@@ -12,27 +15,22 @@ const PassengerNavbar = ({
   isTripInProgress = false,
   onNavigateToTracking
 }) => {
+  const navigate = useNavigate();
   const [showNotifications, setShowNotifications] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const { passenger } = usePassenger();
   const { theme, toggleTheme, isDark } = useTheme();
 
-  const notifications = [
-    {
-      id: 1,
-      title: "Trajet confirmé",
-      message: "Votre chauffeur arrive dans 5 min",
-      time: "2 min",
-      icon: <Bell />,
-    },
-    {
-      id: 2,
-      title: "Promotion spéciale",
-      message: "-20% sur votre prochain trajet",
-      time: "1h",
-      icon: <Gift />,
-    },
-  ];
+  // Integrated real notifications
+  const { notifications, unreadCount, markAsRead } = useNotificationCenter();
+
+  const handleNotificationClick = (notification) => {
+    markAsRead(notification.id);
+    if (notification.link) {
+      navigate(notification.link);
+    }
+    setShowNotifications(false);
+  };
 
   return (
     <nav className="sticky top-0 z-50 bg-white/90 dark:bg-gray-800  backdrop-blur-lg shadow-sm border-b-2   border-gray-200/30 dark:border-gray-900 transition-colors duration-300">
@@ -77,7 +75,7 @@ const PassengerNavbar = ({
 
           {/* User Actions */}
           <div className="flex items-center space-x-4">
-            {/* Bouton "Suivi actif" - SEULEMENT quand un trajet est en cours */}
+            {/* Bouton "Suivi actif" */}
             {isTripInProgress && (
               <motion.div
                 initial={{ scale: 0 }}
@@ -124,50 +122,69 @@ const PassengerNavbar = ({
             <div className="relative">
               <button
                 onClick={() => setShowNotifications(!showNotifications)}
-                className="relative p-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
+                className="relative cursor-pointer p-2 rounded-full bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors"
+                title="Notifications"
               >
-                <Bell className="w-5 h-5 text-gray-600" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center animate-pulse">
-                  2
-                </span>
+                <Bell className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                {unreadCount > 0 ? (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center animate-pulse">
+                    {unreadCount}
+                  </span>
+                ) : (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full text-xs text-white flex items-center justify-center animate-pulse">
+                    0
+                  </span>
+                )}
               </button>
 
-              {showNotifications && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden"
-                >
-                  <div className="p-4 border-b border-gray-100 dark:border-gray-700">
-                    <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
-                  </div>
-                  <div className="max-h-80 overflow-y-auto custom-scrollbar-v5">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 cursor-pointer transition-colors"
-                      >
-                        <div className="flex items-start space-x-3">
-                          <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
-                            <span className="text-green-600 dark:text-green-400">{notification.icon}</span>
+              <AnimatePresence>
+                {showNotifications && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 10 }}
+                    className="absolute right-0 mt-2 w-80 bg-white dark:bg-gray-800 rounded-xl shadow-2xl border border-gray-100 dark:border-gray-700 z-50 overflow-hidden"
+                  >
+                    <div className="p-4 border-b border-gray-100 dark:border-gray-700">
+                      <h3 className="font-bold text-gray-900 dark:text-white">Notifications</h3>
+                    </div>
+                    <div className="max-h-80 overflow-y-auto custom-scrollbar-v5">
+                      {notifications.length > 0 ? (
+                        notifications.map((notification) => (
+                          <div
+                            key={notification.id}
+                            onClick={() => handleNotificationClick(notification)}
+                            className="p-4 hover:bg-gray-50 dark:hover:bg-gray-700/50 border-b border-gray-100 dark:border-gray-700 cursor-pointer transition-colors"
+                          >
+                            <div className="flex items-start space-x-3">
+                              <div className="w-10 h-10 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center shrink-0">
+                                <span className="text-green-600 dark:text-green-400">
+                                  <Bell className="w-5 h-5" />
+                                </span>
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <p className="font-medium text-sm text-gray-900 dark:text-white line-clamp-1">
+                                  {notification.title}
+                                </p>
+                                <p className="text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
+                                  {notification.message}
+                                </p>
+                              </div>
+                              <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">
+                                {formatDistanceToNow(new Date(notification.timestamp), { locale: fr })}
+                              </span>
+                            </div>
                           </div>
-                          <div className="flex-1">
-                            <p className="font-medium text-gray-900 dark:text-white">
-                              {notification.title}
-                            </p>
-                            <p className="text-sm text-gray-500 dark:text-gray-400">
-                              {notification.message}
-                            </p>
-                          </div>
-                          <span className="text-xs text-gray-400 dark:text-gray-500">
-                            {notification.time}
-                          </span>
+                        ))
+                      ) : (
+                        <div className="p-8 text-center text-gray-500">
+                          Aucune notification
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </motion.div>
-              )}
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Profile Menu */}

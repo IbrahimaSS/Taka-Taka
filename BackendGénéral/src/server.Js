@@ -16,10 +16,12 @@ connecterBaseDeDonnees();
 const server = http.createServer(app);
 
 // Initialisation de Socket.IO
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
 const io = new Server(server, {
     cors: {
-        origin: "*", // en prod : mets l’URL du frontend
+        origin: FRONTEND_ORIGIN, // en prod : mets l'URL du frontend
         methods: ["GET", "POST"],
+        credentials: true,
     },
 });
 
@@ -33,3 +35,4 @@ app.set("io", io);
 server.listen(PORT, () => {
     console.log(`🚀 Serveur TAKA TAKA + Socket.IO démarré sur le port ${PORT}`);
 });
+

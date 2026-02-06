@@ -28,6 +28,9 @@ import {
   Copy
 } from 'lucide-react';
 
+// TODO API (admin/trajets):
+// Remplacer les donnees simulees et les actions locales par des appels backend
+// Exemple: GET API_ROUTES.trips.list, PATCH /trips/:id (status), etc.
 const Trips = ({ showToast }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [timeFilter, setTimeFilter] = useState('today');

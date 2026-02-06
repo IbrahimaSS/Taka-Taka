@@ -25,6 +25,9 @@ import PaymentsSettings from '../settings/PaymentsSettings';
 // Hooks
 import { useSettings } from '../../../hooks/useSettings';
 
+// TODO API (admin/parametres):
+// Remplacer les valeurs locales par des appels backend
+// Exemple: GET /admin/settings, PATCH /admin/settings
 const Settings = () => {
   const [activeTab, setActiveTab] = useState('general');
   const [toast, setToast] = useState(null);

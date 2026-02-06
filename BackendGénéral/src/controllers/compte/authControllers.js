@@ -40,6 +40,15 @@ exports.connexion = async (req, res) => {
                     : "Compte inactif. Veuillez contacter l’administration.",
             });
         }
+        // Cookie httpOnly pour session via cookies
+        const cookieOptions = {
+            httpOnly: true,
+            sameSite: "lax",
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 7 * 24 * 60 * 60 * 1000, // 7 jours
+        };
+        res.cookie("takataka_token", resultat.token, cookieOptions);
+
         return res.status(200).json({
         succes: true,
         message: "=====CONNEXION REUSSIE=====",

@@ -121,11 +121,11 @@ export const NAV_CONFIG = {
                 label: 'Planning',
                 path: 'planning',
             },
-            // {
-            //     icon: Settings,
-            //     label: 'Paramètres',
-            //     path: 'settings',
-            // },
+            {
+                icon: User2,
+                label: 'Mes Course',
+                path: 'tracking',
+            },
             // {
             //     icon: Users,
             //     label: 'Évaluations',

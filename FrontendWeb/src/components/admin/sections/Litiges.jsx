@@ -24,6 +24,9 @@ import ExportDropdown from '../ui/ExportDropdown';
 import { chartConfigs } from '../../../hooks/useCharts';
 
 // Données de démonstration
+// TODO API (admin/litiges):
+// Remplacer les donnees de demonstration et les actions locales par des appels backend
+// Exemple: GET /admin/litiges, PATCH /admin/litiges/:id (statut)
 const generateDisputes = (count = 50) => {
   const statuses = ['open', 'in_progress', 'resolved', 'rejected', 'pending'];
   const priorities = ['low', 'medium', 'high', 'critical'];

@@ -13,6 +13,9 @@ import { chartConfigs } from '../../../hooks/useCharts';
 import { Link } from 'react-router-dom';
 import Button from '../ui/Bttn';
 
+// TODO API (admin/dashboard):
+// Remplacer les stats et donnees simulees par des appels backend
+// Exemple: GET API_ROUTES.admin.dashboard
 const Dashboard = ({ showToast }) => {
   const [timeRange, setTimeRange] = useState('month');
 

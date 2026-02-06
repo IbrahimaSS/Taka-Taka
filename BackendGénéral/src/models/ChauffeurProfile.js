@@ -31,12 +31,18 @@ const chauffeurProfileSchema = new mongoose.Schema(
         },
 
         marqueVehicule: String,
+        modeleVehicule: String,
         plaque: String,
+        couleurVehicule: String,
+        anneeVehicule: Number,
+        capaciteVehicule: Number,
 
         // Documents
         permisConduire: String,
         carteGrise: String,
         assurance: String,
+        photoVehicule: String,
+        pieceIdentite: String,
 
         // Statistiques
         nombreTrajets: {

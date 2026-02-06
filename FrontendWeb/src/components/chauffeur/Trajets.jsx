@@ -10,17 +10,20 @@ import {
   Calendar,
   Navigation,
   AlertCircle,
-  MoreVertical
+  MoreVertical,
+  ExternalLink
 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useDriverContext } from '../../context/DriverContext';
 import Badge from '../../ui/Badge';
 import { useTripStore } from '../../data/tripStore';
 
 function Trajets() {
   const trips = useTripStore((state) => state.trips);
-  const handleAcceptTrip = useTripStore((state) => state.handleAcceptTrip);
-  const handleStartTrip = useTripStore((state) => state.handleStartTrip);
   const completeTrip = useTripStore((state) => state.completeTrip);
   const cancelTrip = useTripStore((state) => state.cancelTrip);
+  const { acceptTripRequest, activeTrip } = useDriverContext();
+  const navigate = useNavigate();
 
   // États pour les filtres
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -177,8 +180,8 @@ function Trajets() {
               <button
                 onClick={() => setSelectedStatus('all')}
                 className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${selectedStatus === 'all'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
                   }`}
               >
                 Tous ({stats.total})
@@ -188,8 +191,8 @@ function Trajets() {
                   key={status}
                   onClick={() => setSelectedStatus(status)}
                   className={`px-3 py-1.5 text-sm rounded-lg transition-colors flex items-center gap-2 ${selectedStatus === status
-                      ? config.color
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
+                    ? config.color
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
                     }`}
                 >
                   {config.icon}
@@ -207,8 +210,8 @@ function Trajets() {
               <button
                 onClick={() => setSelectedPriority('all')}
                 className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${selectedPriority === 'all'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
                   }`}
               >
                 Toutes
@@ -218,8 +221,8 @@ function Trajets() {
                   key={priority}
                   onClick={() => setSelectedPriority(priority)}
                   className={`px-3 py-1.5 text-sm rounded-lg transition-colors ${selectedPriority === priority
-                      ? config.color
-                      : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
+                    ? config.color
+                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-200 hover:bg-gray-200'
                     }`}
                 >
                   {config.label}
@@ -271,6 +274,11 @@ function Trajets() {
                       <div>
                         <h3 className="font-bold text-gray-800 dark:text-white">{trip.id}</h3>
                         <p className="text-sm text-gray-600 dark:text-gray-300">
+                          {trip.distanceToDriver && (
+                            <span className="text-blue-500 font-bold mr-2">
+                              À {trip.distanceToDriver} km
+                            </span>
+                          )}
                           Demande à {trip.requestedTime?.toLocaleTimeString('fr-FR', {
                             hour: '2-digit',
                             minute: '2-digit'
@@ -364,7 +372,10 @@ function Trajets() {
                     {trip.status === 'pending' && (
                       <>
                         <button
-                          onClick={() => handleAcceptTrip(trip.id)}
+                          onClick={() => {
+                            acceptTripRequest(trip.id);
+                            navigate('/chauffeur/tracking');
+                          }}
                           className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
                         >
                           Accepter
@@ -378,30 +389,13 @@ function Trajets() {
                       </>
                     )}
 
-                    {trip.status === 'accepted' && (
+                    {trip.id === activeTrip?.id && (
                       <button
-                        onClick={() => handleStartTrip(trip.id)}
-                        className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
+                        onClick={() => navigate('/chauffeur/tracking')}
+                        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm font-medium flex items-center justify-center gap-2"
                       >
-                        Démarrer le trajet
-                      </button>
-                    )}
-
-                    {trip.status === 'in_progress' && (
-                      <button
-                        onClick={() => handleCompleteTrip(trip.id)}
-                        className="flex-1 px-4 py-2 bg-gradient-to-r from-blue-500 to-green-500 text-white rounded-lg hover:opacity-90 transition-opacity text-sm font-medium"
-                      >
-                        Terminer le trajet
-                      </button>
-                    )}
-
-                    {trip.status === 'completed' && (
-                      <button
-                        className="flex-1 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors text-sm font-medium"
-                        disabled
-                      >
-                        Trajet terminé
+                        <Navigation className="w-4 h-4" />
+                        Suivre sur la carte
                       </button>
                     )}
 
