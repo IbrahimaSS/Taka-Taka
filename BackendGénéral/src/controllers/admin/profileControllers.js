@@ -8,18 +8,24 @@ exports.getProfile = async (req, res) => {
         return res.json({
         succes: true,
         profile: {
-            message:"=====Profile Admin=====",
+            message: "=====Profile Admin=====",
             nom: user.nom,
             prenom: user.prenom,
             email: user.email,
             telephone: user.telephone,
-            localisation: user.localisation,
+            localisation: user.localisation || null,
             role: user.role,
             createdAt: user.createdAt,
+
+            // PHOTO : soit l’URL, soit null
+            photoProfil: user.photoUrl ? user.photoUrl : null,
         },
         });
     } catch (error) {
-        res.status(500).json({ succes: false, message: "Erreur chargement profil" });
+        res.status(500).json({
+        succes: false,
+        message: "Erreur chargement profil",
+        });
     }
 };
 
@@ -28,12 +34,14 @@ exports.updateProfile = async (req, res) => {
     try {
         const { nom, prenom, telephone, email } = req.body || {};
         const user = req.utilisateur;
-        // ===== Vérification EMAIL =====
+
+        // ===== EMAIL =====
         if (email && email !== user.email) {
         const emailExiste = await Utilisateurs.findOne({
             email,
             _id: { $ne: user._id }
         });
+
         if (emailExiste) {
             return res.status(400).json({
             succes: false,
@@ -42,12 +50,14 @@ exports.updateProfile = async (req, res) => {
         }
         user.email = email;
         }
-        // ===== Vérification TELEPHONE =====
+
+        // ===== TELEPHONE =====
         if (telephone && telephone !== user.telephone) {
         const telExiste = await Utilisateurs.findOne({
             telephone,
             _id: { $ne: user._id }
         });
+
         if (telExiste) {
             return res.status(400).json({
             succes: false,
@@ -56,19 +66,28 @@ exports.updateProfile = async (req, res) => {
         }
         user.telephone = telephone;
         }
-        // ===== Autres champs =====
+
+        // ===== AUTRES CHAMPS =====
         if (nom) user.nom = nom;
         if (prenom) user.prenom = prenom;
+
+        // ===== PHOTO DE PROFIL (FACULTATIF) =====
+        if (req.file) {
+        user.photoUrl = `/uploads/profiles/${req.file.filename}`;
+        }
 
         await user.save();
 
         return res.json({
         succes: true,
         message: "Profil mis à jour",
-        nom: user.nom,
-        prenom: user.prenom,
-        email: user.email,
-        telephone: user.telephone
+        utilisateur: {
+            nom: user.nom,
+            prenom: user.prenom,
+            email: user.email,
+            telephone: user.telephone,
+            photoProfil: user.photoUrl,
+        }
         });
 
     } catch (error) {
@@ -80,36 +99,34 @@ exports.updateProfile = async (req, res) => {
     }
 };
 
+
 // JOURNAL DES ACTIVITE
-exports.journalActivite = async (req, res) => {
-    try {
-        const logs = await Journal.find({ utilisateur: req.utilisateur._id })
-        .sort({ createdAt: -1 })
-        .limit(10);
-        res.json({
-        succes: true,
-        activites: logs,
-        });
-    } catch (error) {
-        res.status(500).json({ succes: false, message: "Erreur journal activité" });
-    }
-};
+// exports.journalActivite = async (req, res) => {
+//     try {
+//         const logs = await Journal.find({ utilisateur: req.utilisateur._id })
+//         .sort({ createdAt: -1 })
+//         .limit(10);
+//         res.json({
+//         succes: true,
+//         activites: logs,
+//         });
+//     } catch (error) {
+//         res.status(500).json({ succes: false, message: "Erreur journal activité" });
+//     }
+// };
 
 // STATISTIQUES RAPIDES
-exports.statsProfile = async (req, res) => {
-    try {
-        return res.json({
-        succes: true,
-        stats: {
-            actionsAujourdhui: 24,
-            validationsEnAttente: 12,
-            notifications: 8,
-        },
-        });
-    } catch (error) {
-        res.status(500).json({ succes: false, message: "Erreur stats profil" });
-    }
-    };
-
-
-
+// exports.statsProfile = async (req, res) => {
+//     try {
+//         return res.json({
+//         succes: true,
+//         stats: {
+//             actionsAujourdhui: 24,
+//             validationsEnAttente: 12,
+//             notifications: 8,
+//         },
+//         });
+//     } catch (error) {
+//         res.status(500).json({ succes: false, message: "Erreur stats profil" });
+//     }
+// };

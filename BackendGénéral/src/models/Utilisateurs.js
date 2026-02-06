@@ -20,6 +20,10 @@ const utilisateurSchema = new mongoose.Schema(
         },
 
         motDePasse: { type: String, required: true },
+        passwordChangedAt: {
+            type: Date,
+            default: null,
+        },
 
         role: {
         type: String,

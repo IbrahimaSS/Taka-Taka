@@ -21,6 +21,7 @@ app.use(
 
 app.use(morgan("dev"));
 
+
 app.get("/", (req, res) => {
     res.status(200).json({
         succes: true,
@@ -50,6 +51,8 @@ const paiementRoutes = require("./routes/admin/paiementRoutes");
 const rapportRoutes = require("./routes/admin/rapportRoutes");
 const litigeRoutes = require("./routes/admin/litigeRoutes");
 const profileRoutes = require("./routes/admin/profileRoutes");
+const personnelRoutes = require("./routes/admin/personnelRoutes");
+const securityRoutes = require("./routes/admin/securityRoutes");
 //Montage
 app.use("/api/admin", dashboardRoutes);
 app.use("/api/admin", passagerRoutes);
@@ -62,6 +65,12 @@ app.use("/api/admin", paiementRoutes);
 app.use("/api/admin", rapportRoutes);
 app.use("/api/admin", litigeRoutes);
 app.use("/api/admin", profileRoutes);
+
+//Personnel
+app.use("/api/admin/personnels", personnelRoutes);
+
+// Changer mot de passe personnel
+app.use("/api/admin/security", securityRoutes);
 
 // ===================== ROUTES PASSAGER ET BRANCHEMENT =====================
 //Passager - Estimations

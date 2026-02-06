@@ -48,9 +48,18 @@ exports.verifierToken = async (req, res, next) => {
         });
         }
 
-        // Injection dans la requête
-        req.utilisateur = utilisateur;
+        // Vérifier si le mot de passe a été changé après émission du token
+        if (
+        utilisateur.passwordChangedAt &&
+        donnees.iat * 1000 < utilisateur.passwordChangedAt.getTime()
+        ) {
+        return res.status(401).json({
+            succes: false,
+            message: "Session expirée. Veuillez vous reconnecter.",
+        });
+        }
 
+        req.utilisateur = utilisateur;
         next();
     } catch (error) {
         return res.status(500).json({
