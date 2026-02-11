@@ -1,10 +1,9 @@
 // src/context/PassengerContext.jsx
-import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, useRef } from "react";
+import React, { createContext, useState, useContext, useEffect, useMemo, useRef } from "react";
 import axios from "axios";
 import { toast } from "react-hot-toast";
 import socketService from "../services/socketService";
 import { API_ROUTES } from "../services/apiRoutes";
-import { useAuth } from './AuthContext';
 
 const PassengerContext = createContext();
 export const usePassenger = () => useContext(PassengerContext);
@@ -12,9 +11,18 @@ export const usePassenger = () => useContext(PassengerContext);
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export const PassengerProvider = ({ children }) => {
-  const { user, updateUser: updateAuthUser } = useAuth();
-  const [passenger, setPassenger] = useState(user || null);
-  const [isLoadingProfile, setIsLoadingProfile] = useState(false);
+  const [passenger, setPassenger] = useState(() => {
+    try {
+      const raw = localStorage.getItem('user') || localStorage.getItem('authUser');
+      const parsed = raw ? JSON.parse(raw) : null;
+      // Normalisation: s'assurer que l'ID est présent
+      if (parsed && !parsed._id && parsed.id) parsed._id = parsed.id;
+      return parsed;
+    } catch {
+      return null;
+    }
+  });
+  const [isLoadingProfile, setIsLoadingProfile] = useState(!passenger); // Ne pas bloquer si on a déjà un cache
 
   const [currentPage, setCurrentPage] = useState("home");
 
@@ -39,7 +47,7 @@ export const PassengerProvider = ({ children }) => {
   }, [currentTrip]);
 
   // ===================== FETCH PROFILE REAL =====================
-  const fetchProfile = useCallback(async () => {
+  const fetchProfile = async () => {
     try {
       setIsLoadingProfile(true);
       const { data } = await axios.get(`${API_URL}/api${API_ROUTES.passager.profil.get}`, {
@@ -48,27 +56,17 @@ export const PassengerProvider = ({ children }) => {
       if (data?.succes && data?.profil) {
         console.log("👤 [CONTEXT] Profil récupéré:", data.profil);
         setPassenger(data.profil);
-        if (updateAuthUser) {
-          updateAuthUser(data.profil);
-        }
       }
     } catch (err) {
       console.error("❌ [CONTEXT] Erreur fetch profile:", err.message);
     } finally {
       setIsLoadingProfile(false);
     }
-  }, [updateAuthUser]);
+  };
 
   useEffect(() => {
-    if (user) {
-      setPassenger(user);
-      if (!user._id && !user.id) { // If user is from local storage and might be incomplete
-        fetchProfile();
-      }
-    } else {
-      setPassenger(null);
-    }
-  }, [user, fetchProfile]);
+    fetchProfile();
+  }, []);
 
   // ===================== GEOLOCATION =====================
   useEffect(() => {
@@ -150,6 +148,15 @@ export const PassengerProvider = ({ children }) => {
       // ✅ STOP UI SEARCHING (重要)
       toast.dismiss("searching");
 
+      // Map location safely
+      let initialLocation = null;
+      const rawLoc = chauffeur?.location || chauffeur?.currentLocation;
+      if (Array.isArray(rawLoc)) {
+        initialLocation = rawLoc;
+      } else if (rawLoc && rawLoc.lat != null && rawLoc.lng != null) {
+        initialLocation = [rawLoc.lat, rawLoc.lng];
+      }
+
       // ✅ Update driver
       setSelectedDriver({
         id: chauffeur?.id || chauffeur?._id,
@@ -158,6 +165,8 @@ export const PassengerProvider = ({ children }) => {
         name: `${chauffeur?.prenom || ""} ${chauffeur?.nom || ""}`.trim(),
         vehicle: chauffeur?.vehicle || chauffeur?.vehicule || { plate: "N/A", model: "N/A" },
         phone: chauffeur?.telephone || chauffeur?.phone || chauffeur?.contact,
+        email: chauffeur?.email || chauffeur?.courriel,
+        location: initialLocation,
         eta: "Arrivée imminente",
         distance: "Proche"
       });
@@ -190,41 +199,57 @@ export const PassengerProvider = ({ children }) => {
       toast.success(message || "🚗 Votre chauffeur est en route !", { id: "driver-en-route" });
     };
 
-    const onArrived = ({ reservationId } = {}) => {
+    const onArrived = ({ reservationId, message } = {}) => {
       const trip = currentTripRef.current;
       if (trip?.reservationId && String(trip.reservationId) !== String(reservationId)) return;
       setTripStatus("arrived");
       setCurrentTrip((prev) => (prev ? { ...prev, status: "arrived" } : prev));
-      toast.success("📍 Votre chauffeur est arrivé", { id: "driver-arrived" });
+      toast.success(message || "📍 Votre chauffeur est arrivé", { id: "driver-arrived" });
     };
 
-    const onStarted = ({ reservationId } = {}) => {
+    const onStarted = (payload) => {
+      const { reservationId, message } = payload || {};
       const trip = currentTripRef.current;
       if (trip?.reservationId && String(trip.reservationId) !== String(reservationId)) return;
+
       setTripStatus("en_route");
-      setCurrentTrip((prev) => (prev ? { ...prev, status: "en_route" } : prev));
-      toast.success("🚀 Trajet démarré", { id: "trip-started" });
+      setCurrentTrip((prev) => (prev ? {
+        ...prev,
+        ...payload,
+        status: "en_route"
+      } : prev));
+      toast.success(message || "🚀 Trajet démarré", { id: "trip-started" });
     };
 
-    const onGlobalStarted = ({ reservationId, message } = {}) => {
+    const onGlobalStarted = (payload) => {
+      const { reservationId, message } = payload || {};
       const trip = currentTripRef.current;
       if (trip?.reservationId && String(trip.reservationId) !== String(reservationId)) return;
+
       setTripStatus("en_route");
-      setCurrentTrip((prev) => (prev ? { ...prev, status: "en_route" } : prev));
+      setCurrentTrip((prev) => (prev ? {
+        ...prev,
+        ...payload,
+        status: "en_route"
+      } : prev));
       toast.success(message || "🚀 Le trajet commence !", { id: "trip-started-global" });
     };
 
     const onPosition = (data) => {
-      const { lat, lng } = data;
+      const { lat, lng, speed, heading } = data;
       if (lat != null && lng != null) {
-        setSelectedDriver((prev) => (prev ? { ...prev, location: [lat, lng] } : prev));
+        setSelectedDriver((prev) => (prev ? { ...prev, location: [lat, lng], speed: speed || 0, heading: heading || 0 } : prev));
       }
     };
 
     // ✅ Fix 3 : écouter la fin de course côté backend
     const onCompleted = ({ reservationId } = {}) => {
+      console.log("📩 [CONTEXT] course:terminee reçu", { reservationId });
       const trip = currentTripRef.current;
-      if (trip?.reservationId && String(trip.reservationId) !== String(reservationId)) return;
+      if (trip?.reservationId && String(trip.reservationId) !== String(reservationId)) {
+        console.warn("📩 [CONTEXT] Terminate ignored: ID mismatch", { current: trip.reservationId, received: reservationId });
+        return;
+      }
       setTripStatus("completed");
       toast.success("🏁 Trajet terminé ! Merci d'avoir voyagé avec TakaTaka", { id: "trip-completed" });
       setTimeout(() => {
@@ -236,14 +261,44 @@ export const PassengerProvider = ({ children }) => {
 
     // ✅ Fix 4 : écouter l'annulation côté backend
     const onCancelled = ({ reservationId, message } = {}) => {
+      console.log("📩 [CONTEXT] course:annulee reçu", { reservationId, message });
       const trip = currentTripRef.current;
-      if (trip?.reservationId && String(trip.reservationId) !== String(reservationId)) return;
+
+      // Log simple detection
+      if (!trip?.reservationId) {
+        console.log("📩 [CONTEXT] No active trip ID to match, clearing anyway");
+      }
+
+      if (trip?.reservationId && String(trip.reservationId) !== String(reservationId)) {
+        console.warn("📩 [CONTEXT] Cancel ignored: ID mismatch", { current: trip.reservationId, received: reservationId });
+        return;
+      }
+
       toast.dismiss("searching");
       setTripStatus("cancelled");
       setCurrentTrip(null);
       setSelectedDriver(null);
       toast.error(message || "❌ Course annulée", { id: "trip-cancelled" });
       setTimeout(() => setTripStatus(null), 2500);
+    };
+
+    const onDriverRejected = ({ message } = {}) => {
+      console.log("📩 [CONTEXT] course:refusee_par_chauffeur reçu", { message });
+      toast.error(message || "Un chauffeur a décliné la demande.", {
+        id: "driver-rejected",
+        duration: 4000
+      });
+    };
+
+    const onNoAvailability = ({ message } = {}) => {
+      console.log("📩 [CONTEXT] course:aucune_disponibilite reçu", { message });
+      toast.dismiss("searching");
+      setTripStatus(null);
+      setCurrentTrip(null);
+      toast.error(message || "❌ Désolé, aucun chauffeur n'est disponible pour le moment.", {
+        id: "no-availability",
+        duration: 6000
+      });
     };
 
     socketService.on("course:acceptee", onAccepted);
@@ -254,6 +309,8 @@ export const PassengerProvider = ({ children }) => {
     socketService.on("position:chauffeur", onPosition);
     socketService.on("course:terminee", onCompleted);
     socketService.on("course:annulee", onCancelled);
+    socketService.on("course:refusee_par_chauffeur", onDriverRejected);
+    socketService.on("course:aucune_disponibilite", onNoAvailability);
 
     return () => {
       socketService.off("course:acceptee", onAccepted);
@@ -264,6 +321,8 @@ export const PassengerProvider = ({ children }) => {
       socketService.off("position:chauffeur", onPosition);
       socketService.off("course:terminee", onCompleted);
       socketService.off("course:annulee", onCancelled);
+      socketService.off("course:refusee_par_chauffeur", onDriverRejected);
+      socketService.off("course:aucune_disponibilite", onNoAvailability);
     };
   }, [passenger?._id, passenger?.id]);
 
@@ -323,6 +382,8 @@ export const PassengerProvider = ({ children }) => {
         reservationId,
         pickup: confirmedData.pickup,
         destination: confirmedData.destination,
+        pickupCoords: [confirmedData.pickupLat ?? userLocation.lat, confirmedData.pickupLng ?? userLocation.lng],
+        destinationCoords: [confirmedData.destinationLat, confirmedData.destinationLng],
         estimatedPrice: confirmedData.price,
         vehicleType: confirmedData.vehicleType,
         paymentTime: confirmedData.paymentTime,
@@ -393,32 +454,17 @@ export const PassengerProvider = ({ children }) => {
 
   const updatePassenger = async (newData) => {
     try {
-      const isFormData = newData instanceof FormData;
-      const config = {
-        withCredentials: true,
-        headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : {}
-      };
-
-      const { data } = await axios.put(`${API_URL}/api${API_ROUTES.passager.profil.update}`, newData, config);
+      const { data } = await axios.put(`${API_URL}/api${API_ROUTES.passager.profil.update}`, newData, {
+        withCredentials: true
+      });
       if (data?.succes) {
-        const updatedUser = data.profil || data.utilisateur || (isFormData ? null : newData);
-
-        if (updatedUser) {
-          setPassenger(updatedUser);
-          if (updateAuthUser) {
-            updateAuthUser(updatedUser);
-          }
-        }
-
-        if (isFormData) {
-          await fetchProfile();
-        }
+        setPassenger(data.profil || newData);
         toast.success("Profil mis à jour !");
         return true;
       }
     } catch (err) {
       console.error("❌ [CONTEXT] Erreur update profile:", err.message);
-      toast.error(err.response?.data?.message || "Échec de la mise à jour du profil");
+      toast.error("Échec de la mise à jour du profil");
     }
     return false;
   };

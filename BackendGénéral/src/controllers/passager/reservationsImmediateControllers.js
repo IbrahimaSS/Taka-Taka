@@ -76,8 +76,12 @@ exports.confirmerReservationImmediate = async (req, res) => {
     // 2) Création réservation
     const reservation = await Reservation.create({
       passager: req.utilisateur._id,
-      depart,
-      destination,
+      depart: depart,
+      departLat: dLat,
+      departLng: dLng,
+      destination: destination,
+      destinationLat: aLat,
+      destinationLng: aLng,
 
       // ✅ GeoJSON = [lng,lat]
       departCoords: { type: "Point", coordinates: [dLng, dLat] },
@@ -148,11 +152,19 @@ exports.confirmerReservationImmediate = async (req, res) => {
       createdAt: new Date().toISOString(),
     };
 
-    // Envoi aux chauffeurs
+    // Envoi aux chauffeurs et enregistrement des offres
+    const offers = [];
     for (const chauffeur of chauffeursEnLigne) {
       chauffeursContactes += 1;
+      const chauffeurId = chauffeur._id.toString();
 
-      const driverRoom = `CHAUFFEUR_${chauffeur._id.toString()}`;
+      offers.push({
+        chauffeur: chauffeur._id,
+        statut: 'ENVOYEE',
+        expireLe: new Date(Date.now() + 60000)
+      });
+
+      const driverRoom = `CHAUFFEUR_${chauffeurId}`;
 
       // ✅ room stable
       io?.to(driverRoom).emit("course:demande", payload);
@@ -162,6 +174,9 @@ exports.confirmerReservationImmediate = async (req, res) => {
         io?.to(chauffeur.socketId).emit("course:demande", payload);
       }
     }
+
+    reservation.offresEnvoyees = offers;
+    await reservation.save();
 
     console.log(`✅ Demande envoyée à ${chauffeursContactes} chauffeurs`);
 

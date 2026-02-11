@@ -29,13 +29,6 @@ router.get(
     autoriserRoles("ADMIN"),
     paiementController.repartitionPaiements
 );
-//Répartition Paiements par Type
-router.get(
-    "/paiements/repartition-type",
-    verifierToken,
-    autoriserRoles("ADMIN"),
-    paiementController.repartitionRevenusParType
-);
 //Listes des Paiements
 router.get(
     "/paiements",
