@@ -1,7 +1,7 @@
 // src/components/sections/Drivers.jsx
 import React, { useState, useEffect, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Search, Eye, Ban, Check, Phone, Calendar, User, Car, UserCircle, Star, Download, MapPin, CheckCircle, XCircle, Clock, Filter, X, ChevronDown, RefreshCw, Mail } from 'lucide-react';
+import { Search, Eye, Ban, Check, Phone, Calendar, User, Car, UserCircle, Star, Download, MapPin, CarIcon, CheckCircle, XCircle, Clock, Filter, X, ChevronDown, RefreshCw } from 'lucide-react';
 import StatCard from '../layout/StatCard';
 import Card, { CardHeader, CardTitle, CardContent } from '../ui/Card';
 import Button from '../ui/Bttn';
@@ -10,93 +10,229 @@ import Pagination from '../ui/Pagination';
 import ConfirmModal from '../ui/ConfirmModal';
 import ExportDropdown from '../ui/ExportDropdown';
 import useDriverActions from '../../../hooks/useDriver';
-import { adminService } from '../../../services/adminService';
 
 const Drivers = ({ showToast }) => {
-  // Hook d'actions chauffeur (Activer / Désactiver / Suspendre)
-  const { confirmationModal, openStatusModal, confirmAction, closeConfirmationModal, isLoading } = useDriverActions({
-    refresh: () => fetchDrivers(),
-    showToast,
-  });
-
   // États principaux
   const [drivers, setDrivers] = useState([]);
   const [filteredDrivers, setFilteredDrivers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-  const [selectedFilters, setSelectedFilters] = useState({
-    status: 'all',
-    type: 'all'
-  });
+  const [selectedFilters, setSelectedFilters] = useState({});
+  const [showFilters, setShowFilters] = useState(false);
 
   // États pour la pagination
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(6);
-  const [totalItems, setTotalItems] = useState(0);
 
   // États pour les modales
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [selectedDriver, setSelectedDriver] = useState(null);
 
-  // Stats
-  const [statsData, setStatsData] = useState(null);
+  // Hook d'actions chauffeur (Activer / Désactiver / Suspendre)
+  const { confirmationModal, openStatusModal, confirmAction, closeConfirmationModal } = useDriverActions({
+    drivers,
+    setDrivers,
+    showToast,
+  });
 
-
-  // Debounce search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearchTerm(searchTerm);
-    }, 500);
-
-    return () => clearTimeout(timer);
-  }, [searchTerm]);
-
-  // Fetch data
-  useEffect(() => {
-    fetchDrivers();
-    fetchStats();
-  }, [currentPage, pageSize, debouncedSearchTerm, selectedFilters]);
-
-  async function fetchDrivers() {
-    try {
-      setLoading(true);
-      const params = {
-        page: currentPage,
-        limit: pageSize,
-        search: debouncedSearchTerm,
-        statut: selectedFilters.status !== 'all' ? (selectedFilters.status === 'active' ? 'ACTIF' : selectedFilters.status === 'inactive' ? 'INACTIF' : selectedFilters.status.toUpperCase()) : undefined,
-        typeVehicule: selectedFilters.type !== 'all' ? selectedFilters.type : undefined,
-      };
-
-      const response = await adminService.getDrivers(params);
-      if (response.data.succes) {
-        setDrivers(response.data.chauffeurs);
-        setFilteredDrivers(response.data.chauffeurs);
-        if (response.data.pagination) {
-          setTotalItems(response.data.pagination.total);
-        }
+  // Données simulées
+  // TODO API (admin/chauffeurs):
+  // Remplacer ces donnees simulees par un fetch via driverService/adminService
+  // Exemple: GET API_ROUTES.drivers.list
+  const initialDrivers = [
+    {
+      id: 1,
+      name: 'Kouamé Adou',
+      type: 'Moto-taxi',
+      vehicle: 'Yamaha Crypton',
+      plate: 'AB-123-CD',
+      phone: '+33 6 12 34 56 78',
+      email: 'kouame.adou@email.com',
+      joinDate: '2024-03-15',
+      lastActive: '2024-11-20 14:30',
+      trips: 247,
+      rating: 4.8,
+      earnings: 12500,
+      status: 'active',
+      verification: 'verified',
+      city: 'Abidjan',
+      zone: 'Plateau',
+      color: 'green',
+      documents: {
+        license: true,
+        insurance: true,
+        registration: true
       }
-    } catch (error) {
-      console.error('Erreur chargement chauffeurs:', error);
-      showToast('Erreur', 'Impossible de charger les chauffeurs', 'error');
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function fetchStats() {
-    try {
-      const response = await adminService.getDriverStats();
-      if (response.data.succes) {
-        setStatsData(response.data.stats);
+    },
+    {
+      id: 2,
+      name: 'Aïcha Diarra',
+      type: 'Taxi partagé',
+      vehicle: 'Toyota Corolla',
+      plate: 'EF-456-GH',
+      phone: '+33 7 87 65 43 21',
+      email: 'aicha.diarra@email.com',
+      joinDate: '2024-02-22',
+      lastActive: '2024-11-20 10:15',
+      trips: 189,
+      rating: 4.6,
+      earnings: 9800,
+      status: 'suspended',
+      verification: 'pending',
+      city: 'Bamako',
+      zone: 'Badalabougou',
+      color: 'blue',
+      documents: {
+        license: true,
+        insurance: false,
+        registration: true
       }
-    } catch (error) {
-      console.error('Erreur chargement stats chauffeurs:', error);
-    }
-  }
-
-
+    },
+    {
+      id: 3,
+      name: 'Mohamed Sylla',
+      type: 'Voiture privée',
+      vehicle: 'Mercedes Classe C',
+      plate: 'IJ-789-KL',
+      phone: '+33 5 55 44 33 22',
+      email: 'mohamed.sylla@email.com',
+      joinDate: '2024-01-10',
+      lastActive: '2024-11-19 18:45',
+      trips: 312,
+      rating: 4.9,
+      earnings: 21500,
+      status: 'inactive',
+      verification: 'verified',
+      city: 'Dakar',
+      zone: 'Almadies',
+      color: 'purple',
+      documents: {
+        license: true,
+        insurance: true,
+        registration: true
+      }
+    },
+    {
+      id: 4,
+      name: 'Fatoumata Bâ',
+      type: 'Moto-taxi',
+      vehicle: 'Honda CG 125',
+      plate: 'MN-234-OP',
+      phone: '+33 6 98 76 54 32',
+      email: 'fatoumata.ba@email.com',
+      joinDate: '2024-04-05',
+      lastActive: '2024-11-20 09:20',
+      trips: 156,
+      rating: 4.4,
+      earnings: 7800,
+      status: 'active',
+      verification: 'rejected',
+      city: 'Conakry',
+      zone: 'Ratoma',
+      color: 'yellow',
+      documents: {
+        license: true,
+        insurance: false,
+        registration: false
+      }
+    },
+    {
+      id: 5,
+      name: 'Samuel Mensah',
+      type: 'Taxi partagé',
+      vehicle: 'Hyundai Elantra',
+      plate: 'QR-567-ST',
+      phone: '+33 6 43 21 98 76',
+      email: 'samuel.mensah@email.com',
+      joinDate: '2024-03-28',
+      lastActive: '2024-11-20 12:45',
+      trips: 203,
+      rating: 4.7,
+      earnings: 11200,
+      status: 'active',
+      verification: 'verified',
+      city: 'Accra',
+      zone: 'Osu',
+      color: 'green',
+      documents: {
+        license: true,
+        insurance: true,
+        registration: true
+      }
+    },
+    {
+      id: 6,
+      name: 'Mariam Diallo',
+      type: 'Voiture privée',
+      vehicle: 'Peugeot 3008',
+      plate: 'UV-890-WX',
+      phone: '+33 7 65 43 21 09',
+      email: 'mariam.diallo@email.com',
+      joinDate: '2024-05-15',
+      lastActive: '2024-11-19 22:10',
+      trips: 98,
+      rating: 4.2,
+      earnings: 5400,
+      status: 'inactive',
+      verification: 'pending',
+      city: 'Ouagadougou',
+      zone: 'Koulouba',
+      color: 'blue',
+      documents: {
+        license: true,
+        insurance: true,
+        registration: false
+      }
+    },
+    {
+      id: 7,
+      name: 'Youssef Benali',
+      type: 'Moto-taxi',
+      vehicle: 'Suzuki DR 200',
+      plate: 'YZ-123-AB',
+      phone: '+33 6 54 32 10 98',
+      email: 'youssef.benali@email.com',
+      joinDate: '2024-06-20',
+      lastActive: '2024-11-20 11:30',
+      trips: 178,
+      rating: 4.5,
+      earnings: 8900,
+      status: 'suspended',
+      verification: 'verified',
+      city: 'Casablanca',
+      zone: 'Maarif',
+      color: 'purple',
+      documents: {
+        license: true,
+        insurance: true,
+        registration: true
+      }
+    },
+    {
+      id: 8,
+      name: 'Grace Akinyi',
+      type: 'Taxi partagé',
+      vehicle: 'Toyota RAV4',
+      plate: 'CD-456-EF',
+      phone: '+33 7 89 01 23 45',
+      email: 'grace.akinyi@email.com',
+      joinDate: '2024-02-10',
+      lastActive: '2024-11-20 08:15',
+      trips: 265,
+      rating: 4.8,
+      earnings: 14300,
+      status: 'active',
+      verification: 'verified',
+      city: 'Nairobi',
+      zone: 'Westlands',
+      color: 'green',
+      documents: {
+        license: true,
+        insurance: true,
+        registration: true
+      }
+    },
+  ];
 
   // Configuration des filtres
   const filterOptions = {
@@ -123,52 +259,105 @@ const Drivers = ({ showToast }) => {
   // Initialisation des données
   // TODO API (admin/chauffeurs):
   // Remplacer le setTimeout par un appel backend pour charger les chauffeurs
+  useEffect(() => {
+    const loadDrivers = async () => {
+      setLoading(true);
+      await new Promise(resolve => setTimeout(resolve, 100));
+      setDrivers(initialDrivers);
+      setFilteredDrivers(initialDrivers);
+      setLoading(false);
+    };
 
-  // Stats mappées pour l'UI
+    loadDrivers();
+  }, []);
+
+  // Stats calculées
   const stats = useMemo(() => {
-    if (!statsData) return [];
+    const activeDrivers = drivers.filter(d => d.status === 'active').length;
+    const inactiveDrivers = drivers.filter(d => d.status === 'inactive').length;
+    const suspendedDrivers = drivers.filter(d => d.status === 'suspended').length;
+    const verifiedDrivers = drivers.filter(d => d.verification === 'verified').length;
+    const pendingDrivers = drivers.filter(d => d.verification === 'pending').length;
+    const totalTrips = drivers.reduce((sum, driver) => sum + driver.trips, 0);
+    const totalEarnings = drivers.reduce((sum, driver) => sum + driver.earnings, 0);
+    const averageRating = drivers.length > 0
+      ? (drivers.reduce((sum, driver) => sum + driver.rating, 0) / drivers.length).toFixed(1)
+      : '0.0';
 
     return [
       {
         title: 'Chauffeurs actifs',
-        value: statsData.chauffeursActifs?.toString() || '0',
+        value: activeDrivers.toString(),
         icon: User,
         color: 'green',
-        trend: 'stable',
-        percentage: 0,
-        progress: 100,
-        description: `Totalité des chauffeurs actifs`,
+        trend: activeDrivers > 3 ? 'up' : 'stable',
+        percentage: drivers.length ? Math.round((activeDrivers / drivers.length) * 100) : 0,
+        progress: drivers.length ? Math.round((activeDrivers / drivers.length) * 100) : 0,
+        description: `${activeDrivers} sur ${drivers.length} chauffeurs`,
       },
       {
-        title: 'Revenus du jour',
-        value: `${(statsData.revenusDuJour || 0).toLocaleString()} fg`,
+        title: 'Revenus totaux',
+        value: `${totalEarnings.toLocaleString()} fg`,
         icon: Car,
         color: 'blue',
         trend: 'up',
-        percentage: 0,
+        percentage: 12,
         progress: 65,
-        description: 'Cumul des gains aujourd\'hui',
+        description: 'Cumul des gains',
       },
       {
         title: 'Trajets effectués',
-        value: statsData.trajetsDuJour?.toString() || '0',
-        icon: Car,
+        value: totalTrips.toString(),
+        icon: CarIcon,
         color: 'purple',
         trend: 'up',
-        percentage: 0,
+        percentage: 8,
         progress: 85,
-        description: 'Total des courses aujourd\'hui',
+        description: 'Total des courses',
       }
     ];
-  }, [statsData]);
+  }, [drivers]);
 
   // Filtrage et recherche
-  // Filtrage local désactivé au profit du filtrage API
-  // mais on garde les états synchronisés pour l'UI
   useEffect(() => {
-    if (!drivers.length) return;
-    setCurrentPage(1);
-  }, [searchTerm, selectedFilters]);
+    let result = [...drivers];
+
+    // Recherche textuelle
+    if (searchTerm) {
+      const term = searchTerm.toLowerCase();
+      result = result.filter(driver =>
+        driver.name.toLowerCase().includes(term) ||
+        driver.phone.toLowerCase().includes(term) ||
+        driver.email.toLowerCase().includes(term) ||
+        driver.city.toLowerCase().includes(term) ||
+        driver.vehicle.toLowerCase().includes(term) ||
+        driver.plate.toLowerCase().includes(term)
+      );
+    }
+
+    // Filtres par statut
+    if (selectedFilters.status && selectedFilters.status !== 'all') {
+      result = result.filter(driver => driver.status === selectedFilters.status);
+    }
+
+    // Filtres par vérification
+    if (selectedFilters.verification && selectedFilters.verification !== 'all') {
+      result = result.filter(driver => driver.verification === selectedFilters.verification);
+    }
+
+    // Filtres par type de véhicule
+    if (selectedFilters.type && selectedFilters.type !== 'all') {
+      result = result.filter(driver => driver.type === selectedFilters.type);
+    }
+
+    // Filtres par ville
+    if (selectedFilters.city && selectedFilters.city !== 'all') {
+      result = result.filter(driver => driver.city.toLowerCase() === selectedFilters.city);
+    }
+
+    setFilteredDrivers(result);
+    setCurrentPage(1); // Reset à la première page après filtrage
+  }, [searchTerm, selectedFilters, drivers]);
 
   // Gestion de la pagination
   const paginatedDrivers = useMemo(() => {
@@ -199,17 +388,9 @@ const Drivers = ({ showToast }) => {
     setCurrentPage(1);
   };
 
-  const handleViewDriver = async (driver) => {
-    try {
-      const response = await adminService.getDriverDetails(driver.id);
-      if (response.data.succes) {
-        setSelectedDriver(response.data.chauffeur);
-        setIsDetailModalOpen(true);
-      }
-    } catch (error) {
-      console.error('Erreur détails chauffeur:', error);
-      showToast('Erreur', 'Impossible de charger les détails', 'error');
-    }
+  const handleViewDriver = (driver) => {
+    setSelectedDriver(driver);
+    setIsDetailModalOpen(true);
   };
 
   const clearFilters = () => {
@@ -234,23 +415,23 @@ const Drivers = ({ showToast }) => {
   };
 
   // Fonctions pour les badges
-  const getStatusBadge = (statut) => {
-    switch (statut) {
-      case 'ACTIF':
+  const getStatusBadge = (status) => {
+    switch (status) {
+      case 'active':
         return (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
             <span className="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
             Actif
           </span>
         );
-      case 'INACTIF':
+      case 'inactive':
         return (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-50 dark:bg-gray-800 text-gray-700 dark:text-gray-200">
             <span className="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
             Inactif
           </span>
         );
-      case 'SUSPENDU':
+      case 'suspended':
         return (
           <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">
             <span className="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>
@@ -258,29 +439,36 @@ const Drivers = ({ showToast }) => {
           </span>
         );
       default:
-        return (
-          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-50 text-gray-700">
-            {statut}
-          </span>
-        );
+        return null;
     }
   };
 
-  const getVerificationBadge = (verifie) => {
-    if (verifie) {
-      return (
-        <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
-          <CheckCircle className="w-3 h-3 mr-1" />
-          Vérifié
-        </span>
-      );
+  const getVerificationBadge = (verification) => {
+    switch (verification) {
+      case 'verified':
+        return (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-50 text-green-700">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Vérifié
+          </span>
+        );
+      case 'pending':
+        return (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700">
+            <Clock className="w-3 h-3 mr-1" />
+            En attente
+          </span>
+        );
+      case 'rejected':
+        return (
+          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-700">
+            <XCircle className="w-3 h-3 mr-1" />
+            Rejeté
+          </span>
+        );
+      default:
+        return null;
     }
-    return (
-      <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-yellow-50 text-yellow-700">
-        <Clock className="w-3 h-3 mr-1" />
-        En attente
-      </span>
-    );
   };
 
   const getTypeBadge = (type) => {
@@ -297,73 +485,31 @@ const Drivers = ({ showToast }) => {
     );
   };
 
-  const getDocBadge = (status) => {
-    switch (status) {
-      case 'VALIDE':
-        return (
-          <div className="bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-900/30 rounded-lg p-3 transition-all hover:shadow-sm">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <CheckCircle className="w-4 h-4" />
-              <span className="text-[10px] font-bold tracking-tight">VALIDE</span>
-            </div>
-          </div>
-        );
-      case 'EXPIRE':
-        return (
-          <div className="bg-orange-50 dark:bg-orange-900/20 text-orange-700 dark:text-orange-400 border border-orange-100 dark:border-orange-900/30 rounded-lg p-3 transition-all hover:shadow-sm">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <Clock className="w-4 h-4" />
-              <span className="text-[10px] font-bold tracking-tight">EXPIRÉ</span>
-            </div>
-          </div>
-        );
-      case 'VERIFIER':
-        return (
-          <div className="bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-400 border border-blue-100 dark:border-blue-900/30 rounded-lg p-3 transition-all hover:shadow-sm">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <RefreshCw className="w-4 h-4 animate-spin-slow" />
-              <span className="text-[10px] font-bold tracking-tight">EN COURS</span>
-            </div>
-          </div>
-        );
-      case 'REFUSE':
-        return (
-          <div className="bg-rose-50 dark:bg-rose-900/20 text-rose-700 dark:text-rose-400 border border-rose-100 dark:border-rose-900/30 rounded-lg p-3 transition-all hover:shadow-sm">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <XCircle className="w-4 h-4" />
-              <span className="text-[10px] font-bold tracking-tight">REFUSÉ</span>
-            </div>
-          </div>
-        );
-      default:
-        return (
-          <div className="bg-gray-50 dark:bg-gray-800/40 text-gray-400 dark:text-gray-500 border border-gray-100 dark:border-gray-800/50 rounded-lg p-3">
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <Ban className="w-4 h-4" />
-              <span className="text-[10px] font-bold tracking-tight uppercase">Manquant</span>
-            </div>
-          </div>
-        );
-    }
-  };
-
   // Colonnes d'export (utilisées par <ExportDropdown />)
   const exportColumns = useMemo(() => ([
     { header: 'Nom', accessor: 'name' },
     { header: 'Email', accessor: 'email' },
     { header: 'Téléphone', accessor: 'phone' },
+    { header: 'Ville', accessor: 'city' },
+    { header: 'Zone', accessor: 'zone' },
     { header: 'Type', accessor: 'type' },
     { header: 'Véhicule', accessor: 'vehicle' },
     { header: 'Plaque', accessor: 'plate' },
     {
       header: 'Statut',
-      accessor: 'statut',
-      formatter: (v) => (v === 'ACTIF' ? 'Actif' : v === 'INACTIF' ? 'Inactif' : v === 'SUSPENDU' ? 'Suspendu' : v ?? ''),
+      accessor: 'status',
+      formatter: (v) => (v === 'active' ? 'Actif' : v === 'inactive' ? 'Inactif' : v === 'suspended' ? 'Suspendu' : v ?? ''),
+    },
+    {
+      header: 'Vérification',
+      accessor: 'verification',
+      formatter: (v) => (v === 'verified' ? 'Vérifié' : v === 'pending' ? 'En attente' : v === 'rejected' ? 'Rejeté' : v ?? ''),
     },
     { header: 'Trajets', accessor: 'trips', formatter: (v) => v ?? 0 },
     { header: 'Note', accessor: 'rating', formatter: (v) => v ?? '-' },
-    { header: 'Gains (GNF)', accessor: 'earnings', formatter: (v) => (v ?? 0).toLocaleString() },
-    { header: 'Inscription', accessor: 'joinDate', formatter: (v) => formatDate(v) },
+    { header: 'Gains (GNF)', accessor: 'earnings', formatter: (v) => (v ?? 0) },
+    { header: 'Inscription', accessor: 'joinDate', formatter: (v) => v ?? '-' },
+    { header: 'Dernière activité', accessor: 'lastActive', formatter: (v) => v ?? '-' },
   ]), []);
 
   // Compte des filtres actifs
@@ -381,7 +527,6 @@ const Drivers = ({ showToast }) => {
         confirmText={confirmationModal.confirmText}
         confirmVariant={confirmationModal.confirmVariant}
         type={confirmationModal.type}
-        loading={isLoading}
       />
 
       {/* Modale de détails du chauffeur */}
@@ -395,24 +540,18 @@ const Drivers = ({ showToast }) => {
           <div className="space-y-6 scroll-m-t-2 overflow-auto h-[70vh] pr-2">
             {/* En-tête du chauffeur */}
             <div className="flex items-center space-x-4">
-              <div className={`w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-green-500 to-blue-700 flex items-center justify-center`}>
-                {selectedDriver.photoUrl ? (
-                  <img src={selectedDriver.photoUrl} alt="" className="w-full h-full object-cover" />
-                ) : (
-                  <span className="text-white text-xl font-bold">
-                    {getInitials(selectedDriver.name || `${selectedDriver.prenom} ${selectedDriver.nom}`)}
-                  </span>
-                )}
+              <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-green-500 to-blue-700 flex items-center justify-center`}>
+                <span className="text-white text-xl font-bold">
+                  {getInitials(selectedDriver.name)}
+                </span>
               </div>
               <div>
-                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">
-                  {selectedDriver.name || `${selectedDriver.prenom} ${selectedDriver.nom}`}
-                </h3>
+                <h3 className="text-lg font-bold text-gray-800 dark:text-gray-100">{selectedDriver.name}</h3>
                 <p className="text-gray-500 dark:text-gray-400 text-sm">{selectedDriver.email}</p>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {getStatusBadge(selectedDriver.statut)}
-                  {getVerificationBadge(selectedDriver.verifie || selectedDriver.statut === 'ACTIF')}
-                  {getTypeBadge(selectedDriver.type || selectedDriver.typeChauffeur)}
+                  {getStatusBadge(selectedDriver.status)}
+                  {getVerificationBadge(selectedDriver.verification)}
+                  {getTypeBadge(selectedDriver.type)}
                 </div>
               </div>
             </div>
@@ -421,16 +560,16 @@ const Drivers = ({ showToast }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-4 border-t border-gray-200 dark:border-gray-900 ms-8">
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Téléphone</p>
-                <p className="font-medium">{selectedDriver.phone || selectedDriver.telephone}</p>
+                <p className="font-medium">{selectedDriver.phone}</p>
               </div>
 
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Inscription</p>
-                <p className="font-medium">{formatDate(selectedDriver.joinDate || selectedDriver.inscritLe)}</p>
+                <p className="font-medium">{formatDate(selectedDriver.joinDate)}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-500 dark:text-gray-400">Dernière activité</p>
-                <p className="font-medium">{selectedDriver.derniereActivite ? formatDate(selectedDriver.derniereActivite) : 'Indisponible'}</p>
+                <p className="font-medium">{selectedDriver.lastActive}</p>
               </div>
             </div>
 
@@ -438,51 +577,35 @@ const Drivers = ({ showToast }) => {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Véhicule</p>
-                <p className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">
-                  {selectedDriver.vehicle || selectedDriver.vehicule?.marque}
-                </p>
-                <p className="text-gray-600 dark:text-gray-300">
-                  {selectedDriver.plate || selectedDriver.vehicule?.plaque}
-                </p>
+                <p className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-1">{selectedDriver.vehicle}</p>
+                <p className="text-gray-600 dark:text-gray-300">{selectedDriver.plate}</p>
               </div>
               <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4">
                 <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">Note moyenne</p>
                 <div className="flex items-center">
                   <Star className="w-5 h-5 text-yellow-400 fill-current" />
-                  <span className="ml-2 text-2xl font-bold text-gray-800 dark:text-gray-100">
-                    {selectedDriver.rating || selectedDriver.stats?.noteMoyenne || '0'}
-                  </span>
+                  <span className="ml-2 text-2xl font-bold text-gray-800 dark:text-gray-100">{selectedDriver.rating}</span>
                   <span className="ml-2 text-gray-500 dark:text-gray-400">/5</span>
                 </div>
-                <p className="text-gray-600 dark:text-gray-300 mt-1">
-                  {selectedDriver.trips || selectedDriver.stats?.nombreTrajets || '0'} trajets effectués
-                </p>
+                <p className="text-gray-600 dark:text-gray-300 mt-1">{selectedDriver.trips} trajets effectués</p>
               </div>
             </div>
 
             {/* Documents */}
             <div className="pt-4 border-t border-gray-200 dark:border-gray-900">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-4">Documents du chauffeur</p>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                <div className="text-center">
-                  {getDocBadge(selectedDriver.documents?.permis)}
-                  <p className="text-[10px] mt-1.5 font-medium text-gray-500 uppercase tracking-wider">Permis</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">Documents</p>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <div className={`text-center p-3 rounded-lg ${selectedDriver.documents?.license ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  <p className="text-sm font-medium">Permis de conduire</p>
+                  <p className="text-sm mt-1">{selectedDriver.documents?.license ? '✓ Valide' : '✗ Manquant'}</p>
                 </div>
-                <div className="text-center">
-                  {getDocBadge(selectedDriver.documents?.assurance)}
-                  <p className="text-[10px] mt-1.5 font-medium text-gray-500 uppercase tracking-wider">Assurance</p>
+                <div className={`text-center p-3 rounded-lg ${selectedDriver.documents?.insurance ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  <p className="text-sm font-medium">Assurance</p>
+                  <p className="text-sm mt-1">{selectedDriver.documents?.insurance ? '✓ Valide' : '✗ Manquant'}</p>
                 </div>
-                <div className="text-center">
-                  {getDocBadge(selectedDriver.documents?.carteGrise)}
-                  <p className="text-[10px] mt-1.5 font-medium text-gray-500 uppercase tracking-wider">Carte grise</p>
-                </div>
-                <div className="text-center">
-                  {getDocBadge(selectedDriver.documents?.identite)}
-                  <p className="text-[10px] mt-1.5 font-medium text-gray-500 uppercase tracking-wider">Identité</p>
-                </div>
-                <div className="text-center">
-                  {getDocBadge(selectedDriver.documents?.photoVehicule)}
-                  <p className="text-[10px] mt-1.5 font-medium text-gray-500 uppercase tracking-wider">Photo Véhicule</p>
+                <div className={`text-center p-3 rounded-lg ${selectedDriver.documents?.registration ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                  <p className="text-sm font-medium">Carte grise</p>
+                  <p className="text-sm mt-1">{selectedDriver.documents?.registration ? '✓ Valide' : '✗ Manquant'}</p>
                 </div>
               </div>
             </div>
@@ -492,7 +615,7 @@ const Drivers = ({ showToast }) => {
               <p className="text-sm font-medium text-gray-700 dark:text-gray-200 mb-3">Revenus totaux</p>
               <div className="bg-green-50 rounded-xl p-4 text-center">
                 <p className="text-3xl font-bold text-green-700">
-                  GNF {(selectedDriver.earnings || selectedDriver.revenus?.totalGagne || 0).toLocaleString()}
+                  GNF {selectedDriver.earnings?.toLocaleString() || '0'}
                 </p>
                 <p className="text-green-600 mt-1">Total gagné sur la plateforme</p>
               </div>
@@ -501,19 +624,13 @@ const Drivers = ({ showToast }) => {
             {/* Actions */}
             <div className="pt-4 border-t border-gray-200 dark:border-gray-900 flex justify-end space-x-3">
               <Button
-                variant="outline"
-                onClick={() => setIsDetailModalOpen(false)}
-              >
-                Quitter
-              </Button>
-              <Button
                 variant="secondary"
                 onClick={() => {
                   setIsDetailModalOpen(false);
-                  openStatusModal(selectedDriver, selectedDriver.statut === 'ACTIF' ? 'deactivate' : 'activate');
+                  openStatusModal(selectedDriver, selectedDriver.status === 'active' ? 'deactivate' : 'activate');
                 }}
               >
-                {selectedDriver.statut === 'ACTIF' ? 'Désactiver' : 'Activer'}
+                {selectedDriver.status === 'active' ? 'Désactiver' : 'Activer'}
               </Button>
               <Button
                 variant="danger"
@@ -673,21 +790,16 @@ const Drivers = ({ showToast }) => {
                   <Card hoverable className="p-6">
                     <div className="flex items-center justify-between  mb-4">
                       <div className="flex items-center">
-                        <div className={`w-16 h-16 rounded-full overflow-hidden bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center mr-4`}>
-                          {driver.photoUrl ? (
-                            <img src={driver.photoUrl} alt="" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-white text-xl font-bold">
-                              {getInitials(driver.name)}
-                            </span>
-                          )}
+                        <div className={`w-16 h-16 rounded-full bg-gradient-to-br from-green-400 to-blue-500 flex items-center justify-center mr-4`}>
+                          <span className="text-white text-xl font-bold">
+                            {getInitials(driver.name)}
+                          </span>
                         </div>
                         <div className="min-w-0">
                           <h4 className="font-bold text-gray-800 dark:text-gray-100 truncate">{driver.name}</h4>
                           <div className="flex flex-wrap gap-1.5 mt-1">
-                            {getStatusBadge(driver.statut)}
-                            {getVerificationBadge(driver.statut === 'ACTIF')}
-                            {getTypeBadge(driver.type)}
+                            {getStatusBadge(driver.status)}
+                            {/* {getVerificationBadge(driver.verification)} */}
                           </div>
                         </div>
                       </div>
@@ -725,8 +837,8 @@ const Drivers = ({ showToast }) => {
                         <span className="truncate">{driver.phone}</span>
                       </div>
                       <div className="flex items-center flex-shrink-0 ml-2">
-                        <Mail className="w-4 h-4 mr-1.5" />
-                        <span className="truncate text-xs">{driver.email?.split('@')[0]}...</span>
+                        <MapPin className="w-4 h-4 mr-1.5" />
+                        <span className="truncate">{driver.city}</span>
                       </div>
                     </div>
 
@@ -751,7 +863,7 @@ const Drivers = ({ showToast }) => {
                           className="p-2"
                         />
 
-                        {driver.statut !== 'ACTIF' && (
+                        {driver.status !== 'active' && (
                           <Button
                             variant="secondary"
                             size="small"
@@ -762,7 +874,7 @@ const Drivers = ({ showToast }) => {
                           />
                         )}
 
-                        {driver.statut !== 'INACTIF' && (
+                        {driver.status !== 'inactive' && (
                           <Button
                             variant="secondary"
                             size="small"
@@ -773,7 +885,7 @@ const Drivers = ({ showToast }) => {
                           />
                         )}
 
-                        {driver.statut !== 'SUSPENDU' && (
+                        {driver.status !== 'suspended' && (
                           <Button
                             variant="secondary"
                             size="small"
@@ -791,14 +903,14 @@ const Drivers = ({ showToast }) => {
             </div>
 
             {/* Pagination */}
-            {totalItems > pageSize && (
+            {filteredDrivers.length > pageSize && (
               <div className="mt-6">
                 <Pagination
                   currentPage={currentPage}
-                  totalPages={Math.ceil(totalItems / pageSize)}
+                  totalPages={Math.ceil(filteredDrivers.length / pageSize)}
                   onPageChange={handlePageChange}
                   pageSize={pageSize}
-                  totalItems={totalItems}
+                  totalItems={filteredDrivers.length}
                 />
               </div>
             )}

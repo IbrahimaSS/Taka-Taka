@@ -1,11 +1,8 @@
 // src/pages/Profile.jsx
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { User, Camera, Calendar, Phone, Mail, MapPin, Shield, Award, Crown, CheckCircle, Clock, Star, CreditCard, Users, Lock, LogOut, Radar, Eye, EyeOff, X, Key } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { usePassenger } from '../../context/PassengerContext';
-import { useAuth } from '../../context/AuthContext';
-import { profileService } from '../../services/profileService';
 import toast from 'react-hot-toast';
 
 // Composants réutilisables
@@ -17,46 +14,26 @@ import Badge from '../admin/ui/Badge';
 import Switch from '../admin/ui/Switch';
 
 const Profile = () => {
-  const navigate = useNavigate();
-  const { passenger, isLoadingProfile, updatePassenger: updateContextPassenger } = usePassenger();
-  const { user, updateUser, logout } = useAuth();
+  const { passenger, updatePassenger, isLoadingProfile } = usePassenger();
   const [isEditing, setIsEditing] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-
   const [profileData, setProfileData] = useState({
-    name: user?.prenom && user?.nom ? `${user.prenom} ${user.nom}` : (user?.nom || passenger?.name || 'Passager'),
-    prenom: user?.prenom || passenger?.prenom || '',
-    nom: user?.nom || passenger?.nom || '',
-    phone: user?.telephone || passenger?.phone || '',
-    email: user?.email || passenger?.email || '',
-    avatar: user?.photoUrl || user?.avatar || passenger?.avatar || null,
-    localisation: user?.localisation || passenger?.localisation || '',
-    address: user?.adresse || passenger?.address || '',
+    name: '',
+    phone: '',
+    email: '',
+    avatar: '',
+    rating: '5.0',
+    address: '',
+    ...passenger
   });
 
-  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-  useEffect(() => {
-    if (user) {
-      setProfileData(prev => ({
-        ...prev,
-        name: user.prenom && user.nom ? `${user.prenom} ${user.nom}` : (user.nom || 'Passager'),
-        prenom: user.prenom || '',
-        nom: user.nom || '',
-        email: user.email || '',
-        phone: user.telephone || '',
-        avatar: user.photoUrl || user.avatar || null,
-        localisation: user.localisation || '',
-        address: user.adresse || '',
-      }));
-    } else if (passenger) {
-      setProfileData(prev => ({
-        ...prev,
+  React.useEffect(() => {
+    if (passenger) {
+      setProfileData({
         ...passenger,
-        name: passenger.name || `${passenger.prenom || ''} ${passenger.nom || ''}`.trim() || 'Passager',
-      }));
+        name: passenger.name || `${passenger.prenom || ''} ${passenger.nom || ''}`.trim() || 'Utilisateur',
+      });
     }
-  }, [user, passenger]);
+  }, [passenger]);
 
   const fileInputRef = useRef(null);
 
@@ -91,8 +68,6 @@ const Profile = () => {
   ];
 
   // Gestion de l'upload de photo
-  const [avatarFile, setAvatarFile] = useState(null);
-
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -110,65 +85,15 @@ const Profile = () => {
     const reader = new FileReader();
     reader.onloadend = () => {
       setProfileData(prev => ({ ...prev, avatar: reader.result }));
-      setAvatarFile(file);
-      toast.success('Image prête à être enregistrée !');
+      toast.success('Photo de profil mise à jour !');
     };
     reader.readAsDataURL(file);
   };
 
-  const handleSave = async () => {
-    setIsSaving(true);
-    try {
-      let response;
-      const nom = profileData.nom || '';
-      const prenom = profileData.prenom || '';
-
-      if (avatarFile) {
-        const formData = new FormData();
-        formData.append('photoUrl', avatarFile);
-        formData.append('nom', nom);
-        formData.append('prenom', prenom);
-        formData.append('email', profileData.email);
-        formData.append('telephone', profileData.phone);
-        formData.append('localisation', profileData.localisation);
-        formData.append('adresse', profileData.address);
-
-        response = await profileService.passager.updateProfileWithPhoto(formData);
-      } else {
-        const updateData = {
-          nom,
-          prenom,
-          email: profileData.email,
-          telephone: profileData.phone,
-          localisation: profileData.localisation,
-          adresse: profileData.address,
-        };
-        response = await profileService.passager.updateProfile(updateData);
-      }
-
-      if (response.data?.succes) {
-        const updatedUser = response.data.utilisateur;
-
-        if (updateUser) {
-          updateUser(updatedUser);
-        }
-
-        if (updateContextPassenger) {
-          updateContextPassenger(updatedUser);
-        }
-
-        setAvatarFile(null);
-        toast.success('Profil mis à jour avec succès !');
-        setIsEditing(false);
-      } else {
-        toast.error(response.data?.message || 'Erreur lors de la mise à jour');
-      }
-    } catch (error) {
-      console.error('Erreur mise à jour profil passager:', error);
-      toast.error(error.response?.data?.message || 'Erreur lors de la mise à jour du profil');
-    } finally {
-      setIsSaving(false);
-    }
+  const handleSave = () => {
+    updatePassenger(profileData);
+    setIsEditing(false);
+    toast.success('Profil mis à jour avec succès !');
   };
 
   // Gestion du changement de mot de passe
@@ -198,46 +123,15 @@ const Profile = () => {
     setIsChangingPassword(true);
 
     try {
-      const response = await profileService.passager.changePassword({
-        motDePasseActuel: currentPassword,
-        nouveauMotDePasse: newPassword,
-        confirmationMotDePasse: confirmPassword
-      });
-
-      if (response.data?.succes) {
-        toast.success(response.data.message || 'Mot de passe modifié avec succès !');
-        setPasswordData({
-          currentPassword: '',
-          newPassword: '',
-          confirmPassword: '',
-        });
-        setShowPasswordModal(false);
-
-        if (response.data.forceLogout && logout) {
-          toast.loading('Déconnexion en cours...');
-          setTimeout(async () => {
-            await logout();
-            navigate('/connexion');
-          }, 2000);
-        }
-      } else {
-        toast.error(response.data?.message || 'Erreur lors de la modification du mot de passe');
-      }
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.success('Mot de passe modifié avec succès !');
+      setShowPasswordModal(false);
+      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
     } catch (error) {
-      console.error('Erreur changement mot de passe:', error);
-      toast.error(error.response?.data?.message || 'Erreur lors de la modification du mot de passe');
+      toast.error('Erreur lors du changement de mot de passe');
     } finally {
       setIsChangingPassword(false);
     }
-  };
-
-  const getImageUrl = (avatar) => {
-    if (!avatar) return null;
-    if (avatar.startsWith("data:") || avatar.startsWith("http")) return avatar;
-
-    const baseUrl = API_URL.replace(/\/api$/, '');
-    const cleanPath = avatar.startsWith('/') ? avatar : `/${avatar}`;
-    return `${baseUrl}${cleanPath}`;
   };
 
   if (isLoadingProfile) {
@@ -276,29 +170,25 @@ const Profile = () => {
             <div className="relative">
               <div className="w-32 h-32 rounded-full bg-gradient-to-br from-green-100 to-blue-200 dark:from-green-900/40 dark:to-blue-900/40 flex items-center justify-center shadow-lg overflow-hidden">
                 {profileData.avatar ? (
-                  <img src={getImageUrl(profileData.avatar)} alt="Profile" className="w-full h-full rounded-full object-cover" />
+                  <img src={profileData.avatar} alt="Profile" className="w-full h-full rounded-full object-cover" />
                 ) : (
                   <User className="w-16 h-16 text-blue-700 dark:text-blue-300" />
                 )}
               </div>
-              {isEditing && (
-                <>
-                  <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleImageUpload}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                  <button
-                    onClick={() => fileInputRef.current?.click()}
-                    className="absolute bottom-2 right-2 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-700 transition-colors"
-                    title="Changer la photo de profil"
-                  >
-                    < Camera className="w-5 h-5" />
-                  </button>
-                </>
-              )}
+              <input
+                type="file"
+                ref={fileInputRef}
+                onChange={handleImageUpload}
+                accept="image/*"
+                className="hidden"
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="absolute bottom-2 right-2 w-10 h-10 bg-green-600 text-white rounded-full flex items-center justify-center shadow-lg hover:bg-green-700 transition-colors"
+                title="Changer la photo de profil"
+              >
+                <Camera className="w-5 h-5" />
+              </button>
             </div>
 
             <div>
@@ -348,38 +238,22 @@ const Profile = () => {
               <CardContent>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">Prénom</label>
+                    <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">Nom</label>
                     {isEditing ? (
                       <input
                         type="text"
-                        value={profileData.prenom}
-                        onChange={(e) => setProfileData({ ...profileData, prenom: e.target.value })}
+                        value={profileData.name}
+                        onChange={(e) => setProfileData({ ...profileData, name: e.target.value })}
                         className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition"
                       />
                     ) : (
                       <div className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 font-medium">
-                        {profileData.prenom}
+                        {profileData.name}
                       </div>
                     )}
                   </div>
 
                   <div>
-                    <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">Nom</label>
-                    {isEditing ? (
-                      <input
-                        type="text"
-                        value={profileData.nom}
-                        onChange={(e) => setProfileData({ ...profileData, nom: e.target.value })}
-                        className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition"
-                      />
-                    ) : (
-                      <div className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 font-medium">
-                        {profileData.nom}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="md:col-span-2">
                     <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">Téléphone</label>
                     <div className="relative">
                       {isEditing ? (
@@ -418,19 +292,19 @@ const Profile = () => {
                   </div>
 
                   <div className="md:col-span-2">
-                    <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">Adresse / Localisation</label>
+                    <label className="block text-gray-700 dark:text-gray-300 font-medium mb-2">Adresse</label>
                     <div className="relative">
                       {isEditing ? (
                         <input
                           type="text"
-                          value={profileData.localisation || ''}
-                          onChange={(e) => setProfileData({ ...profileData, localisation: e.target.value })}
+                          value={profileData.address || ''}
+                          onChange={(e) => setProfileData({ ...profileData, address: e.target.value })}
                           className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-green-500/20 focus:border-green-500 outline-none transition pl-12"
-                          placeholder="Votre localisation"
+                          placeholder="Votre adresse"
                         />
                       ) : (
                         <div className="w-full px-4 py-3 border-2 border-gray-200 dark:border-gray-700 rounded-xl bg-gray-50 dark:bg-gray-800/50 text-gray-900 dark:text-gray-100 font-medium pl-12">
-                          {profileData.localisation || 'Non renseignée'}
+                          {profileData.address || 'Non renseignée'}
                         </div>
                       )}
                       <MapPin className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -516,7 +390,6 @@ const Profile = () => {
                     <Button
                       variant="primary"
                       onClick={handleSave}
-                      loading={isSaving}
                     >
                       Enregistrer
                     </Button>

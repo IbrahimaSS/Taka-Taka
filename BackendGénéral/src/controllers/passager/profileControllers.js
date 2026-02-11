@@ -1,6 +1,5 @@
 const Utilisateur = require("../../models/Utilisateurs");
 const { validationResult } = require("express-validator");
-const { deleteFile } = require("../../utils/fileUtils");
 
 /* ===================== PROFIL ===================== */
 
@@ -17,10 +16,7 @@ exports.getProfil = async (req, res) => {
                 email: utilisateur.email,
                 telephone: utilisateur.telephone,
                 genre: utilisateur.genre,
-                photoUrl: utilisateur.photoUrl || null,
-                avatar: utilisateur.photoUrl || null,
-                localisation: utilisateur.localisation || "",
-                adresse: utilisateur.adresse || "",
+                photo: utilisateur.photoUrl || null,
                 noteMoyenne: utilisateur.noteMoyenne || 0,
                 membreDepuis: utilisateur.createdAt,
 
@@ -60,8 +56,7 @@ exports.updateProfil = async (req, res) => {
             "email",
             "telephone",
             "genre",
-            "localisation",
-            "adresse"
+            "adresse",
         ];
 
         const donnees = {};
@@ -70,14 +65,6 @@ exports.updateProfil = async (req, res) => {
                 donnees[champ] = req.body[champ];
             }
         });
-
-        // Gestion de la photo de profil si elle est envoyée
-        if (req.file) {
-            if (req.utilisateur.photoUrl) {
-                deleteFile(req.utilisateur.photoUrl);
-            }
-            donnees.photoUrl = `/uploads/profiles/${req.file.filename}`;
-        }
 
         // Unicité email / téléphone
         if (donnees.email || donnees.telephone) {
@@ -106,20 +93,7 @@ exports.updateProfil = async (req, res) => {
         return res.status(200).json({
             succes: true,
             message: "Profil mis à jour avec succès",
-            utilisateur: {
-                id: utilisateurMisAJour._id,
-                nom: utilisateurMisAJour.nom,
-                prenom: utilisateurMisAJour.prenom,
-                email: utilisateurMisAJour.email,
-                telephone: utilisateurMisAJour.telephone,
-                role: utilisateurMisAJour.role,
-                genre: utilisateurMisAJour.genre,
-                photoUrl: utilisateurMisAJour.photoUrl,
-                avatar: utilisateurMisAJour.photoUrl,
-                photoProfil: utilisateurMisAJour.photoUrl,
-                localisation: utilisateurMisAJour.localisation,
-                adresse: utilisateurMisAJour.adresse
-            },
+            utilisateur: utilisateurMisAJour,
         });
     } catch (erreur) {
         return res.status(500).json({

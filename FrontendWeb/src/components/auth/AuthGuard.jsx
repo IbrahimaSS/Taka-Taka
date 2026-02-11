@@ -22,8 +22,8 @@ const AuthGuard = ({ children, allowedRoles = [] }) => {
     }
 
     if (!isAuthenticated) {
-        // Rediriger vers la page de connexion si non authentifié
-        return <Navigate to="/connexion" state={{ from: location }} replace />;
+        // Selon la demande : afficher 404 si non connecté
+        return <NotFound />;
     }
 
     if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
